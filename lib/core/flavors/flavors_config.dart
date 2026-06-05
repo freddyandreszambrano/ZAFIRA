@@ -1,14 +1,10 @@
 import 'package:flutter/foundation.dart';
 
-/// Entornos disponibles para builds de la app.
-///
-/// Cada entry point (`main_dev.dart`, `main_prod.dart`) llama
-/// `Flavor.setEnvironment(...)` antes de `runApp`. A partir de ahí, cualquier
-/// punto de la app puede leer `Flavor.server`, `Flavor.env`, etc.
+import '../../env/env.dart';
+
 enum Environment { dev, prod }
 
 extension EnvironmentX on Environment {
-  /// Etiqueta legible (se muestra en banners y debug screens).
   String get value {
     switch (this) {
       case Environment.dev:
@@ -18,7 +14,6 @@ extension EnvironmentX on Environment {
     }
   }
 
-  /// Sufijo para titles, app names, etc.
   String get suffix {
     switch (this) {
       case Environment.dev:
@@ -29,18 +24,6 @@ extension EnvironmentX on Environment {
   }
 }
 
-/// Configuración del flavor activo.
-///
-/// Los valores se inicializan en `setEnvironment(...)` al arrancar la app.
-/// Las URLs y API keys vienen de variables `--dart-define` cuando se proveen;
-/// si no, caen a los defaults declarados aquí.
-///
-/// Para overridear desde la CLI:
-/// ```
-/// flutter run -t lib/main/main_dev.dart \
-///   --dart-define=API_DEV=https://api-dev.zafira.com \
-///   --dart-define=GOOGLE_MAPS_KEY_DEV=AIza...
-/// ```
 class Flavor {
   Flavor._();
 
@@ -52,17 +35,6 @@ class Flavor {
   static String? _hereAppId;
   static String? _webAppUrl;
 
-  // ── Defaults por entorno (sobre-escribibles vía --dart-define) ────────
-  // Ajustá estos valores cuando tengas tus endpoints reales.
-  static const _apiDev = String.fromEnvironment(
-    'API_DEV',
-    defaultValue: 'https://api-dev.zafira.com',
-  );
-  static const _apiProd = String.fromEnvironment(
-    'API_PROD',
-    defaultValue: 'https://api.zafira.com',
-  );
-
   static const _webAppDev = String.fromEnvironment(
     'WEB_APP_DEV',
     defaultValue: 'https://app-dev.zafira.com',
@@ -71,12 +43,10 @@ class Flavor {
     'WEB_APP_PROD',
     defaultValue: 'https://app.zafira.com',
   );
-
   static const _hereAppIdDev = String.fromEnvironment('HERE_APP_ID_DEV');
   static const _hereAppIdProd = String.fromEnvironment('HERE_APP_ID_PROD');
   static const _hereMapKeyDev = String.fromEnvironment('HERE_MAP_KEY_DEV');
   static const _hereMapKeyProd = String.fromEnvironment('HERE_MAP_KEY_PROD');
-
   static const _googleAndroidDev =
       String.fromEnvironment('GOOGLE_MAPS_ANDROID_DEV');
   static const _googleAndroidProd =
@@ -86,12 +56,11 @@ class Flavor {
   static const _googleWebDev = String.fromEnvironment('GOOGLE_MAPS_WEB_DEV');
   static const _googleWebProd = String.fromEnvironment('GOOGLE_MAPS_WEB_PROD');
 
-  /// Activa un environment. Llamar UNA vez antes de `runApp`.
   static void setEnvironment(Environment env) {
     _env = env;
     switch (env) {
       case Environment.dev:
-        _baseUrl = _apiDev;
+        _baseUrl = Env.developEnv;
         _hereAppId = _hereAppIdDev;
         _hereMapApiKey = _hereMapKeyDev;
         _webAppUrl = _webAppDev;
@@ -100,9 +69,8 @@ class Flavor {
           android: _googleAndroidDev,
           ios: _googleIosDev,
         );
-        break;
       case Environment.prod:
-        _baseUrl = _apiProd;
+        _baseUrl = Env.productionEnv;
         _hereAppId = _hereAppIdProd;
         _hereMapApiKey = _hereMapKeyProd;
         _webAppUrl = _webAppProd;
@@ -111,7 +79,6 @@ class Flavor {
           android: _googleAndroidProd,
           ios: _googleIosProd,
         );
-        break;
     }
   }
 
@@ -125,7 +92,6 @@ class Flavor {
     return ios;
   }
 
-  // ── Getters públicos ──────────────────────────────────────────────────
   static String getByImageServer(String name) => '$server$name';
 
   static String? get server => _baseUrl;

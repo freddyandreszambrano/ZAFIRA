@@ -1,19 +1,15 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../core/flavors/flavors_config.dart';
 import '../core/helpers/app_colors.dart';
 import '../core/helpers/context_helper.dart';
 
-/// Inicialización compartida entre todos los flavors.
-///
-/// Llamar desde cada entry point (`main_dev.dart`, `main_prod.dart`) después
-/// de `Flavor.setEnvironment(...)`.
 Future<void> commonMain() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Status bar transparente para que el gradiente del theme se vea bien.
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -21,14 +17,12 @@ Future<void> commonMain() async {
     ),
   );
 
-  // TODO: agregar aquí Firebase.initializeApp() / Crashlytics / Riverpod
-  // (ver hey-support/lib/main/common_main.dart para referencia).
+  final packageInfo = await PackageInfo.fromPlatform();
+  Flavor.projectVersion = packageInfo.version;
 
   runApp(const ZafiraApp());
 }
 
-/// Root widget de la app — usa el [AppColorScheme] de ZAFIRA y, en `dev`,
-/// muestra un banner "DEV" para distinguir del build de producción.
 class ZafiraApp extends StatelessWidget {
   const ZafiraApp({super.key});
 
@@ -58,7 +52,6 @@ class ZafiraApp extends StatelessWidget {
   }
 }
 
-/// Pantalla placeholder — reemplazar por el router/home real cuando exista.
 class _FlavorHomeScreen extends StatelessWidget {
   const _FlavorHomeScreen();
 
@@ -94,6 +87,11 @@ class _FlavorHomeScreen extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               'API: ${Flavor.server ?? "(sin configurar)"}',
+              style: context.typography.bodyMuted,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'v${Flavor.projectVersionValue}',
               style: context.typography.bodyMuted,
             ),
           ],
