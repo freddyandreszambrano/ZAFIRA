@@ -1,0 +1,55 @@
+name: Flutter Test & Analyze
+
+# Reusable workflow — se invoca desde ci.yml (no corre por sí solo).
+# Fase de calidad: análisis estático + formato + tests con cobertura.
+on:
+  workflow_call:
+    inputs:
+      flutter-version:
+        description: Versión de Flutter a usar.
+        type: string
+        default: "3.35.0"
+
+jobs:
+  test:
+    name: Test & Analyze
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ inputs.flutter-version }}
+          channel: stable
+          cache: true
+
+      - name: Show Flutter version
+        run: flutter --version
+
+      - name: Prepare .env (placeholder for envied)
+        run: cp .env.example .env 2>/dev/null || echo "DEVELOP_ENV=https://api-dev.zafira.com" > .env
+
+      - name: Install deps
+        run: flutter pub get
+
+      - name: Generate Freezed / json_serializable / envied
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Analyze
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+
+      - name: Format check
+        run: dart format --output=none --set-exit-if-changed lib/ test/
+
+      - name: Run tests with coverage
+        run: flutter test --coverage --reporter expanded
+
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ github.sha }}
+          path: coverage/lcov.info
+          retention-days: 7
