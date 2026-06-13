@@ -78,7 +78,7 @@ Stack base (ver `ai/STACK.md` para versiones exactas):
 | 10 | **Codecov** para visualizar cobertura por PR | Hoy `lcov.info` queda como artifact; con Codecov salen los % en cada PR | secret en GH + step en `ci.yml` |
 | 11 | **Limpiar el archivo legacy `lib/core/constants/colors/app_colors.dart`** | Sigue con colores `#662D91` púrpura de hey-support — debería usar paleta ZAFIRA | actualizar valores o redirigir a `helpers/app_colors.dart` |
 | 12 | **FVM (Flutter Version Manager)** | Pinear Flutter 3.35.0 localmente (ya pinneado en CI). Útil si trabajás en >1 proyecto Flutter con versiones distintas | `.fvmrc` |
-| 13 | **Generar `AI_API_KEY` y configurarla** en GH Settings → Secrets | Sin esto el AI reviewer (#10 hecho) no corre — solo skipea con error | Settings → Secrets → Actions → `AI_API_KEY` |
+| 13 | **Activar GitHub Copilot code review** | Es la IA que revisa los PRs (reemplaza al reviewer de Gemini). Requiere Copilot Pro (gratis con GitHub Education) + habilitar el ruleset que pide review automática de Copilot | GH Settings → Rules → Rulesets |
 
 ### ✅ Hecho desde el último handoff
 - ~~CI/CD~~ → `.github/workflows/ci.yml` con 2 jobs (test + build).
@@ -87,7 +87,7 @@ Stack base (ver `ai/STACK.md` para versiones exactas):
 - ~~`analysis_options.yaml`~~ → espejo del de hey-support sin `dart_code_metrics`.
 - ~~`Makefile`~~ → 22 targets.
 - ~~`.gitignore`~~ → ignora `*.freezed.dart`, `*.g.dart`, `pubspec.lock`, Firebase credentials, etc.
-- ~~AI PR Reviewer~~ → `scripts/pr_review/reviewer.py` + `.github/workflows/ai-review.yml`. Falta solo setear el secret `AI_API_KEY` (ítem 13).
+- ~~AI PR Reviewer (Gemini)~~ → **eliminado**. Se reemplazó por **GitHub Copilot code review** (IA nativa de GH). Las reglas Zafira que aplicaba el prompt ahora viven en `.github/copilot-instructions.md` para que Copilot las haga cumplir. Falta solo activar Copilot en el repo (ítem 13).
 
 ---
 
