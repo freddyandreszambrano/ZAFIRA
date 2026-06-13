@@ -34,8 +34,7 @@ class DioHttpClient {
         onRequest: (options, handler) async {
           options.headers['Authorization'] =
               await localDataSource.getItem(AppStrings.keyTokenJwt);
-          options.headers['app-source'] =
-              kIsWeb ? 'zafira-web' : 'zafira-app';
+          options.headers['app-source'] = kIsWeb ? 'zafira-web' : 'zafira-app';
           options.headers['kIsWeb'] = kIsWeb.toString();
           options.headers['content-type'] = 'application/json';
           options.baseUrl = Flavor.server ?? '';

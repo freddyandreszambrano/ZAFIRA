@@ -1,0 +1,32 @@
+name: CI
+
+# Orquestador del pipeline. Define cuándo corre y en qué orden, delegando
+# cada fase a un reusable workflow (flutter-test.yml / flutter-build.yml).
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ── 1. Análisis estático + tests ──────────────────────────────────────
+  # Corre en todo PR y push a main/develop.
+  test:
+    name: Test & Analyze
+    uses: ./.github/workflows/flutter-test.yml
+    with:
+      flutter-version: "3.35.0"
+
+  # ── 2. Build verificación (no se publica) ─────────────────────────────
+  # Solo en push a main/develop y SOLO si la fase de test pasó (needs).
+  build:
+    name: Build APK (dry-run)
+    needs: test
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    uses: ./.github/workflows/flutter-build.yml
+    with:
+      flutter-version: "3.35.0"

@@ -2,7 +2,7 @@
 
 > Documento de traspaso. Léelo entero antes de tocar código si recién entrás al proyecto (o si abrís una nueva sesión con un agente IA).
 >
-> Última actualización: 2026-06-05
+> Última actualización: 2026-06-13
 
 ---
 
@@ -35,14 +35,30 @@ Stack base (ver `ai/STACK.md` para versiones exactas):
 - URLs / keys vía `--dart-define` (no envied todavía).
 
 ### Gobernanza IA (`ai/`)
-24 archivos `.md` portados desde `hey-support/ai/` y adaptados al dominio Zafira:
+26 archivos `.md` portados desde `hey-support/ai/` y adaptados al dominio Zafira:
+- `HANDOFF.md` (este archivo) — estado actual del proyecto.
 - `RULES.md`, `STACK.md`, `ARCHITECTURE.md`, `PATTERNS.md`, `CONVENTIONS.md` — referencia técnica.
 - `agents/` (debugger, formatter, reviewer) — instrucciones para IAs.
 - `commands/` (explain, fix, review) — workflows ejecutables.
 - `context/` (mobile, backend, infra) — estado actual del proyecto.
 - `governance/` (GLOBAL_RULES, LAYER_ENFORCEMENT, API_STANDARDS, ASYNC_HANDLING, INFRA_REQUIREMENTS) — reglas organizacionales.
-- `rules/` (architecture, api-contracts, code-style, testing) — reglas tácticas.
+- `rules/` (architecture, api-contracts, code-style, testing, **widget-design**) — reglas tácticas.
 - `README.md` — índice.
+
+### Calidad de código y tooling
+- `analysis_options.yaml` — espejo del de hey-support con `flutter_lints` + `prefer_relative_imports`, `require_trailing_commas`, `sort_constructors_first`. Excluye `*.g.dart` y `*.freezed.dart`.
+- `Makefile` — 22 targets (`make deps`, `make gen`, `make run-dev/prod`, `make build-apk-prod`, `make test`, `make ci-local`, etc.). Para correr cualquier comando rápido sin recordar la sintaxis de Flutter.
+- `.gitignore` — completo: ignora `*.freezed.dart`, `*.g.dart`, `pubspec.lock`, Firebase credentials, `GeneratedPluginRegistrant.java`, `.env.backup`.
+
+### CI/CD (GitHub Actions)
+- `.github/workflows/ci.yml` — pipeline equivalente al de hey-support en GitLab, con 2 jobs:
+  - **`test`** (todo PR + push): setup Flutter 3.35.0 → `pub get` → `build_runner` → `analyze` → `format check` → `flutter test --coverage` → sube `lcov.info` como artifact.
+  - **`build`** (solo push a `main`/`develop`): valida que la app compila APK debug (dev) o release (prod).
+
+### Tests (setup)
+- `test/widget_test.dart` — smoke test del `ZafiraApp`.
+- `test/helpers/http_test_dio.dart` — utilidades `stubDio()`, `stubDioOk()`, `stubDioError()` para mockear HTTP sin tocar red.
+- Patrón documentado en `ai/rules/testing.md`: `mocktail` + `ProviderContainer` con `overrides`.
 
 ---
 
@@ -59,9 +75,19 @@ Stack base (ver `ai/STACK.md` para versiones exactas):
 | 7 | **HTTP client wrapper (`DioHttpClient`)** con interceptors (auth header, retry, logging) | Centraliza requests y errores | `lib/core/http/` (a crear) |
 | 8 | **`ErrorExceptionHandler`** que traduce `DioException` → `Either<Exception, T>` | Patrón obligatorio en `ai/RULES.md` | `lib/core/error/` (a crear) |
 | 9 | **Migrar a `envied`** (opcional) | Para no pasar 10+ `--dart-define` en cada `flutter run` | `lib/env/env.dart` + `pubspec.yaml` |
-| 10 | **CI/CD** (GitHub Actions o GitLab CI) | Tests + analyze + build automático | `.github/workflows/` |
-| 11 | **Dockerfile.test** (si querés correr tests en contenedor) | Reproducibilidad del CI local | `Dockerfile.test` (estilo hey-support) |
-| 12 | **Limpiar el archivo legacy `lib/core/constants/colors/app_colors.dart`** | Sigue con colores `#662D91` púrpura de hey-support — debería usar paleta ZAFIRA | actualizar valores o redirigir a `helpers/app_colors.dart` |
+| 10 | **Codecov** para visualizar cobertura por PR | Hoy `lcov.info` queda como artifact; con Codecov salen los % en cada PR | secret en GH + step en `ci.yml` |
+| 11 | **Limpiar el archivo legacy `lib/core/constants/colors/app_colors.dart`** | Sigue con colores `#662D91` púrpura de hey-support — debería usar paleta ZAFIRA | actualizar valores o redirigir a `helpers/app_colors.dart` |
+| 12 | **FVM (Flutter Version Manager)** | Pinear Flutter 3.35.0 localmente (ya pinneado en CI). Útil si trabajás en >1 proyecto Flutter con versiones distintas | `.fvmrc` |
+| 13 | **Activar GitHub Copilot code review** | Es la IA que revisa los PRs (reemplaza al reviewer de Gemini). Requiere Copilot Pro (gratis con GitHub Education) + habilitar el ruleset que pide review automática de Copilot | GH Settings → Rules → Rulesets |
+
+### ✅ Hecho desde el último handoff
+- ~~CI/CD~~ → `.github/workflows/ci.yml` con 2 jobs (test + build).
+- ~~Setup de tests~~ → `test/widget_test.dart` + `test/helpers/http_test_dio.dart`. Patrón canónico en `ai/rules/testing.md`.
+- ~~Reglas de UI/widgets~~ → `ai/rules/widget-design.md` con 10 secciones (tokens, screens, estados, formularios, checklist pre-PR).
+- ~~`analysis_options.yaml`~~ → espejo del de hey-support sin `dart_code_metrics`.
+- ~~`Makefile`~~ → 22 targets.
+- ~~`.gitignore`~~ → ignora `*.freezed.dart`, `*.g.dart`, `pubspec.lock`, Firebase credentials, etc.
+- ~~AI PR Reviewer (Gemini)~~ → **eliminado**. Se reemplazó por **GitHub Copilot code review** (IA nativa de GH). Las reglas Zafira que aplicaba el prompt ahora viven en `.github/copilot-instructions.md` para que Copilot las haga cumplir. Falta solo activar Copilot en el repo (ítem 13).
 
 ---
 
