@@ -7,6 +7,7 @@ arquitectura, reglas, patrones y contexto que cualquier sesión debe cargar ante
 
 | Archivo            | Para qué                                                                |
 |--------------------|-------------------------------------------------------------------------|
+| `HANDOFF.md`       | Estado actual del proyecto, qué hay hecho, qué falta. **Léelo primero**. |
 | `RULES.md`         | Reglas duras del proyecto (capas, errores, estado, modelos, HTTP, etc.) |
 | `STACK.md`         | Inventario de dependencias y versiones (Flutter, Riverpod, Dio, etc.)   |
 | `ARCHITECTURE.md`  | Estructura de carpetas, capas por feature, flujo de datos, DI           |
@@ -21,7 +22,8 @@ Reglas atómicas por dominio — se cargan en el load order definido en `CONVENT
 - `architecture.md` — estructura de feature, responsabilidades por capa, routing, entornos
 - `code-style.md` — naming, modelos Freezed, controllers, Either, async
 - `api-contracts.md` — headers obligatorios, setup de Dio, contrato de service, base URLs
-- `testing.md` — estructura de tests, mocking de Dio, tests por capa
+- `testing.md` — estructura de tests, mocking de Dio, tests por capa (con `stubDio*` y `ProviderContainer`)
+- `widget-design.md` — reglas de UI: tokens del design system, screens, states, formularios
 
 ### `context/`
 Contexto vivo sobre el estado real del código y la infra.
@@ -55,4 +57,7 @@ Comandos invocables que orquestan un protocolo concreto.
 
 ## Load order recomendado
 
-Definido en `CONVENTIONS.md`. Antes de escribir código: `CONVENTIONS.md` → `rules/*` → `context/*`.
+Definido en `CONVENTIONS.md`. Antes de escribir código: `HANDOFF.md` → `CONVENTIONS.md` → `rules/*` → `context/*`.
+
+Si vas a tocar UI (screens, widgets): cargá obligatoriamente `rules/widget-design.md`.
+Si vas a tocar tests: cargá obligatoriamente `rules/testing.md`.
