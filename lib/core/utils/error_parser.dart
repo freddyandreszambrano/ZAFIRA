@@ -1,4 +1,3 @@
-
 import '../../modules/common/exceptions/server_exception.dart';
 
 String parseErrorMessage(dynamic err) {
