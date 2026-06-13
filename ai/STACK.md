@@ -108,7 +108,6 @@ Flutter (multiplatform) — version managed via FVM (pin in `.fvmrc` when added)
 | `image_picker`        | ^1.2.2  | Camera/gallery image selection   |
 | `camera`              | ^0.12.0 | Direct camera access             |
 | `flutter_doc_scanner` | ^0.0.20 | Document scanning                |
-| `pdfx`                | ^2.4.0  | PDF rendering                    |
 | `signature`           | ^6.3.0  | Digital signature capture canvas |
 | `photo_view`          | ^0.14.0 | Zoomable image viewer            |
 
