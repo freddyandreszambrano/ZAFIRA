@@ -5,7 +5,6 @@ class AppStrings {
   static const keyTokenJwt = "jwt";
   static const keyUser = "user";
   static const keyIsWeb = "is_web";
-  static const keyForcePasswordChange = "force_password_change";
   static const String keyDeviceId = "device_id";
 
   static const assigned = "Asignado";

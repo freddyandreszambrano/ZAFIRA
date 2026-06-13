@@ -29,6 +29,7 @@ migrate_working_dir/
 **/doc/api/
 **/ios/Flutter/.last_build_id
 .dart_tool/
+.flutter-plugins
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
@@ -48,3 +49,21 @@ app.*.map.json
 
 # FVM Version Cache
 .fvm/
+
+# Firebase credentials (sensitive — injected at CI time)
+**/GoogleService-Info.plist
+**/google-services.json
+/android/app/src/dev/google-services.json
+/android/app/src/prod/google-services.json
+
+# Freezed / json_serializable / envied — código generado por build_runner
+# (se regenera con `dart run build_runner build --delete-conflicting-outputs`)
+**/*.freezed.dart
+**/*.g.dart
+/pubspec.lock
+
+# Auto-generated Flutter plugin registrant (regenerated por `flutter pub get`)
+**/GeneratedPluginRegistrant.java
+
+# Local environment / secrets (fuente de envied)
+.env.backup
