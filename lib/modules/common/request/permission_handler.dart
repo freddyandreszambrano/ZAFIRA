@@ -10,7 +10,7 @@ import '../widget/notifications/app_notification.dart';
 Future<void> requestMultiplePermission(BuildContext context) async {
   await [
     Permission.storage,
-    Permission.camera,
+    // Permission.camera,
     Permission.notification,
   ].request();
 }

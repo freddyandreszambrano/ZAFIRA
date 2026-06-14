@@ -32,23 +32,29 @@ mixin LoginAuthMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
 
         try {
           await requestMultiplePermission(context);
-          if (!mounted) return;
-          final hasCameraPermission = await requestPermissionCamera(context);
-          if (!mounted) return;
-          final hasLocationPermission =
-              hasCameraPermission && await requestPermissionLocation(context);
-          if (!mounted) return;
-          final hasNotificationPermission = hasLocationPermission &&
-              await requestPermissionNotification(context);
-          if (!mounted) return;
-          if (hasNotificationPermission) {
-            context.go(HomeScreen.routeName);
-          }
+
+          // TODO: descomentar cuando se quieran solicitar los permisos uno por uno
+          // if (!mounted) return;
+          // final hasCameraPermission = await requestPermissionCamera(context);
+          // if (!mounted) return;
+          // final hasLocationPermission =
+          //     hasCameraPermission && await requestPermissionLocation(context);
+          // if (!mounted) return;
+          // final hasNotificationPermission = hasLocationPermission &&
+          //     await requestPermissionNotification(context);
+          // if (!mounted) return;
+          // if (hasNotificationPermission) {
+          //   context.go(HomeScreen.routeName);
+          // }
+
+          if (mounted) context.go(HomeScreen.routeName);
         } finally {
           _requesting = false;
         }
-      } else if ([ResponseStatus.error, ResponseStatus.success]
-              .contains(next.status) &&
+      } else if ([
+            ResponseStatus.error,
+            ResponseStatus.success,
+          ].contains(next.status) &&
           next.isTokenExist == false) {
         AppNotification.error(
           context,

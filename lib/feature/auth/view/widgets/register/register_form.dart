@@ -10,11 +10,11 @@ import '../../../../../modules/common/widget/notifications/app_notification.dart
 import '../../../domain/register_request.dart';
 import '../../controller/register_controller.dart';
 import '../../state/register_state.dart';
-import '../login/login_screen.dart';
-import '../shared/auth_gradient_button.dart';
+import '../../../../../modules/common/widget/buttons/app_gradient_button.dart';
 import '../shared/auth_text_field.dart';
 import '../shared/obscure_toggle_button.dart';
 import 'password_strength_indicator.dart';
+import 'register_success_screen.dart';
 
 class RegisterForm extends ConsumerStatefulWidget {
   const RegisterForm({super.key});
@@ -105,10 +105,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
 
     ref.listen<RegisterState>(registerControllerProvider, (previous, next) {
       if (next.status == ResponseStatus.success) {
-        AppNotification.success(context, 'Cuenta creada correctamente');
-        Future.delayed(const Duration(seconds: 2), () {
-          if (context.mounted) context.go(LoginScreen.routeName);
-        });
+        context.go(RegisterSuccessScreen.routeName);
       } else if (next.status == ResponseStatus.error) {
         AppNotification.error(
           context,
@@ -217,7 +214,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
             ),
           ),
           const Gap(separatorXLg),
-          AuthGradientButton(
+          AppGradientButton(
             label: 'Crear cuenta',
             isLoading: isLoading,
             onPressed: _submit,

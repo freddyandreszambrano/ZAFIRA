@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import '../../../../../core/helpers/context_helper.dart';
 
 class BrandWordmark extends StatelessWidget {
-  const BrandWordmark({super.key});
+  const BrandWordmark({this.style, super.key});
+
+  final TextStyle? style;
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +15,7 @@ class BrandWordmark extends StatelessWidget {
       shaderCallback: (bounds) => colors.gradientPrimary.createShader(bounds),
       child: Text(
         'Zafira',
-        style: context.typography.displayLarge?.copyWith(
+        style: (style ?? context.typography.displayLarge)?.copyWith(
           color: colors.white,
           fontWeight: FontWeight.w700,
         ),

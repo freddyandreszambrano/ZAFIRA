@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../../core/constants/app_numbers.dart';
 import '../../../../../core/enum/response_status.dart';
 import '../../../../../core/helpers/context_helper.dart';
-import '../../../../../modules/common/widget/notifications/app_notification.dart';
+import '../../../../../modules/common/widget/buttons/app_gradient_button.dart';
 import '../../controller/auth_controller.dart';
-import '../shared/auth_gradient_button.dart';
+import '../forgot_password/forgot_password_screen.dart';
 import '../shared/auth_text_field.dart';
 import '../shared/obscure_toggle_button.dart';
 
@@ -33,16 +34,14 @@ class _LoginFormState extends ConsumerState<LoginForm> {
 
   void _toggleObscure() => setState(() => _obscure = !_obscure);
 
-  void _onForgotPassword() =>
-      AppNotification.info(context, 'Función disponible próximamente');
+  void _onForgotPassword() => context.go(ForgotPasswordScreen.routeName);
 
   Future<void> _submit() async {
     FocusScope.of(context).unfocus();
     if (!(_formKey.currentState?.validate() ?? false)) return;
-    await ref.read(authControllerProvider.notifier).getToken(
-          _usernameController.text.trim(),
-          _passwordController.text,
-        );
+    await ref
+        .read(authControllerProvider.notifier)
+        .getToken(_usernameController.text.trim(), _passwordController.text);
   }
 
   String? _validateUsername(String? value) {
@@ -92,7 +91,7 @@ class _LoginFormState extends ConsumerState<LoginForm> {
             ),
           ),
           const Gap(separatorXLg),
-          AuthGradientButton(
+          AppGradientButton(
             label: 'Iniciar sesión',
             isLoading: isLoading,
             onPressed: _submit,

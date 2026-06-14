@@ -4,9 +4,10 @@ import '../../../../../core/constants/app_numbers.dart';
 import '../../../../../core/helpers/context_helper.dart';
 
 class AuthScaffold extends StatelessWidget {
-  const AuthScaffold({required this.child, super.key});
+  const AuthScaffold({required this.child, this.appBar, super.key});
 
   final Widget child;
+  final PreferredSizeWidget? appBar;
 
   @override
   Widget build(BuildContext context) {
@@ -14,6 +15,7 @@ class AuthScaffold extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: colors.nightDeep,
+      appBar: appBar,
       body: Container(
         width: double.infinity,
         height: double.infinity,

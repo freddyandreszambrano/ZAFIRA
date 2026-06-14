@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../feature/auth/view/widgets/forgot_password/forgot_password_screen.dart';
 import '../../../feature/auth/view/widgets/login/login_screen.dart';
 import '../../../feature/auth/view/widgets/register/register_screen.dart';
+import '../../../feature/auth/view/widgets/register/register_success_screen.dart';
+import '../../../feature/auth/view/widgets/reset_password/reset_password_screen.dart';
+import '../../../feature/home/view/main/home_screen.dart';
 import '../../connection/view/widgets/online_widget.dart';
 
 final appRouter = GoRouter(
@@ -21,6 +25,23 @@ final appRouter = GoRouter(
         GoRoute(
           path: RegisterScreen.routeName,
           builder: (context, state) => const RegisterScreen(),
+        ),
+        GoRoute(
+          path: RegisterSuccessScreen.routeName,
+          builder: (context, state) => const RegisterSuccessScreen(),
+        ),
+        GoRoute(
+          path: ForgotPasswordScreen.routeName,
+          builder: (context, state) => const ForgotPasswordScreen(),
+        ),
+        GoRoute(
+          path: ResetPasswordScreen.routeName,
+          builder: (context, state) =>
+              ResetPasswordScreen(email: state.extra as String? ?? ''),
+        ),
+        GoRoute(
+          path: HomeScreen.routeName,
+          builder: (context, state) => const HomeScreen(),
         ),
       ],
     ),

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../../../../../core/constants/app_numbers.dart';
-import '../../../../../core/helpers/context_helper.dart';
+import '../../../../core/constants/app_numbers.dart';
+import '../../../../core/helpers/context_helper.dart';
 
-class AuthGradientButton extends StatelessWidget {
-  const AuthGradientButton({
+class AppGradientButton extends StatelessWidget {
+  const AppGradientButton({
     required this.label,
     required this.onPressed,
     this.isLoading = false,
