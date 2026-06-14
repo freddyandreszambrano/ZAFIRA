@@ -144,7 +144,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
           AuthTextField(
             controller: _nameController,
             label: 'Nombre completo',
-            hint: 'Ej. Ana García',
+            hint: 'Ej. Melissa Quinde',
             prefixIcon: Icons.person_outline_rounded,
             keyboardType: TextInputType.name,
             textInputAction: TextInputAction.next,

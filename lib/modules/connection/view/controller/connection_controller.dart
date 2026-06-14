@@ -12,7 +12,7 @@ import '../../data/repository/connection_network_repository.dart';
 import '../states/network_state.dart';
 
 final connectionControllerProvider =
-    StateNotifierProvider.autoDispose<ConnectionController, NetworkState>(
+    StateNotifierProvider<ConnectionController, NetworkState>(
   (ref) {
     final connectionRepository = ref.watch(connectionNetworkRepositoryProvider);
     return ConnectionController(SaveConnectionUseCase(connectionRepository));
@@ -52,8 +52,13 @@ class ConnectionController extends StateNotifier<NetworkState> {
   }
 
   Future<void> checkConnection() async {
-    final result = await Connectivity().checkConnectivity();
-    await _checkConnectivity(result);
+    state = state.copyWith(
+      result: [ConnectivityResult.none],
+      lastState: ConnectionStatus.disconnected,
+      newState: ConnectionStatus.disconnected,
+      message: 'Esperando...',
+    );
+    Connectivity().checkConnectivity().then(_checkConnectivity);
   }
 
   Future<void> _checkConnectivity(List<ConnectivityResult> result) async {

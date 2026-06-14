@@ -23,8 +23,6 @@ class _OnlineWidgetState extends ConsumerState<OnlineWidget>
     vsync: this,
   );
 
-  NetworkState? _offline;
-
   @override
   void initState() {
     super.initState();
@@ -43,18 +41,20 @@ class _OnlineWidgetState extends ConsumerState<OnlineWidget>
   Widget build(BuildContext context) {
     ref.listen<NetworkState>(connectionControllerProvider, (last, current) {
       if (!mounted) return;
-      if (current.newState == ConnectionStatus.disconnected) {
-        setState(() => _offline = current);
-        _animationController.forward();
-      } else {
-        _animationController.reverse();
-      }
+      if (last?.result == current.result) return;
+      _animationController.forward();
+      Future.delayed(const Duration(milliseconds: 1100), () {
+        if (mounted &&
+            current.newState == ConnectionStatus.connected &&
+            last?.result != current.result) {
+          _animationController.reverse();
+        }
+      });
     });
 
-    final offline = _offline;
-    if (offline == null) return const SizedBox.shrink();
+    final state = ref.watch(connectionControllerProvider);
+    final style = _styleFor(context, state);
 
-    final style = _styleFor(context, offline);
     return SizeTransition(
       sizeFactor: CurvedAnimation(
         parent: _animationController,
@@ -70,7 +70,7 @@ class _OnlineWidgetState extends ConsumerState<OnlineWidget>
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                offline.message ?? '',
+                state.message ?? '',
                 style: context.typography.labelMedium?.copyWith(
                   color: style.foreground,
                   fontWeight: FontWeight.w600,
@@ -91,6 +91,15 @@ class _OnlineWidgetState extends ConsumerState<OnlineWidget>
     final hasInterface = result.contains(ConnectivityResult.mobile) ||
         result.contains(ConnectivityResult.wifi);
 
+    if (state.newState == ConnectionStatus.connected) {
+      return _BannerStyle(
+        background: colors.success,
+        foreground: colors.onSuccess,
+        icon: result.contains(ConnectivityResult.mobile)
+            ? Icons.signal_cellular_alt_rounded
+            : Icons.wifi_rounded,
+      );
+    }
     if (hasInterface) {
       return _BannerStyle(
         background: colors.warning,
