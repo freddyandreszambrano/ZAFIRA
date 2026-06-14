@@ -69,6 +69,7 @@ const double kRadiusMd = 15;
 const double kRadiusLg = 20;
 const double kRadiusXLg = 25;
 const double kRadiusCircular = 30;
+const double kRadiusXXLg = 32;
 const double textShortLength = 12;
 const double textLongLength = 17;
 const Size preferredSize = Size.fromHeight(55);
@@ -156,6 +157,8 @@ const BorderRadius kBorderRadiusAllLarge =
     BorderRadius.all(Radius.circular(kRadiusLg));
 const BorderRadius kBorderRadiusAllXLarge =
     BorderRadius.all(Radius.circular(kRadiusXLg));
+const BorderRadius kBorderRadiusAllXXLarge =
+    BorderRadius.all(Radius.circular(kRadiusXXLg));
 
 const String defaultLanguage = "ES";
 

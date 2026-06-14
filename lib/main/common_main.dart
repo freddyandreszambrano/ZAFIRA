@@ -1,11 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../core/flavors/flavors_config.dart';
 import '../core/helpers/app_colors.dart';
 import '../core/helpers/context_helper.dart';
+import '../feature/auth/view/widgets/login/login_screen.dart';
 
 Future<void> commonMain() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,7 +22,7 @@ Future<void> commonMain() async {
   final packageInfo = await PackageInfo.fromPlatform();
   Flavor.projectVersion = packageInfo.version;
 
-  runApp(const ZafiraApp());
+  runApp(const ProviderScope(child: ZafiraApp()));
 }
 
 class ZafiraApp extends StatelessWidget {
@@ -47,56 +49,7 @@ class ZafiraApp extends StatelessWidget {
         }
         return child ?? const SizedBox.shrink();
       },
-      home: const _FlavorHomeScreen(),
-    );
-  }
-}
-
-class _FlavorHomeScreen extends StatelessWidget {
-  const _FlavorHomeScreen();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(
-                gradient: context.appColors.gradientPrimary,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: context.appColors.shadowZafira,
-              ),
-              child: const Text(
-                'ZAFIRA',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 4,
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'Flavor: ${Flavor.envValue ?? "(sin set)"}',
-              style: context.typography.bodyMedium,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'API: ${Flavor.server ?? "(sin configurar)"}',
-              style: context.typography.bodyMuted,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'v${Flavor.projectVersionValue}',
-              style: context.typography.bodyMuted,
-            ),
-          ],
-        ),
-      ),
+      home: const LoginScreen(),
     );
   }
 }

@@ -24,6 +24,13 @@ const Color _zafiraSlate = Color(0xFF94A3BB);
 const Color _zafiraSlateSoft = Color(0xFFE2E8F0);
 const Color _zafiraSlateDeep = Color(0xFF475569);
 
+// ── Night / Auth (login con fondo azul + glow central) ─────────────────
+const Color _nightDeep = Color(0xFF060912); // azul casi negro (bordes, arriba/abajo)
+const Color _nightMid = Color(0xFF223A6E); // azul más claro (glow central)
+const Color _nightCard = Color(0xFF131D33); // superficie del card
+const Color _nightInput = Color(0xFF273450); // relleno de inputs (gris azulado)
+const Color _nightBorder = Color(0xFF3C4A63); // bordes gris azulado
+
 // ── Material Design 3 — derivados de los tokens ZAFIRA ─────────────────
 const Color _primary = _zafiraPrimary;
 const Color _primaryDark = _zafiraPrimaryDark;
@@ -202,6 +209,13 @@ class AppColors {
   Color get slateSoft => _zafiraSlateSoft;
   Color get slateDeep => _zafiraSlateDeep;
 
+  // ── Night / Auth (login oscuro azul) ────────────────────────────────
+  Color get nightDeep => _nightDeep;
+  Color get nightMid => _nightMid;
+  Color get nightCard => _nightCard;
+  Color get nightInput => _nightInput;
+  Color get nightBorder => _nightBorder;
+
   // ── Status ──────────────────────────────────────────────────────────
   Color get warning => _warning;
   Color get warningColor => _warningColor;
@@ -287,6 +301,14 @@ class AppColors {
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [_zafiraPrimarySoft, _zafiraSecondarySoft],
+      );
+
+  /// Fondo del login: glow azul en el centro que se oscurece hacia los
+  /// bordes (azul oscuro arriba y abajo, más claro al centro).
+  RadialGradient get authBackground => const RadialGradient(
+        center: Alignment(0, 0),
+        radius: 0.95,
+        colors: [_nightMid, _nightDeep],
       );
 
   // ── Shadows ZAFIRA ──────────────────────────────────────────────────
