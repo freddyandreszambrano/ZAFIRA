@@ -21,6 +21,27 @@ android {
         jvmTarget = JavaVersion.VERSION_17.toString()
     }
 
+    // ── Flavors (espejo de hey-support) ──────────────────────────────────────
+    // El entorno (URL/API) lo elige el entrypoint Dart: lib/main/main_dev.dart
+    // y main_prod.dart (vía `envied` + Flavor.setEnvironment). Acá solo se
+    // separan applicationId y nombre de app por flavor, para poder instalar
+    // DEV y PROD a la vez. Corre con: --flavor dev / --flavor prod.
+    flavorDimensions += "flavor-type"
+
+    productFlavors {
+        create("dev") {
+            dimension = "flavor-type"
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
+            resValue("string", "app_name", "Zafira Dev")
+        }
+
+        create("prod") {
+            dimension = "flavor-type"
+            resValue("string", "app_name", "Zafira")
+        }
+    }
+
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.zafira.zafira"
