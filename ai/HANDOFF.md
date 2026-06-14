@@ -2,7 +2,9 @@
 
 > Documento de traspaso. Léelo entero antes de tocar código si recién entrás al proyecto (o si abrís una nueva sesión con un agente IA).
 >
-> Última actualización: 2026-06-13
+> Última actualización: 2026-06-14
+>
+> Referencia técnica visual (mobile + backend): [`ai/reference.html`](./reference.html).
 
 ---
 
@@ -63,27 +65,38 @@ Stack base (ver `ai/STACK.md` para versiones exactas):
 - `test/helpers/http_test_dio.dart` — utilidades `stubDio()`, `stubDioOk()`, `stubDioError()` para mockear HTTP sin tocar red.
 - Patrón documentado en `ai/rules/testing.md`: `mocktail` + `ProviderContainer` con `overrides`.
 
+### Auth, navegación, conexión y home (sesión 2026-06-14)
+> Detalle visual completo en [`ai/reference.html`](./reference.html).
+
+- **Navegación** — `go_router` en `lib/modules/common/routes/app_router.dart` con un `ShellRoute` que monta el banner de conexión persistente. `common_main.dart` = `ProviderScope` + `MaterialApp.router`. Rutas: `/login`, `/register`, `/register-success`, `/forgot-password`, `/reset-password`, `/` (Home).
+- **Login** (`feature/auth/view/widgets/login/`) — campo **usuario** (no email) → `AuthController.getToken` → `POST /api/v1/auth/token/`.
+- **Registro** (`feature/auth/view/widgets/register/`) — nombre/usuario/cédula/correo/contraseña (+ indicador de seguridad) → `POST /api/v1/user/create/` (201) → `RegisterSuccessScreen`. Capa data/domain/application/view completa.
+- **Olvidé/Restablecer contraseña** (`forgot_password/` + `reset_password/`) — flujo por **código de 6 dígitos** al correo → `POST /api/v1/auth/password-reset/{request,confirm}/`.
+- **Conexión** (`lib/modules/connection/`) — `connectivity_plus` + `internet_connection_checker_plus` (ping a `Flavor.server`), banner 3 estados, provider global.
+- **Home** (`feature/home/`) — fondo nocturno + nav inferior de 5 ítems (placeholder).
+- **Theming night** — tokens `night*` + `authBackground` (RadialGradient) en `app_colors.dart`; `kBorderRadiusAllXXLarge` en `app_numbers.dart`.
+- **Compartidos** — auth: `AuthScaffold/AuthCard/AuthTextField/BrandWordmark/AuthFooterLink/ObscureToggleButton`. App-wide (`modules/common/widget/`): `AppGradientButton`, `StatusScreen` (4 tipos).
+- **Android flavors** `dev`/`prod` (`applicationIdSuffix .dev`) en `build.gradle.kts`.
+- **Backend (ZAFIRA-CORE)** — reset de contraseña: vistas/serializers en `core/auth/api/v1/auth/.../password_reset.py`, helper de correo + task Celery, y campos en `User`: `password_reset_pending` (bool), `password_reset_count` (contador), `last_password_reset_at`, `email_reset_expires_at`. **Falta** `makemigrations users && migrate`.
+
 ---
 
 ## 3. Qué NO está hecho (pendientes prioritarios)
 
 | # | Tarea | Por qué importa | Donde se hace |
 |---|-------|-----------------|---------------|
-| 1 | **`AGENTS.md` raíz** que importe `@ai/rules/`, `@ai/STACK.md`, etc. | Sin esto, Cursor/Claude no encuentran las reglas | `zafira/AGENTS.md` |
-| 2 | **Firebase init** en `common_main.dart` | Crashlytics, Analytics, Messaging | `lib/main/common_main.dart` (hay TODO marcado) |
-| 3 | **App IDs nativos distintos** por flavor (`com.zafira.dev` / `com.zafira`) | Para instalar dev + prod en un mismo celular | `android/app/build.gradle.kts` + `ios/Runner.xcodeproj` |
-| 4 | **Íconos por flavor** vía `flutter_launcher_icons` | Distinguir apps en el launcher | `pubspec.yaml` + assets |
-| 5 | **Router con go_router** | Hoy solo hay una pantalla placeholder en `common_main.dart` | `lib/core/routes/` (a crear) |
-| 6 | **Feature `auth`** real (login → `Flavor.server` → `ZAFIRA-CORE` JWT) | Único feature listado en `ai/context/mobile.md` | `lib/auth/` (clean arch: data/domain/application/view) |
-| 7 | **HTTP client wrapper (`DioHttpClient`)** con interceptors (auth header, retry, logging) | Centraliza requests y errores | `lib/core/http/` (a crear) |
-| 8 | **`ErrorExceptionHandler`** que traduce `DioException` → `Either<Exception, T>` | Patrón obligatorio en `ai/rules/code-style.md` | `lib/core/error/` (a crear) |
-| 9 | **Migrar a `envied`** (opcional) | Para no pasar 10+ `--dart-define` en cada `flutter run` | `lib/env/env.dart` + `pubspec.yaml` |
-| 10 | **Codecov** para visualizar cobertura por PR | Hoy `lcov.info` queda como artifact; con Codecov salen los % en cada PR | secret en GH + step en `ci.yml` |
-| 11 | **Limpiar el archivo legacy `lib/core/constants/colors/app_colors.dart`** | Sigue con colores `#662D91` púrpura de hey-support — debería usar paleta ZAFIRA | actualizar valores o redirigir a `helpers/app_colors.dart` |
-| 12 | **FVM (Flutter Version Manager)** | Pinear Flutter 3.41.9 localmente (ya pinneado en CI). Útil si trabajás en >1 proyecto Flutter con versiones distintas | `.fvmrc` |
-| 13 | **Activar GitHub Copilot code review** | Es la IA que revisa los PRs (reemplaza al reviewer de Gemini). Requiere Copilot Pro (gratis con GitHub Education) + habilitar el ruleset que pide review automática de Copilot | GH Settings → Rules → Rulesets |
+| 1 | **Backend: correr la migración del reset** | Los campos nuevos de `User` no existen en la BD hasta migrar | `python manage.py makemigrations users && migrate` |
+| 2 | **Backend: `ALLOWED_HOSTS` + `runserver 0.0.0.0:8000`** | Sin la IP del host, Django responde 400 DisallowedHost al celular | `.env` del backend |
+| 3 | **Mobile: `usesCleartextTraffic="true"` (DEV)** | Android bloquea `http://` por defecto (API ≥28) | `android/app/src/main/AndroidManifest.xml` |
+| 4 | **Firebase init** en `common_main.dart` | Crashlytics, Analytics, Messaging | `lib/main/common_main.dart` (TODO marcado) |
+| 5 | **Íconos por flavor** vía `flutter_launcher_icons` | Distinguir apps en el launcher | `pubspec.yaml` + assets |
+| 6 | **Home: contenido real por sección** | Hoy el nav inferior solo muestra `AppNotification` | `lib/feature/home/` |
+| 7 | **Opcionales**: login social (Google/Apple), deep-link real del reset, rate-limit del reset | Features deseables, no bloqueantes | auth + backend |
+| 8 | **Codecov** para % de cobertura por PR | Hoy `lcov.info` queda como artifact | secret GH + step `ci.yml` |
+| 9 | **Limpiar legacy `lib/core/constants/colors/app_colors.dart`** | Aún tiene `#662D91` de hey-support | redirigir a `helpers/app_colors.dart` |
 
 ### ✅ Hecho desde el último handoff
+- ~~Router go_router, feature **auth** (login/registro/reset), `DioHttpClient`, `ErrorExceptionHandler`, envied, FVM 3.41.9, flavors dev/prod, conexión, home~~ → ver §2 "Auth, navegación, conexión y home" + [`ai/reference.html`](./reference.html).
 - ~~CI/CD~~ → `.github/workflows/ci.yml` con 2 jobs (test + build).
 - ~~Setup de tests~~ → `test/widget_test.dart` + `test/helpers/http_test_dio.dart`. Patrón canónico en `ai/rules/testing.md`.
 - ~~Reglas de UI/widgets~~ → `ai/rules/widget-design.md` con 10 secciones (tokens, screens, estados, formularios, checklist pre-PR).

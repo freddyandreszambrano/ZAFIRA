@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zafira — Referencia técnica (Mobile + Backend)</title>
+<style>
+  :root{
+    --magenta:#FF3BBE; --violet:#8E54FF;
+    --night-deep:#060912; --night-mid:#223A6E; --night-card:#131D33;
+    --night-input:#273450; --night-border:#3C4A63;
+    --slate:#94A3BB; --slate-soft:#E2E8F0; --white:#FFFFFF;
+    --success:#22C55E; --error:#EF4444; --warning:#F59E0B; --info:#0EA5E9;
+    --radius:16px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; padding:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--slate-soft);
+    background:radial-gradient(circle at 50% 12%, #18294d 0%, var(--night-deep) 62%) fixed;
+    line-height:1.55;
+  }
+  .wrap{max-width:1040px; margin:0 auto; padding:40px 22px 80px;}
+  header.hero{text-align:center; margin-bottom:14px;}
+  h1{
+    font-size:46px; margin:0; font-weight:800; letter-spacing:.5px;
+    background:linear-gradient(120deg,var(--magenta),var(--violet));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .hero p{color:var(--slate); margin:6px 0 0; font-size:15px;}
+  .meta{color:var(--slate); font-size:12.5px; margin-top:8px;}
+  .legend{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin:20px 0 6px;}
+  .badge{display:inline-block; font-size:11px; font-weight:700; letter-spacing:.4px;
+    padding:3px 10px; border-radius:999px; border:1px solid transparent; white-space:nowrap;}
+  .badge.mobile{color:#cdb6ff; background:rgba(142,84,255,.16); border-color:rgba(142,84,255,.5);}
+  .badge.backend{color:#86efac; background:rgba(34,197,94,.14); border-color:rgba(34,197,94,.45);}
+  .badge.both{color:#ffb6e2; background:rgba(255,59,190,.14); border-color:rgba(255,59,190,.5);}
+  nav.toc{margin:26px 0; background:rgba(19,29,51,.6); border:1px solid var(--night-border);
+    border-radius:var(--radius); padding:16px 20px;}
+  nav.toc b{color:var(--white); font-size:13px; letter-spacing:.5px; text-transform:uppercase;}
+  nav.toc ol{margin:8px 0 0; padding-left:20px; columns:2; column-gap:30px;}
+  nav.toc a{color:var(--slate-soft); text-decoration:none;}
+  nav.toc a:hover{color:var(--magenta);}
+  section{margin-top:34px;}
+  h2{color:var(--white); font-size:22px; margin:0 0 4px; padding-left:12px;
+    border-left:4px solid var(--magenta);}
+  h2 .badge{vertical-align:middle; margin-left:8px;}
+  .lead{color:var(--slate); margin:6px 0 16px; padding-left:14px; font-size:14px;}
+  .card{background:rgba(19,29,51,.7); border:1px solid var(--night-border);
+    border-radius:var(--radius); padding:16px 18px; margin:12px 0;}
+  .card h3{margin:0 0 6px; color:var(--white); font-size:16px;}
+  .card h3 .badge{margin-left:8px;}
+  .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:14px;}
+  ul{margin:8px 0; padding-left:20px;} li{margin:3px 0;}
+  code{font-family:"SF Mono",Consolas,Menlo,monospace; font-size:12.5px;
+    background:rgba(60,74,99,.35); color:#e6d4ff; padding:1px 6px; border-radius:6px;}
+  pre{background:var(--night-deep); border:1px solid var(--night-border); border-radius:12px;
+    padding:14px 16px; overflow:auto; font-family:"SF Mono",Consolas,Menlo,monospace;
+    font-size:12.5px; color:var(--slate-soft);}
+  pre .c{color:var(--slate);}
+  table{width:100%; border-collapse:collapse; margin:10px 0; font-size:13px;}
+  th,td{text-align:left; padding:8px 10px; border-bottom:1px solid var(--night-border); vertical-align:top;}
+  th{color:var(--white); font-size:12px; text-transform:uppercase; letter-spacing:.4px;}
+  td code{font-size:12px;}
+  .pill{font-size:11px; font-weight:700; padding:2px 8px; border-radius:6px;}
+  .m-POST{color:#86efac; background:rgba(34,197,94,.14);}
+  .swatches{display:flex; gap:10px; flex-wrap:wrap; margin:10px 0;}
+  .sw{width:118px; border:1px solid var(--night-border); border-radius:10px; overflow:hidden; font-size:11px;}
+  .sw .chip{height:46px;} .sw .lbl{padding:5px 8px; color:var(--slate-soft);} .sw .hex{color:var(--slate);}
+  .flow{counter-reset:step; padding:0; list-style:none;}
+  .flow li{position:relative; padding:6px 0 6px 34px; margin:0;}
+  .flow li::before{counter-increment:step; content:counter(step);
+    position:absolute; left:0; top:5px; width:22px; height:22px; border-radius:50%;
+    background:linear-gradient(120deg,var(--magenta),var(--violet)); color:#fff;
+    font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center;}
+  .note{border-left:3px solid var(--warning); background:rgba(245,158,11,.08);
+    padding:10px 14px; border-radius:0 10px 10px 0; margin:12px 0; font-size:13px; color:var(--slate-soft);}
+  footer{margin-top:50px; text-align:center; color:var(--slate); font-size:12px;}
+  a{color:var(--violet);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <h1>Zafira</h1>
+  <p>Referencia técnica del proyecto — qué se construyó, dónde, y de qué lado vive cada cosa.</p>
+  <div class="meta">Mobile: Flutter (FVM 3.41.9) · Backend: Django (ZAFIRA-CORE) · Actualizado 2026-06-14</div>
+  <div class="legend">
+    <span class="badge mobile">MOBILE · Flutter</span>
+    <span class="badge backend">BACKEND · Django</span>
+    <span class="badge both">AMBOS · contrato compartido</span>
+  </div>
+</header>
+
+<nav class="toc">
+  <b>Contenido</b>
+  <ol>
+    <li><a href="#stack">Stack &amp; arquitectura</a></li>
+    <li><a href="#design">Design system / theming</a></li>
+    <li><a href="#nav">Navegación (go_router)</a></li>
+    <li><a href="#login">Login</a></li>
+    <li><a href="#register">Registro</a></li>
+    <li><a href="#reset">Olvidé / restablecer contraseña</a></li>
+    <li><a href="#conn">Conexión (banner)</a></li>
+    <li><a href="#home">Home</a></li>
+    <li><a href="#shared">Widgets compartidos</a></li>
+    <li><a href="#api">Resumen de APIs</a></li>
+    <li><a href="#model">Modelo User (backend)</a></li>
+    <li><a href="#run">Cómo correr / pendientes</a></li>
+  </ol>
+</nav>
+
+<!-- STACK -->
+<section id="stack">
+  <h2>Stack &amp; arquitectura</h2>
+  <p class="lead">Clean Architecture en una sola dirección. La UI nunca habla con HTTP directo.</p>
+  <div class="card">
+    <h3>Mobile <span class="badge mobile">MOBILE</span></h3>
+    <pre>view (Widget &rarr; Controller) &rarr; application (UseCase) &rarr; data (Repository &rarr; Service) &rarr; domain</pre>
+    <ul>
+      <li><b>Riverpod</b> estado · <b>go_router</b> navegación · <b>Dio</b> HTTP · <b>either_dart</b> errores (<code>Either&lt;Exception,T&gt;</code>)</li>
+      <li><b>UseCase</b>: única lógica de negocio, envuelve todo en <code>handlerApiExceptions</code> (nunca lanza).</li>
+      <li><b>Controller</b> (<code>StateNotifier.autoDispose</code>): <code>loading</code> → <code>fold</code> → <code>success</code>/<code>error</code>.</li>
+      <li><b>Service</b>: único que usa Dio (<code>dioHttpClientProvider</code> inyecta token, <code>app-source</code>, base URL).</li>
+      <li>Features no se importan entre sí su <code>data/</code> o <code>application/</code>; lo común va en <code>lib/modules/</code>.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>Backend <span class="badge backend">BACKEND</span></h3>
+    <ul>
+      <li>Django + DRF · auth por <b>Token</b> (DRF authtoken) · correo por <b>Resend</b> (django-anymail) · <b>Celery</b> + Redis.</li>
+      <li>App de usuarios en <code>core/auth/</code> (app label <code>users</code>) — modelo <code>User</code> custom (<code>AbstractBaseUser</code>).</li>
+      <li>Todo endpoint mobile valida el header <code>app-source &isin; ("zafira-app","zafira-web")</code>.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- DESIGN -->
+<section id="design">
+  <h2>Design system / theming <span class="badge mobile">MOBILE</span></h2>
+  <p class="lead">Cero hex y cero <code>TextStyle</code> literales en widgets: todo por tokens.</p>
+  <div class="card">
+    <h3>Paleta de marca + night (login oscuro)</h3>
+    <div class="swatches">
+      <div class="sw"><div class="chip" style="background:#FF3BBE"></div><div class="lbl">primary<br><span class="hex">#FF3BBE</span></div></div>
+      <div class="sw"><div class="chip" style="background:#8E54FF"></div><div class="lbl">secondary<br><span class="hex">#8E54FF</span></div></div>
+      <div class="sw"><div class="chip" style="background:#060912"></div><div class="lbl">nightDeep<br><span class="hex">#060912</span></div></div>
+      <div class="sw"><div class="chip" style="background:#223A6E"></div><div class="lbl">nightMid<br><span class="hex">#223A6E</span></div></div>
+      <div class="sw"><div class="chip" style="background:#131D33"></div><div class="lbl">nightCard<br><span class="hex">#131D33</span></div></div>
+      <div class="sw"><div class="chip" style="background:#273450"></div><div class="lbl">nightInput<br><span class="hex">#273450</span></div></div>
+      <div class="sw"><div class="chip" style="background:#3C4A63"></div><div class="lbl">nightBorder<br><span class="hex">#3C4A63</span></div></div>
+      <div class="sw"><div class="chip" style="background:#94A3BB"></div><div class="lbl">slate<br><span class="hex">#94A3BB</span></div></div>
+      <div class="sw"><div class="chip" style="background:#22C55E"></div><div class="lbl">success<br><span class="hex">#22C55E</span></div></div>
+      <div class="sw"><div class="chip" style="background:#F59E0B"></div><div class="lbl">warning<br><span class="hex">#F59E0B</span></div></div>
+      <div class="sw"><div class="chip" style="background:#EF4444"></div><div class="lbl">error<br><span class="hex">#EF4444</span></div></div>
+      <div class="sw"><div class="chip" style="background:#0EA5E9"></div><div class="lbl">info<br><span class="hex">#0EA5E9</span></div></div>
+    </div>
+    <ul>
+      <li>Acceso: <code>context.appColors.*</code>, <code>context.typography.*</code>, constantes de <code>app_numbers.dart</code>.</li>
+      <li><b>Fondo del login</b>: <code>appColors.authBackground</code> — <code>RadialGradient</code> (glow azul al centro, oscuro a los bordes).</li>
+      <li>Radios nuevos: <code>kRadiusXXLg</code> / <code>kBorderRadiusAllXXLarge</code> (32) en <code>app_numbers.dart</code>.</li>
+      <li>Archivos: <code>lib/core/helpers/app_colors.dart</code>, <code>app_typography.dart</code>, <code>context_helper.dart</code>, <code>core/constants/app_numbers.dart</code>.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- NAV -->
+<section id="nav">
+  <h2>Navegación <span class="badge mobile">MOBILE</span></h2>
+  <p class="lead">Todo por <code>go_router</code> (nunca <code>Navigator.push</code>). Un <code>ShellRoute</code> envuelve las rutas con el banner de conexión persistente.</p>
+  <div class="card">
+    <ul>
+      <li><code>lib/main/common_main.dart</code> → <code>ProviderScope</code> + <code>MaterialApp.router</code>.</li>
+      <li><code>lib/modules/common/routes/app_router.dart</code> → <code>GoRouter</code> con <code>ShellRoute</code> (su <code>bottomNavigationBar</code> es el <code>OnlineWidget</code>).</li>
+    </ul>
+    <table>
+      <tr><th>routeName</th><th>Pantalla</th></tr>
+      <tr><td><code>/login</code></td><td>LoginScreen (inicial)</td></tr>
+      <tr><td><code>/register</code></td><td>RegisterScreen</td></tr>
+      <tr><td><code>/register-success</code></td><td>RegisterSuccessScreen (StatusScreen)</td></tr>
+      <tr><td><code>/forgot-password</code></td><td>ForgotPasswordScreen</td></tr>
+      <tr><td><code>/reset-password</code></td><td>ResetPasswordScreen (recibe email por <code>extra</code>)</td></tr>
+      <tr><td><code>/</code></td><td>HomeScreen</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- LOGIN -->
+<section id="login">
+  <h2>Login <span class="badge both">AMBOS</span></h2>
+  <ol class="flow">
+    <li><b>MOBILE</b> — usuario ingresa <b>usuario</b> + contraseña → <code>AuthController.getToken()</code> → UseCase → Service.</li>
+    <li><b>BACKEND</b> — <code>POST /api/v1/auth/token/</code> (<code>CustomAuthTokenApiView</code>) devuelve el token.</li>
+    <li><b>MOBILE</b> — guarda token en secure storage; <code>LoginAuthMixin</code> navega a <code>HomeScreen</code>.</li>
+  </ol>
+  <div class="card">
+    <h3>Archivos <span class="badge mobile">MOBILE</span></h3>
+    <ul>
+      <li>UI: <code>view/widgets/login/</code> → login_screen, login_body, login_header, login_form, login_social_section, login_auth_mixin.</li>
+      <li>Lógica: <code>view/controller/auth_controller.dart</code>, <code>application/{token,server}_usecase.dart</code>, <code>data/{repositories,services,interfaces}/auth_*</code>.</li>
+      <li>Campo de identidad: <b>usuario</b> (no email) — ícono persona, teclado texto.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- REGISTER -->
+<section id="register">
+  <h2>Registro <span class="badge both">AMBOS</span></h2>
+  <ol class="flow">
+    <li><b>MOBILE</b> — form: nombre, <b>usuario</b>, <b>cédula</b>, correo, contraseña (+ indicador de seguridad), confirmar.</li>
+    <li><b>BACKEND</b> — <code>POST /api/v1/user/create/</code> (<code>UserCreateApiView</code> / <code>UserCreateSerializerInput</code>): requiere <code>username, email, dni, password</code>; responde <b>201</b> o 400 con errores de campo.</li>
+    <li><b>MOBILE</b> — 201 → navega a <code>RegisterSuccessScreen</code> (StatusScreen verde). Error → <code>AppNotification</code> con el mensaje del backend.</li>
+  </ol>
+  <div class="card">
+    <h3>Archivos <span class="badge mobile">MOBILE</span></h3>
+    <ul>
+      <li>UI: <code>view/widgets/register/</code> → register_screen, register_body, register_header, register_form, password_strength_indicator, register_success_screen.</li>
+      <li>Datos: <code>domain/register_request.dart</code>, <code>data/{interfaces,services,repositories}/register_*</code>, <code>application/register_usecase.dart</code>, <code>view/controller/register_controller.dart</code>, <code>view/state/register_state.dart</code>.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- RESET -->
+<section id="reset">
+  <h2>Olvidé / restablecer contraseña <span class="badge both">AMBOS</span></h2>
+  <p class="lead">Flujo por <b>código de 6 dígitos</b> al correo (sin deep-links nativos). Dos fases.</p>
+  <ol class="flow">
+    <li><b>MOBILE</b> — pantalla "¿Olvidaste tu contraseña?": ingresa correo → <code>requestCode()</code>.</li>
+    <li><b>BACKEND</b> — <code>POST /api/v1/auth/password-reset/request/</code>: genera código, lo guarda <b>hasheado</b> (<code>email_reset_token</code>, expira 15 min), <code>password_reset_pending=True</code>, envía correo. Responde <b>200 genérico</b> (no revela si el correo existe).</li>
+    <li><b>MOBILE</b> — navega a la pantalla de restablecer (lleva el email por <code>extra</code>).</li>
+    <li><b>BACKEND/CORREO</b> — el código llega solo al correo registrado.</li>
+    <li><b>MOBILE</b> — ingresa código + nueva contraseña + confirmar → <code>confirmReset()</code>.</li>
+    <li><b>BACKEND</b> — <code>POST /api/v1/auth/password-reset/confirm/</code>: valida código + expiración (<code>check_password</code>), cambia la clave, <code>pending=False</code>, <code>password_reset_count += 1</code>, <code>last_password_reset_at=now</code>.</li>
+    <li><b>MOBILE</b> — éxito → <code>AppNotification</code> + vuelve a login.</li>
+  </ol>
+  <div class="grid">
+    <div class="card">
+      <h3>Mobile <span class="badge mobile">MOBILE</span></h3>
+      <ul>
+        <li>UI: <code>view/widgets/{forgot_password,reset_password}/</code>.</li>
+        <li>Datos: <code>domain/password_reset_confirm.dart</code>, <code>data/{interfaces,services,repositories}/password_reset_*</code>, <code>application/password_reset_usecase.dart</code>, <code>view/controller/password_reset_controller.dart</code>, <code>view/state/password_reset_state.dart</code>.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Backend <span class="badge backend">BACKEND</span></h3>
+      <ul>
+        <li><code>core/auth/api/v1/auth/views/password_reset.py</code> (request + confirm).</li>
+        <li><code>.../serializer/password_reset.py</code>, <code>core/auth/utils/email.py</code> (<code>send_password_reset_code_email</code>), <code>core/auth/tasks.py</code> (Celery).</li>
+        <li>Envío: <b>directo activo</b> (pruebas) + <code>.delay()</code> Celery comentado.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="note"><b>Seguridad:</b> respuesta genérica · código hasheado · expira 15 min · un solo uso · el código solo llega al correo de la BD (jamás a uno aportado por quien solicita).</div>
+</section>
+
+<!-- CONNECTION -->
+<section id="conn">
+  <h2>Conexión (banner online/offline) <span class="badge mobile">MOBILE</span></h2>
+  <p class="lead">Portado de hey-support. Detecta en 2 capas y avisa con un banner.</p>
+  <div class="card">
+    <ul>
+      <li><b>connectivity_plus</b> (¿hay red?) + <b>internet_connection_checker_plus</b> haciendo <b>ping a <code>Flavor.server</code></b> (¿responde el backend?).</li>
+      <li>3 estados: verde "conectado" · amarillo "modo offline" (red sin backend) · rojo "sin conexión".</li>
+      <li>Provider global; el <code>OnlineWidget</code> se monta <b>una vez</b> en el <code>ShellRoute</code> (no se re-renderiza al navegar).</li>
+      <li>Archivos: <code>lib/modules/connection/</code> (interface, repository, usecase, controller, state, widgets/online_widget) + <code>core/enum/connection_status.dart</code>.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- HOME -->
+<section id="home">
+  <h2>Home <span class="badge mobile">MOBILE</span></h2>
+  <div class="card">
+    <ul>
+      <li>Mismo fondo nocturno + menú inferior de 5 ítems: <b>Inicio · Catálogo · Selección · Favoritos · Perfil</b>.</li>
+      <li>Por ahora los ítems no navegan: muestran <code>AppNotification</code> ("próximamente").</li>
+      <li>Archivos: <code>lib/feature/home/view/main/home_screen.dart</code>, <code>view/widget/home_bottom_nav.dart</code>.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- SHARED -->
+<section id="shared">
+  <h2>Widgets compartidos <span class="badge mobile">MOBILE</span></h2>
+  <div class="grid">
+    <div class="card">
+      <h3>Auth (login + registro + reset)</h3>
+      <p style="margin:0;color:var(--slate);font-size:13px;"><code>lib/feature/auth/view/widgets/shared/</code></p>
+      <ul>
+        <li><code>AuthScaffold</code> — fondo + scroll + appBar opcional.</li>
+        <li><code>AuthCard</code> — panel oscuro translúcido.</li>
+        <li><code>AuthTextField</code> — input oscuro (decoración centralizada).</li>
+        <li><code>BrandWordmark</code> — "Zafira" con gradiente (tamaño configurable).</li>
+        <li><code>AuthFooterLink</code> — pregunta + enlace.</li>
+        <li><code>ObscureToggleButton</code> — ojo de contraseña.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>App-wide (cualquier feature)</h3>
+      <p style="margin:0;color:var(--slate);font-size:13px;"><code>lib/modules/common/widget/</code></p>
+      <ul>
+        <li><code>AppGradientButton</code> — CTA de marca (gradiente + sombra + loading).</li>
+        <li><code>StatusScreen</code> — pantalla de resultado reutilizable, 4 tipos (success/error/warning/info).</li>
+        <li><code>AppNotification</code> — toast (success/error/warning/info).</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- API -->
+<section id="api">
+  <h2>Resumen de APIs <span class="badge backend">BACKEND</span></h2>
+  <table>
+    <tr><th>Método</th><th>Endpoint</th><th>Qué hace</th></tr>
+    <tr><td><span class="pill m-POST">POST</span></td><td><code>/api/v1/auth/token/</code></td><td>Login → token</td></tr>
+    <tr><td><span class="pill m-POST">POST</span></td><td><code>/api/v1/user/create/</code></td><td>Registro de usuario (201)</td></tr>
+    <tr><td><span class="pill m-POST">POST</span></td><td><code>/api/v1/auth/password-reset/request/</code></td><td>Envía código de reset al correo</td></tr>
+    <tr><td><span class="pill m-POST">POST</span></td><td><code>/api/v1/auth/password-reset/confirm/</code></td><td>Valida código y cambia la contraseña</td></tr>
+  </table>
+  <p class="lead">Todas exigen header <code>app-source: zafira-app</code>.</p>
+</section>
+
+<!-- MODEL -->
+<section id="model">
+  <h2>Modelo User — campos de reset <span class="badge backend">BACKEND</span></h2>
+  <p class="lead"><code>core/auth/models/user.py</code></p>
+  <table>
+    <tr><th>Campo</th><th>Tipo</th><th>Para qué</th></tr>
+    <tr><td><code>password_reset_pending</code></td><td>bool</td><td>Hay un reset en curso (True hasta usar el código)</td></tr>
+    <tr><td><code>password_reset_count</code></td><td>int</td><td>Cuántas veces restableció</td></tr>
+    <tr><td><code>last_password_reset_at</code></td><td>datetime</td><td>Cuándo fue el último</td></tr>
+    <tr><td><code>email_reset_token</code></td><td>text</td><td>Código <b>hasheado</b></td></tr>
+    <tr><td><code>email_reset_expires_at</code></td><td>datetime</td><td>Vencimiento del código (15 min)</td></tr>
+  </table>
+  <div class="note">Falta correr la migración: <code>python manage.py makemigrations users &amp;&amp; python manage.py migrate</code></div>
+</section>
+
+<!-- RUN -->
+<section id="run">
+  <h2>Cómo correr / pendientes</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>Correr <span class="badge mobile">MOBILE</span></h3>
+      <pre>fvm flutter pub get
+fvm flutter run -t lib/main/main_dev.dart --flavor dev</pre>
+      <ul>
+        <li>Flutter pineado en <code>.fvmrc</code> = <b>3.41.9</b>.</li>
+        <li>Flavors Android <code>dev</code>/<code>prod</code> en <code>android/app/build.gradle.kts</code>.</li>
+        <li>URL del backend en <code>.env</code> → <code>DEVELOP_ENV</code> (vía envied).</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Pendiente / a vigilar</h3>
+      <ul>
+        <li><b>BACKEND</b>: correr <code>makemigrations</code> + <code>migrate</code> (campos de reset) y probar el correo.</li>
+        <li><b>BACKEND</b>: <code>ALLOWED_HOSTS</code> debe incluir la IP del host (ej. <code>192.168.0.3</code>) y correr en <code>0.0.0.0:8000</code>.</li>
+        <li><b>MOBILE</b>: para backend <code>http://</code>, el manifest necesita <code>usesCleartextTraffic="true"</code> (DEV).</li>
+        <li><b>MOBILE</b>: Home navega solo a placeholder; falta el contenido real por sección.</li>
+        <li><b>OPCIONAL</b>: deep-link real del correo, rate-limiting del reset, login social (Google/Apple), Firebase init.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Zafira — documento de referencia. Mantener sincronizado al agregar features.<br>
+  Mobile: <code>C:\FAZQ\DEV\MOBILE\MULTIPLATFORM\zafira</code> · Backend: <code>ZAFIRA-CORE</code> (WSL)
+</footer>
+
+</div>
+</body>
+</html>
