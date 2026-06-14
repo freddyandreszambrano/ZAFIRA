@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../core/constants/app_numbers.dart';
 import '../../../../../core/helpers/context_helper.dart';
+import '../../../../../modules/connection/view/widgets/online_widget.dart';
 
 class AuthScaffold extends StatelessWidget {
   const AuthScaffold({required this.child, super.key});
@@ -14,6 +15,7 @@ class AuthScaffold extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: colors.nightDeep,
+      bottomNavigationBar: const OnlineWidget(),
       body: Container(
         width: double.infinity,
         height: double.infinity,
