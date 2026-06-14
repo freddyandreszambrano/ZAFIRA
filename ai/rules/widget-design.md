@@ -128,6 +128,7 @@ Nunca dejar pantalla en blanco mientras se carga.
 - ❌ Lógica de negocio en widgets (mover a Controller o UseCase).
 - ❌ `setState` en `ConsumerWidget` (usar Riverpod).
 - ❌ Strings hardcoded para UI (extraer a `l10n` o constantes — al menos para el copy permanente).
+- ❌ `ScaffoldMessenger.showSnackBar(...)` o `MySnackBar` (eliminado) para feedback — usar `AppNotification` (ver §11).
 - ❌ Imports absolutos dentro de `lib/<feature>/` (usar relativos: lint `prefer_relative_imports`).
 - ❌ Widgets > 200 LOC — partir en sub-widgets privados.
 - ❌ Diseño que rompa con `DESIGN_SYSTEM.md` — si necesitás un nuevo token, agregarlo PRIMERO al sistema, después usarlo.
@@ -141,3 +142,41 @@ Nunca dejar pantalla en blanco mientras se carga.
 - [ ] Tests del controller (no del widget; ver `ai/rules/testing.md`).
 - [ ] Strings en español, sin abreviaciones.
 - [ ] `const` en todo lo posible.
+- [ ] Feedback al usuario vía `AppNotification` (cero `SnackBar` / `MySnackBar`).
+
+## 11. Notificaciones y feedback (toasts)
+
+El **único** mecanismo para mostrar feedback efímero (éxito / error / aviso / info) es
+`AppNotification`, en `lib/modules/common/widget/notifications/app_notification.dart`.
+
+- ❌ `ScaffoldMessenger.of(context).showSnackBar(...)`
+- ❌ `MySnackBar.show(...)` — **eliminado** del proyecto.
+- ✅ `AppNotification.error(context, 'Mensaje en español')`
+
+API:
+
+```dart
+AppNotification.success(context, 'Cuenta creada correctamente');
+AppNotification.error(context, 'No se pudo completar la acción');
+AppNotification.warning(context, 'Revisá los datos ingresados');
+AppNotification.info(context, 'Redirigiendo al inicio...');
+
+// Forma completa (duración custom):
+AppNotification.show(
+  context,
+  message: 'Mensaje',
+  type: AppNotificationType.error,
+  duration: const Duration(seconds: 5),
+);
+```
+
+Reglas:
+- El widget ya usa tokens del design system (`context.appColors.*Container` / `on*Container`,
+  constantes `kNotification*` de `app_numbers.dart`). Si lo modificás, **cero valores quemados**.
+- El `message` siempre en español, en oración. Usar los mensajes estándar del `design-system.md` §5.
+- Se monta sobre el `Overlay` raíz: funciona desde cualquier `BuildContext` bajo `MaterialApp`,
+  incluido fuera de un `Scaffold`.
+
+**Migración (referencia):** `MySnackBar.show(context, msg, type: SnackBarType.error)`
+→ `AppNotification.error(context, msg)`. El mapeo de tipos es 1:1
+(`SnackBarType.{info,success,warning,error}` → `AppNotificationType.{info,success,warning,error}`).

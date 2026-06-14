@@ -1,63 +1,54 @@
 # ai/ — Zafira Governance
 
 Carpeta de gobernanza para asistentes de IA (Claude, agentes) que trabajan en este repo. Define
-arquitectura, reglas, patrones y contexto que cualquier sesión debe cargar antes de escribir código.
+arquitectura, reglas, patrones, diseño y contexto que cualquier sesión debe cargar antes de escribir
+código.
+
+## Load order recomendado
+
+Antes de escribir código:
+
+1. `HANDOFF.md` — estado actual del proyecto. **Léelo primero.**
+2. `rules/architecture.md` → `rules/code-style.md` → `rules/api-contracts.md` → `rules/testing.md`
+3. `context/mobile.md` → `context/backend.md` → `context/infra.md`
+
+- ¿Vas a tocar **UI** (screens, widgets)? Cargá `design-system.md` + `rules/widget-design.md`.
+- ¿Vas a tocar **tests**? Cargá `rules/testing.md`.
+- ¿Necesitás un **ejemplo de código canónico** por capa? `PATTERNS.md`.
 
 ## Top-level
 
-| Archivo            | Para qué                                                                |
-|--------------------|-------------------------------------------------------------------------|
-| `HANDOFF.md`       | Estado actual del proyecto, qué hay hecho, qué falta. **Léelo primero**. |
-| `RULES.md`         | Reglas duras del proyecto (capas, errores, estado, modelos, HTTP, etc.) |
-| `STACK.md`         | Inventario de dependencias y versiones (Flutter, Riverpod, Dio, etc.)   |
-| `ARCHITECTURE.md`  | Estructura de carpetas, capas por feature, flujo de datos, DI           |
-| `PATTERNS.md`      | Patrones canónicos (service, repo, use case, controller, state, etc.)   |
-| `CONVENTIONS.md`   | Identidad del proyecto + load order + reglas absolutas + prohibiciones  |
+| Archivo            | Para qué                                                                 |
+|--------------------|--------------------------------------------------------------------------|
+| `HANDOFF.md`       | Estado actual: qué hay hecho, qué falta, trampas conocidas. **Primero.**  |
+| `STACK.md`         | Inventario de dependencias y versiones (Flutter, Riverpod, Dio, etc.)    |
+| `PATTERNS.md`      | Patrones canónicos por capa (service, repo, use case, controller, state) |
+| `design-system.md` | Sistema de diseño **mobile**: colores, tipografía, componentes, estados  |
 
 ## Subcarpetas
 
-### `rules/`
-Reglas atómicas por dominio — se cargan en el load order definido en `CONVENTIONS.md`.
+### `rules/` — reglas tácticas por dominio
 
-- `architecture.md` — estructura de feature, responsabilidades por capa, routing, entornos
-- `code-style.md` — naming, modelos Freezed, controllers, Either, async
-- `api-contracts.md` — headers obligatorios, setup de Dio, contrato de service, base URLs
-- `testing.md` — estructura de tests, mocking de Dio, tests por capa (con `stubDio*` y `ProviderContainer`)
-- `widget-design.md` — reglas de UI: tokens del design system, screens, states, formularios
+- `architecture.md` — estructura de feature, responsabilidades por capa, routing, entornos, DI
+- `code-style.md` — naming, modelos Freezed, controllers, `Either`, async, logging
+- `api-contracts.md` — headers obligatorios, setup de Dio, contrato de service, base URLs, multipart
+- `testing.md` — estructura de tests, mocking de Dio (`stubDio*`), tests por capa (`ProviderContainer`)
+- `widget-design.md` — reglas de UI: tokens del design system, screens, 4 estados, formularios, checklist
 
-### `context/`
-Contexto vivo sobre el estado real del código y la infra.
+### `context/` — estado real del código y la infra
 
 - `mobile.md` — stack móvil, módulos existentes, helpers, flavors, builds
 - `backend.md` — backend Django + DRF que sirve la API; headers esperados
-- `infra.md` — pipeline CI/CD, Docker, FVM, OTA (en gran parte planeado)
+- `infra.md` — pipeline CI/CD, Docker, FVM, OTA
 
-### `governance/`
-Reglas transversales que aplican a todas las capas y plataformas.
-
-- `GLOBAL_RULES.md` — null safety, logging, secretos, naming, releases
-- `LAYER_ENFORCEMENT.md` — dirección permitida de dependencias, llamadas prohibidas
-- `API_STANDARDS.md` — headers, base URL, timeouts, multipart, autenticación
-- `ASYNC_HANDLING.md` — patrón estándar de controller async, paralelismo, streams
-- `INFRA_REQUIREMENTS.md` — Flutter version, Docker, CI, secrets, distribución
-
-### `agents/`
-Identidades y protocolos para sub-agentes especializados.
+### `agents/` — sub-agentes especializados
 
 - `reviewer.md` — review estricto contra `rules/`
 - `debugger.md` — diagnóstico de bugs por capa
-- `formatter.md` — reemplazo de magic numbers por constantes del design system
+- `formatter.md` — reemplazo de magic numbers por tokens del design system
 
-### `commands/`
-Comandos invocables que orquestan un protocolo concreto.
+### `commands/` — protocolos invocables
 
 - `review.md` — checklist completo de review
 - `fix.md` — fix mínimo siguiendo `rules/`
 - `explain.md` — explicar código en términos de la arquitectura
-
-## Load order recomendado
-
-Definido en `CONVENTIONS.md`. Antes de escribir código: `HANDOFF.md` → `CONVENTIONS.md` → `rules/*` → `context/*`.
-
-Si vas a tocar UI (screens, widgets): cargá obligatoriamente `rules/widget-design.md`.
-Si vas a tocar tests: cargá obligatoriamente `rules/testing.md`.

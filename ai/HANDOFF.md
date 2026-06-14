@@ -37,13 +37,16 @@ Stack base (ver `ai/STACK.md` para versiones exactas):
 ### Gobernanza IA (`ai/`)
 26 archivos `.md` portados desde `hey-support/ai/` y adaptados al dominio Zafira:
 - `HANDOFF.md` (este archivo) — estado actual del proyecto.
-- `RULES.md`, `STACK.md`, `ARCHITECTURE.md`, `PATTERNS.md`, `CONVENTIONS.md` — referencia técnica.
+- `STACK.md`, `PATTERNS.md` — referencia técnica (dependencias + patrones canónicos por capa).
+- `design-system.md` — sistema de diseño mobile (colores, tipografía, componentes, estados).
+- `rules/` (architecture, api-contracts, code-style, testing, **widget-design**) — reglas tácticas.
+- `context/` (mobile, backend, infra) — estado actual del código y la infra.
 - `agents/` (debugger, formatter, reviewer) — instrucciones para IAs.
 - `commands/` (explain, fix, review) — workflows ejecutables.
-- `context/` (mobile, backend, infra) — estado actual del proyecto.
-- `governance/` (GLOBAL_RULES, LAYER_ENFORCEMENT, API_STANDARDS, ASYNC_HANDLING, INFRA_REQUIREMENTS) — reglas organizacionales.
-- `rules/` (architecture, api-contracts, code-style, testing, **widget-design**) — reglas tácticas.
-- `README.md` — índice.
+- `README.md` — índice + load order.
+
+> Nota: en una limpieza de redundancia se eliminaron `RULES.md`, `CONVENTIONS.md`, `ARCHITECTURE.md`
+> y la carpeta `governance/` — su contenido vivía duplicado en `rules/` + `context/` + `PATTERNS.md`.
 
 ### Calidad de código y tooling
 - `analysis_options.yaml` — espejo del de hey-support con `flutter_lints` + `prefer_relative_imports`, `require_trailing_commas`, `sort_constructors_first`. Excluye `*.g.dart` y `*.freezed.dart`.
@@ -66,14 +69,14 @@ Stack base (ver `ai/STACK.md` para versiones exactas):
 
 | # | Tarea | Por qué importa | Donde se hace |
 |---|-------|-----------------|---------------|
-| 1 | **`AGENTS.md` raíz** que importe `@ai/RULES.md`, `@ai/STACK.md`, etc. | Sin esto, Cursor/Claude no encuentran las reglas | `zafira/AGENTS.md` |
+| 1 | **`AGENTS.md` raíz** que importe `@ai/rules/`, `@ai/STACK.md`, etc. | Sin esto, Cursor/Claude no encuentran las reglas | `zafira/AGENTS.md` |
 | 2 | **Firebase init** en `common_main.dart` | Crashlytics, Analytics, Messaging | `lib/main/common_main.dart` (hay TODO marcado) |
 | 3 | **App IDs nativos distintos** por flavor (`com.zafira.dev` / `com.zafira`) | Para instalar dev + prod en un mismo celular | `android/app/build.gradle.kts` + `ios/Runner.xcodeproj` |
 | 4 | **Íconos por flavor** vía `flutter_launcher_icons` | Distinguir apps en el launcher | `pubspec.yaml` + assets |
 | 5 | **Router con go_router** | Hoy solo hay una pantalla placeholder en `common_main.dart` | `lib/core/routes/` (a crear) |
 | 6 | **Feature `auth`** real (login → `Flavor.server` → `ZAFIRA-CORE` JWT) | Único feature listado en `ai/context/mobile.md` | `lib/auth/` (clean arch: data/domain/application/view) |
 | 7 | **HTTP client wrapper (`DioHttpClient`)** con interceptors (auth header, retry, logging) | Centraliza requests y errores | `lib/core/http/` (a crear) |
-| 8 | **`ErrorExceptionHandler`** que traduce `DioException` → `Either<Exception, T>` | Patrón obligatorio en `ai/RULES.md` | `lib/core/error/` (a crear) |
+| 8 | **`ErrorExceptionHandler`** que traduce `DioException` → `Either<Exception, T>` | Patrón obligatorio en `ai/rules/code-style.md` | `lib/core/error/` (a crear) |
 | 9 | **Migrar a `envied`** (opcional) | Para no pasar 10+ `--dart-define` en cada `flutter run` | `lib/env/env.dart` + `pubspec.yaml` |
 | 10 | **Codecov** para visualizar cobertura por PR | Hoy `lcov.info` queda como artifact; con Codecov salen los % en cada PR | secret en GH + step en `ci.yml` |
 | 11 | **Limpiar el archivo legacy `lib/core/constants/colors/app_colors.dart`** | Sigue con colores `#662D91` púrpura de hey-support — debería usar paleta ZAFIRA | actualizar valores o redirigir a `helpers/app_colors.dart` |
@@ -140,9 +143,9 @@ Para entender el proyecto en 10 minutos, leé en este orden:
 
 1. [ai/HANDOFF.md](./HANDOFF.md) — este archivo.
 2. [ai/STACK.md](./STACK.md) — qué libs hay y por qué.
-3. [ai/ARCHITECTURE.md](./ARCHITECTURE.md) — capas y dependencias.
-4. [ai/RULES.md](./RULES.md) — reglas duras (Either, autoDispose, copyWith).
-5. [ai/PATTERNS.md](./PATTERNS.md) — ejemplos canónicos por capa.
+3. [ai/rules/architecture.md](./rules/architecture.md) — capas, dependencias y routing.
+4. [ai/PATTERNS.md](./PATTERNS.md) — ejemplos canónicos por capa (Either, autoDispose, copyWith).
+5. [ai/design-system.md](./design-system.md) — colores, tipografía y componentes mobile.
 6. [lib/core/helpers/app_colors.dart](../lib/core/helpers/app_colors.dart) — paleta y design tokens.
 7. [lib/core/flavors/flavors_config.dart](../lib/core/flavors/flavors_config.dart) — switch de entornos.
 8. [lib/main/common_main.dart](../lib/main/common_main.dart) — donde se arma el root widget.

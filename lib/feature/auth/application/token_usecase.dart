@@ -47,4 +47,16 @@ class TokenUseCase with ErrorExceptionHandler {
       );
     }
   }
+
+  Future<bool> checkToken() async {
+    try {
+      return await interface.checkToken();
+    } catch (err) {
+      throw RegularException.fromError(
+        err,
+        "checkToken",
+        runtimeType,
+      );
+    }
+  }
 }

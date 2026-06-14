@@ -37,9 +37,7 @@ Flutter (multiplatform) — version managed via FVM (pin in `.fvmrc` when added)
 
 | Library                            | Version | Role                          |
 |------------------------------------|---------|-------------------------------|
-| `dio`                              | ^5.9.2  | HTTP client with interceptors |
-| `connectivity_plus`                | ^7.1.1  | Network state monitoring      |
-| `internet_connection_checker_plus` | ^3.0.0  | Connectivity validation       |
+| `dio` | ^5.9.2 | HTTP client with interceptors |
 
 ## Serialization & Code Generation
 
@@ -72,18 +70,15 @@ Flutter (multiplatform) — version managed via FVM (pin in `.fvmrc` when added)
 |---------------------|---------|----------------------------------------|
 | `envied`            | ^1.3.5  | Compile-time env vars from `.env` file |
 | `envied_generator`  | ^1.3.5  | Code generator for `envied`            |
-| `package_info_plus` | ^9.0.1  | App version at runtime                 |
-| `device_info_plus`  | ^9.1.2  | Device model/OS info                   |
+| `package_info_plus` | ^10.0.0 | App version at runtime                 |
+| `device_info_plus`  | ^13.1.0 | Device model/OS info (sdkInt checks)   |
 
-## Maps & Location
+## Permissions & Location
 
-| Library                                          | Version | Role                            |
-|--------------------------------------------------|---------|---------------------------------|
-| `google_maps_flutter`                            | ^2.17.0 | Native maps (Android/iOS)       |
-| `google_maps_flutter_web`                        | ^0.6.2  | Web maps                        |
-| `google_places_suggestions_autocomplete_field`   | ^0.0.5  | Places autocomplete             |
-| `geolocator`                                     | ^12.0.0 | GPS location                    |
-| `geocoding`                                      | ^4.0.0  | Address lookup from coordinates |
+| Library              | Version | Role                             |
+|----------------------|---------|----------------------------------|
+| `permission_handler` | ^12.0.1 | Runtime permission requests      |
+| `geolocator`         | ^14.0.0 | GPS location + permission checks |
 
 ## Firebase
 
@@ -95,19 +90,10 @@ Flutter (multiplatform) — version managed via FVM (pin in `.fvmrc` when added)
 | `firebase_messaging`          | ^16.2.2 | Push notifications (FCM)   |
 | `flutter_local_notifications` | ^21.0.0 | Local notification display |
 
-## OTA Updates
-
-| Library               | Version | Role                                |
-|-----------------------|---------|-------------------------------------|
-| `shorebird_code_push` | ^2.0.6  | Over-the-air Flutter patch delivery |
-
 ## Media & Documents
 
 | Library               | Version | Role                             |
 |-----------------------|---------|----------------------------------|
-| `image_picker`        | ^1.2.2  | Camera/gallery image selection   |
-| `camera`              | ^0.12.0 | Direct camera access             |
-| `flutter_doc_scanner` | ^0.0.20 | Document scanning                |
 | `signature`           | ^6.3.0  | Digital signature capture canvas |
 | `photo_view`          | ^0.14.0 | Zoomable image viewer            |
 
@@ -124,7 +110,6 @@ Flutter (multiplatform) — version managed via FVM (pin in `.fvmrc` when added)
 | `flutter_svg`           | ^2.3.0  | SVG rendering            |
 | `gap`                   | ^3.0.1  | Layout gaps              |
 | `loading_overlay`       | ^0.5.0  | Loading overlay widget   |
-| `device_preview_plus`   | ^2.6.0  | Device preview tooling   |
 
 ## Utilities
 
@@ -133,9 +118,7 @@ Flutter (multiplatform) — version managed via FVM (pin in `.fvmrc` when added)
 | `intl`               | ^0.20.2 | Date/number formatting             |
 | `logger`             | ^2.7.0  | Structured logging (PrettyPrinter) |
 | `collection`         | ^1.19.1 | Collection utilities               |
-| `permission_handler` | ^12.0.1 | Runtime permission requests        |
-| `uuid`               | ^3.0.7  | UUID generation                    |
-| `url_launcher`       | ^6.3.2  | External URL launching             |
+| `uuid`               | ^4.5.3  | UUID generation                    |
 
 ## Testing
 

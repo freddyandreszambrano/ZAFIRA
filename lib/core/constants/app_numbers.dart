@@ -184,3 +184,12 @@ const double toolActionLoaderSize = 14;
 
 const double toolStepDotSize = 32;
 const double toolStepLabelWidth = 72;
+
+// ── App notification / toast ──────────────────────────────────────────────
+const double kNotificationIconSize = 18;
+const double kNotificationBorderAlpha = 0.25;
+const double kNotificationShadowAlpha = 0.18;
+const double kNotificationShadowBlur = 18;
+const double kNotificationShadowSpread = -6;
+const Offset kNotificationShadowOffset = Offset(0, 8);
+const double kNotificationCloseAlpha = 0.7;

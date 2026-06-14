@@ -3,7 +3,7 @@
 Proyecto Flutter multiplataforma. Stack: **Clean Architecture + Riverpod + Dio +
 Freezed + go_router + either_dart**. Capas: `data → domain → application → view`.
 
-Reglas completas en `ai/RULES.md` y `ai/rules/`. Al revisar un PR o sugerir
+Reglas completas en `ai/rules/` y `ai/design-system.md`. Al revisar un PR o sugerir
 código, hacé cumplir lo siguiente y citá la regla correspondiente.
 
 ## Capas (layer rules)
@@ -54,6 +54,8 @@ código, hacé cumplir lo siguiente y citá la regla correspondiente.
 - `setState` en `ConsumerWidget`.
 - `Navigator.push` directo (usar `go_router`).
 - Strings hardcoded en UI sin extraer a `l10n` o constantes.
+- Valores numéricos quemados (padding/size/radio/alpha) — usar tokens de `app_numbers.dart`; si falta, agregar una constante con nombre.
+- `SnackBar` / `ScaffoldMessenger.showSnackBar` / `MySnackBar` para feedback — usar `AppNotification`.
 - Editar archivos `*.freezed.dart` o `*.g.dart`.
 
 ## Severidad de los comentarios de review

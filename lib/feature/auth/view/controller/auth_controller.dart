@@ -1,7 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../../core/enum/response_status.dart';
 import '../../../../core/utils/error_parser.dart';
+import '../../../../core/utils/logger.dart';
+import '../../application/server_usecase.dart';
 import '../../application/token_usecase.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../state/auth_state.dart';
@@ -11,6 +14,7 @@ final authControllerProvider =
   final userRepository = ref.watch(authRepositoryProvider);
 
   return AuthController(
+    ServerUseCase(userRepository),
     TokenUseCase(userRepository),
   );
 });
@@ -23,13 +27,13 @@ final canViewClientDataProvider = Provider.autoDispose<bool>((ref) {
 
 class AuthController extends StateNotifier<AuthState> {
   AuthController(
-    // this._serverUseCase,
+    this._serverUseCase,
     this._tokenUseCase,
     // this._profileUseCase,
     // this._webUseCase,
   ) : super(AuthState.initial());
 
-  // final ServerUseCase _serverUseCase;
+  final ServerUseCase _serverUseCase;
   final TokenUseCase _tokenUseCase;
 
   // final ProfileUseCase _profileUseCase;
@@ -81,6 +85,28 @@ class AuthController extends StateNotifier<AuthState> {
         isTokenExist: false,
         errorMessage: message,
       );
+    }
+  }
+
+  Future<void> bootstrap({required bool isWeb}) async {
+    _serverUseCase();
+    await getVersion();
+    // await _webUseCase.savePlatformIsWeb(isWeb);
+
+    final hasToken = await _tokenUseCase.checkToken();
+
+    state = state.copyWith(
+      isTokenExist: hasToken,
+      status: hasToken ? ResponseStatus.success : ResponseStatus.initial,
+    );
+  }
+
+  Future<void> getVersion() async {
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      state = state.copyWith(version: packageInfo.version);
+    } catch (err) {
+      ErrorLogger(runtimeType).regular(err);
     }
   }
 }
