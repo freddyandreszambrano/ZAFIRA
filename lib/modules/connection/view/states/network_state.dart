@@ -12,9 +12,9 @@ class NetworkState {
 
   factory NetworkState.initial() => NetworkState(
         result: const [ConnectivityResult.none],
-        lastState: ConnectionStatus.disconnected,
-        newState: ConnectionStatus.disconnected,
-        message: 'Esperando...',
+        lastState: ConnectionStatus.unknown,
+        newState: ConnectionStatus.unknown,
+        message: '',
       );
 
   final List<ConnectivityResult>? result;

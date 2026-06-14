@@ -1,24 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../../core/constants/app_numbers.dart';
+import '../../../../../core/enum/response_status.dart';
 import '../../../../../core/helpers/context_helper.dart';
 import '../../../../../modules/common/widget/notifications/app_notification.dart';
+import '../../../domain/register_request.dart';
+import '../../controller/register_controller.dart';
+import '../../state/register_state.dart';
+import '../login/login_screen.dart';
 import '../shared/auth_gradient_button.dart';
 import '../shared/auth_text_field.dart';
 import '../shared/obscure_toggle_button.dart';
 import 'password_strength_indicator.dart';
 
-class RegisterForm extends StatefulWidget {
+class RegisterForm extends ConsumerStatefulWidget {
   const RegisterForm({super.key});
 
   @override
-  State<RegisterForm> createState() => _RegisterFormState();
+  ConsumerState<RegisterForm> createState() => _RegisterFormState();
 }
 
-class _RegisterFormState extends State<RegisterForm> {
+class _RegisterFormState extends ConsumerState<RegisterForm> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
+  final _usernameController = TextEditingController();
+  final _dniController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmController = TextEditingController();
@@ -28,6 +37,8 @@ class _RegisterFormState extends State<RegisterForm> {
   @override
   void dispose() {
     _nameController.dispose();
+    _usernameController.dispose();
+    _dniController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmController.dispose();
@@ -37,12 +48,36 @@ class _RegisterFormState extends State<RegisterForm> {
   void _submit() {
     FocusScope.of(context).unfocus();
     if (!(_formKey.currentState?.validate() ?? false)) return;
-    // TODO: conectar al endpoint de registro cuando exista en el backend.
-    AppNotification.info(context, 'Registro disponible próximamente');
+
+    final names = _nameController.text
+        .trim()
+        .split(' ')
+        .where((part) => part.isNotEmpty)
+        .toList();
+
+    ref.read(registerControllerProvider.notifier).register(
+          RegisterRequest(
+            username: _usernameController.text.trim(),
+            email: _emailController.text.trim(),
+            dni: _dniController.text.trim(),
+            password: _passwordController.text,
+            firstName: names.isEmpty ? '' : names.first,
+            lastName: names.length > 1 ? names.sublist(1).join(' ') : '',
+          ),
+        );
   }
 
-  String? _validateName(String? value) =>
-      (value?.trim() ?? '').isEmpty ? 'Ingrese su nombre completo' : null;
+  String? _required(String? value, String message) =>
+      (value?.trim() ?? '').isEmpty ? message : null;
+
+  String? _validateDni(String? value) {
+    final text = value?.trim() ?? '';
+    if (text.isEmpty) return 'Ingrese su cédula';
+    if (text.length != 10 || int.tryParse(text) == null) {
+      return 'La cédula debe tener 10 dígitos';
+    }
+    return null;
+  }
 
   String? _validateEmail(String? value) {
     final text = value?.trim() ?? '';
@@ -67,6 +102,26 @@ class _RegisterFormState extends State<RegisterForm> {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
+
+    ref.listen<RegisterState>(registerControllerProvider, (previous, next) {
+      if (next.status == ResponseStatus.success) {
+        AppNotification.success(context, 'Cuenta creada correctamente');
+        Future.delayed(const Duration(seconds: 2), () {
+          if (context.mounted) context.go(LoginScreen.routeName);
+        });
+      } else if (next.status == ResponseStatus.error) {
+        AppNotification.error(
+          context,
+          next.errorMessage ?? 'No se pudo crear la cuenta',
+        );
+      }
+    });
+
+    final isLoading = ref.watch(
+      registerControllerProvider.select(
+        (s) => s.status == ResponseStatus.loading,
+      ),
+    );
 
     return Form(
       key: _formKey,
@@ -93,7 +148,26 @@ class _RegisterFormState extends State<RegisterForm> {
             prefixIcon: Icons.person_outline_rounded,
             keyboardType: TextInputType.name,
             textInputAction: TextInputAction.next,
-            validator: _validateName,
+            validator: (value) => _required(value, 'Ingrese su nombre completo'),
+          ),
+          const Gap(separatorLg),
+          AuthTextField(
+            controller: _usernameController,
+            label: 'Usuario',
+            hint: 'Nombre de usuario',
+            prefixIcon: Icons.alternate_email_rounded,
+            textInputAction: TextInputAction.next,
+            validator: (value) => _required(value, 'Ingrese un usuario'),
+          ),
+          const Gap(separatorLg),
+          AuthTextField(
+            controller: _dniController,
+            label: 'Cédula',
+            hint: 'Número de cédula',
+            prefixIcon: Icons.badge_outlined,
+            keyboardType: TextInputType.number,
+            textInputAction: TextInputAction.next,
+            validator: _validateDni,
           ),
           const Gap(separatorLg),
           AuthTextField(
@@ -143,7 +217,11 @@ class _RegisterFormState extends State<RegisterForm> {
             ),
           ),
           const Gap(separatorXLg),
-          AuthGradientButton(label: 'Crear cuenta', onPressed: _submit),
+          AuthGradientButton(
+            label: 'Crear cuenta',
+            isLoading: isLoading,
+            onPressed: _submit,
+          ),
         ],
       ),
     );

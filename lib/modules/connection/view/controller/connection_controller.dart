@@ -52,13 +52,8 @@ class ConnectionController extends StateNotifier<NetworkState> {
   }
 
   Future<void> checkConnection() async {
-    state = state.copyWith(
-      result: [ConnectivityResult.none],
-      lastState: ConnectionStatus.disconnected,
-      newState: ConnectionStatus.disconnected,
-      message: 'Esperando...',
-    );
-    Connectivity().checkConnectivity().then(_checkConnectivity);
+    final result = await Connectivity().checkConnectivity();
+    await _checkConnectivity(result);
   }
 
   Future<void> _checkConnectivity(List<ConnectivityResult> result) async {

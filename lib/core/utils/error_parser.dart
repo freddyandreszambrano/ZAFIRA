@@ -17,6 +17,15 @@ String parseErrorMessage(dynamic err) {
           return errors.first.toString();
         }
       }
+
+      for (final value in data.values) {
+        if (value is List && value.isNotEmpty) {
+          return value.first.toString();
+        }
+        if (value is String && value.isNotEmpty) {
+          return value;
+        }
+      }
     }
 
     if (data is String) {
