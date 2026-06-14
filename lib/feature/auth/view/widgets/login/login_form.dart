@@ -7,14 +7,10 @@ import '../../../../../core/enum/response_status.dart';
 import '../../../../../core/helpers/context_helper.dart';
 import '../../../../../modules/common/widget/notifications/app_notification.dart';
 import '../../controller/auth_controller.dart';
-import 'auth_gradient_button.dart';
-import 'auth_text_field.dart';
+import '../shared/auth_gradient_button.dart';
+import '../shared/auth_text_field.dart';
+import '../shared/obscure_toggle_button.dart';
 
-/// Formulario de inicio de sesión: usuario + contraseña + CTA.
-///
-/// Es dueño de sus controllers y del toggle de visibilidad (estado de vista
-/// efímero). Toda la lógica de negocio vive en el [AuthController]/UseCase:
-/// este widget solo dispara `getToken` y refleja el estado de carga.
 class LoginForm extends ConsumerStatefulWidget {
   const LoginForm({super.key});
 
@@ -61,7 +57,6 @@ class _LoginFormState extends ConsumerState<LoginForm> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.appColors;
     final isLoading = ref.watch(
       authControllerProvider.select((s) => s.status == ResponseStatus.loading),
     );
@@ -91,15 +86,9 @@ class _LoginFormState extends ConsumerState<LoginForm> {
             validator: _validatePassword,
             onSubmitted: (_) => _submit(),
             labelTrailing: _ForgotPasswordLink(onTap: _onForgotPassword),
-            suffixIcon: IconButton(
+            suffixIcon: ObscureToggleButton(
+              obscured: _obscure,
               onPressed: _toggleObscure,
-              icon: Icon(
-                _obscure
-                    ? Icons.visibility_outlined
-                    : Icons.visibility_off_outlined,
-                color: colors.slate,
-                size: 20,
-              ),
             ),
           ),
           const Gap(separatorXLg),

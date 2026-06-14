@@ -3,10 +3,6 @@ import 'package:flutter/material.dart';
 import '../../../../../core/constants/app_numbers.dart';
 import '../../../../../core/helpers/context_helper.dart';
 
-/// CTA primario de marca: gradiente magenta → violeta + sombra ZAFIRA.
-///
-/// Patrón del DESIGN_SYSTEM (§4). Maneja el estado de carga con un spinner
-/// inline y deshabilita el tap mientras carga.
 class AuthGradientButton extends StatelessWidget {
   const AuthGradientButton({
     required this.label,

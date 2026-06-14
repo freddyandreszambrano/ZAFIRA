@@ -3,8 +3,8 @@ import 'package:gap/gap.dart';
 
 import '../../../../../core/constants/app_numbers.dart';
 import '../../../../../core/helpers/context_helper.dart';
+import '../shared/brand_wordmark.dart';
 
-/// Encabezado del login: wordmark "Zafira" con gradiente de marca + bienvenida.
 class LoginHeader extends StatelessWidget {
   const LoginHeader({super.key});
 
@@ -14,17 +14,7 @@ class LoginHeader extends StatelessWidget {
 
     return Column(
       children: [
-        ShaderMask(
-          shaderCallback: (bounds) =>
-              colors.gradientPrimary.createShader(bounds),
-          child: Text(
-            'Zafira',
-            style: context.typography.displayLarge?.copyWith(
-              color: colors.white,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ),
+        const BrandWordmark(),
         const Gap(separatorMd),
         Text(
           'Bienvenido',

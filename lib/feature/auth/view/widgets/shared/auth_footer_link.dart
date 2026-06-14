@@ -2,11 +2,17 @@ import 'package:flutter/material.dart';
 
 import '../../../../../core/helpers/context_helper.dart';
 
-/// Pie del login: invitación a registrarse.
-class LoginFooter extends StatelessWidget {
-  const LoginFooter({required this.onCreateAccount, super.key});
+class AuthFooterLink extends StatelessWidget {
+  const AuthFooterLink({
+    required this.question,
+    required this.actionLabel,
+    required this.onTap,
+    super.key,
+  });
 
-  final VoidCallback onCreateAccount;
+  final String question;
+  final String actionLabel;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -17,14 +23,14 @@ class LoginFooter extends StatelessWidget {
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         Text(
-          '¿No tienes una cuenta? ',
+          question,
           style: context.typography.bodyMedium?.copyWith(color: colors.slate),
         ),
         GestureDetector(
-          onTap: onCreateAccount,
+          onTap: onTap,
           behavior: HitTestBehavior.opaque,
           child: Text(
-            'Crear cuenta',
+            actionLabel,
             style: context.typography.bodyMedium?.copyWith(
               color: colors.secondaryMid,
               fontWeight: FontWeight.w600,

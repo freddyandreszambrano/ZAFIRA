@@ -7,7 +7,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import '../core/flavors/flavors_config.dart';
 import '../core/helpers/app_colors.dart';
 import '../core/helpers/context_helper.dart';
-import '../feature/auth/view/widgets/login/login_screen.dart';
+import '../modules/common/routes/app_router.dart';
 
 Future<void> commonMain() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,13 +30,13 @@ class ZafiraApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Zafira${Flavor.env?.suffix ?? ''}',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: const AppColorScheme(),
-        scaffoldBackgroundColor: Colors.white,
+        scaffoldBackgroundColor: context.appColors.surface,
       ),
       builder: (context, child) {
         if (!Flavor.isProd && !kReleaseMode) {
@@ -49,7 +49,7 @@ class ZafiraApp extends StatelessWidget {
         }
         return child ?? const SizedBox.shrink();
       },
-      home: const LoginScreen(),
+      routerConfig: appRouter,
     );
   }
 }

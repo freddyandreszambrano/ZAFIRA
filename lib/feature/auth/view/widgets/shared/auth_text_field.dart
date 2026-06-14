@@ -4,11 +4,6 @@ import 'package:gap/gap.dart';
 import '../../../../../core/constants/app_numbers.dart';
 import '../../../../../core/helpers/context_helper.dart';
 
-/// Campo de texto del flujo de autenticación (tema oscuro del login).
-///
-/// La decoración vive en un único lugar (acá), evitando repetir
-/// `InputDecoration` en cada campo. Solo usa tokens de
-/// `context.appColors` / `context.typography` y constantes de `app_numbers`.
 class AuthTextField extends StatelessWidget {
   const AuthTextField({
     required this.controller,
@@ -57,7 +52,7 @@ class AuthTextField extends StatelessWidget {
                 ),
               ),
             ),
-            if (labelTrailing != null) labelTrailing!,
+            ?labelTrailing,
           ],
         ),
         const Gap(separatorSm),
