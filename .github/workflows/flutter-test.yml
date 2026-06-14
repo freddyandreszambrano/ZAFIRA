@@ -8,7 +8,7 @@ on:
       flutter-version:
         description: Versión de Flutter a usar.
         type: string
-        default: "3.35.0"
+        default: "3.41.9"
 
 jobs:
   test:

@@ -55,7 +55,7 @@ Stack base (ver `ai/STACK.md` para versiones exactas):
 
 ### CI/CD (GitHub Actions)
 - `.github/workflows/ci.yml` — pipeline equivalente al de hey-support en GitLab, con 2 jobs:
-  - **`test`** (todo PR + push): setup Flutter 3.35.0 → `pub get` → `build_runner` → `analyze` → `format check` → `flutter test --coverage` → sube `lcov.info` como artifact.
+  - **`test`** (todo PR + push): setup Flutter 3.41.9 → `pub get` → `build_runner` → `analyze` → `format check` → `flutter test --coverage` → sube `lcov.info` como artifact.
   - **`build`** (solo push a `main`/`develop`): valida que la app compila APK debug (dev) o release (prod).
 
 ### Tests (setup)
@@ -80,7 +80,7 @@ Stack base (ver `ai/STACK.md` para versiones exactas):
 | 9 | **Migrar a `envied`** (opcional) | Para no pasar 10+ `--dart-define` en cada `flutter run` | `lib/env/env.dart` + `pubspec.yaml` |
 | 10 | **Codecov** para visualizar cobertura por PR | Hoy `lcov.info` queda como artifact; con Codecov salen los % en cada PR | secret en GH + step en `ci.yml` |
 | 11 | **Limpiar el archivo legacy `lib/core/constants/colors/app_colors.dart`** | Sigue con colores `#662D91` púrpura de hey-support — debería usar paleta ZAFIRA | actualizar valores o redirigir a `helpers/app_colors.dart` |
-| 12 | **FVM (Flutter Version Manager)** | Pinear Flutter 3.35.0 localmente (ya pinneado en CI). Útil si trabajás en >1 proyecto Flutter con versiones distintas | `.fvmrc` |
+| 12 | **FVM (Flutter Version Manager)** | Pinear Flutter 3.41.9 localmente (ya pinneado en CI). Útil si trabajás en >1 proyecto Flutter con versiones distintas | `.fvmrc` |
 | 13 | **Activar GitHub Copilot code review** | Es la IA que revisa los PRs (reemplaza al reviewer de Gemini). Requiere Copilot Pro (gratis con GitHub Education) + habilitar el ruleset que pide review automática de Copilot | GH Settings → Rules → Rulesets |
 
 ### ✅ Hecho desde el último handoff

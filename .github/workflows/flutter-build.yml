@@ -8,7 +8,7 @@ on:
       flutter-version:
         description: Versión de Flutter a usar.
         type: string
-        default: "3.35.0"
+        default: "3.41.9"
 
 jobs:
   build:
@@ -42,8 +42,8 @@ jobs:
 
       - name: Build APK (dev flavor)
         if: github.ref == 'refs/heads/develop'
-        run: flutter build apk --debug -t lib/main/main_dev.dart
+        run: flutter build apk --debug -t lib/main/main_dev.dart --flavor dev
 
       - name: Build APK (prod flavor)
         if: github.ref == 'refs/heads/main'
-        run: flutter build apk --release -t lib/main/main_prod.dart
+        run: flutter build apk --release -t lib/main/main_prod.dart --flavor prod

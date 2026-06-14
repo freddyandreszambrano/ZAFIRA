@@ -22,7 +22,7 @@ coverage:
 	fvm flutter test --coverage
 
 run-dev:
-	fvm flutter run -t lib/main/main_dev.dart
+	fvm flutter run -t lib/main/main_dev.dart --flavor dev
 
 build-apk:
-	fvm flutter build apk -t lib/main/main_prod.dart
+	fvm flutter build apk -t lib/main/main_prod.dart --flavor prod

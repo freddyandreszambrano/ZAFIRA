@@ -10,7 +10,7 @@ import '../../controller/auth_controller.dart';
 import 'auth_gradient_button.dart';
 import 'auth_text_field.dart';
 
-/// Formulario de inicio de sesión: correo + contraseña + CTA.
+/// Formulario de inicio de sesión: usuario + contraseña + CTA.
 ///
 /// Es dueño de sus controllers y del toggle de visibilidad (estado de vista
 /// efímero). Toda la lógica de negocio vive en el [AuthController]/UseCase:
@@ -24,13 +24,13 @@ class LoginForm extends ConsumerStatefulWidget {
 
 class _LoginFormState extends ConsumerState<LoginForm> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscure = true;
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -44,15 +44,13 @@ class _LoginFormState extends ConsumerState<LoginForm> {
     FocusScope.of(context).unfocus();
     if (!(_formKey.currentState?.validate() ?? false)) return;
     await ref.read(authControllerProvider.notifier).getToken(
-          _emailController.text.trim(),
+          _usernameController.text.trim(),
           _passwordController.text,
         );
   }
 
-  String? _validateEmail(String? value) {
-    final text = value?.trim() ?? '';
-    if (text.isEmpty) return 'Ingrese su correo electrónico';
-    if (!text.contains('@')) return 'Ingrese un correo válido';
+  String? _validateUsername(String? value) {
+    if ((value?.trim() ?? '').isEmpty) return 'Ingrese su usuario';
     return null;
   }
 
@@ -74,13 +72,13 @@ class _LoginFormState extends ConsumerState<LoginForm> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           AuthTextField(
-            controller: _emailController,
-            label: 'Correo electrónico',
-            hint: 'tu@email.com',
-            prefixIcon: Icons.mail_outline_rounded,
-            keyboardType: TextInputType.emailAddress,
+            controller: _usernameController,
+            label: 'Usuario',
+            hint: 'Nombre de usuario',
+            prefixIcon: Icons.person_outline_rounded,
+            keyboardType: TextInputType.text,
             textInputAction: TextInputAction.next,
-            validator: _validateEmail,
+            validator: _validateUsername,
           ),
           const Gap(separatorLg),
           AuthTextField(

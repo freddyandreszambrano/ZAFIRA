@@ -6,14 +6,14 @@ Zafira is a multiplatform Flutter app (Android, iOS, Web) on **Clean Architectur
 
 ## Commands
 
-All Flutter commands run through **FVM** (Flutter pinned to `3.35.0` in `.fvmrc`). The `Makefile` wraps the common ones:
+All Flutter commands run through **FVM** (Flutter pinned to `3.41.9` in `.fvmrc`). The `Makefile` wraps the common ones:
 
 - `make pub-get` — `fvm flutter pub get`
 - `make build-env` — clean + pub get + regenerate code (`build_runner build --delete-conflicting-outputs`). Run this after editing any Freezed model, JSON model, or `lib/env/env.dart`.
 - `make analyze` — `fvm flutter analyze` (static analysis; CI gate)
 - `make test` / `make coverage` — run all tests / with coverage
-- `make run-dev` — `fvm flutter run -t lib/main/main_dev.dart`
-- `make build-apk` — `fvm flutter build apk -t lib/main/main_prod.dart`
+- `make run-dev` — `fvm flutter run -t lib/main/main_dev.dart --flavor dev`
+- `make build-apk` — `fvm flutter build apk -t lib/main/main_prod.dart --flavor prod`
 
 Run a single test: `fvm flutter test test/feature/auth/application/login_use_case_test.dart`
 Run tests matching a name: `fvm flutter test --plain-name "returns token"`

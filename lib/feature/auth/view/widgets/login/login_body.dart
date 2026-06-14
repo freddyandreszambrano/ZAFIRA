@@ -9,8 +9,6 @@ import 'login_form.dart';
 import 'login_header.dart';
 import 'login_social_section.dart';
 
-/// Cuerpo del login: tarjeta de marca (oscura) que agrupa encabezado,
-/// formulario y proveedores externos, con el pie de "Crear cuenta" debajo.
 class LoginBody extends StatelessWidget {
   const LoginBody({super.key});
 
