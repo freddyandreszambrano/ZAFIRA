@@ -76,30 +76,52 @@ class _NavItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final color = active ? colors.white : colors.slate;
 
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(item.icon, color: color, size: 24),
-          const Gap(separatorXSm),
-          Text(
-            item.label,
-            style: context.typography.labelSmall?.copyWith(color: color),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 260),
+        curve: Curves.easeOutCubic,
+        margin: const EdgeInsets.symmetric(horizontal: 4),
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        decoration: BoxDecoration(
+          color: active
+              ? colors.primary.withValues(alpha: 0.16)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: active
+                ? colors.primaryLight.withValues(alpha: 0.45)
+                : Colors.transparent,
           ),
-          const Gap(separatorXSm),
-          Container(
-            height: 4,
-            width: 4,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: active ? colors.primary : Colors.transparent,
+          boxShadow: active ? colors.shadowZafira : null,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AnimatedScale(
+              scale: active ? 1.12 : 1,
+              duration: const Duration(milliseconds: 220),
+              curve: Curves.easeOutBack,
+              child: Icon(
+                item.icon,
+                color: active ? colors.primaryLight : colors.slate,
+                size: active ? 25 : 23,
+              ),
             ),
-          ),
-        ],
+            const Gap(separatorXSm),
+            Text(
+              item.label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: context.typography.labelSmall?.copyWith(
+                color: active ? colors.primaryLight : colors.slate,
+                fontWeight: active ? FontWeight.w900 : FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
