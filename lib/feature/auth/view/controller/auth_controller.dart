@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../../core/enum/response_status.dart';
-import '../../../../core/utils/error_parser.dart';
 import '../../../../core/utils/logger.dart';
 import '../../application/server_usecase.dart';
 import '../../application/token_usecase.dart';
@@ -52,7 +51,8 @@ class AuthController extends StateNotifier<AuthState> {
           state = state.copyWith(
             status: ResponseStatus.error,
             isTokenExist: false,
-            errorMessage: parseErrorMessage(err),
+            failedLoginAttempts: state.failedLoginAttempts + 1,
+            errorMessage: 'No pudimos iniciar sesión. Verifica tu usuario y contraseña e inténtalo nuevamente.',
           );
         },
             (model) async {
@@ -71,6 +71,8 @@ class AuthController extends StateNotifier<AuthState> {
             status: ResponseStatus.success,
             isTokenExist: true,
             user: model.user,
+            failedLoginAttempts: 0,
+            errorMessage: null,
           );
         },
       );
@@ -88,6 +90,14 @@ class AuthController extends StateNotifier<AuthState> {
   Future<void> logout() async {
     await _tokenUseCase.removeToken();
     state = AuthState.initial();
+  }
+
+  void clearLoginError() {
+    if (state.errorMessage == null) return;
+
+    state = state.copyWith(
+      clearErrorMessage: true,
+    );
   }
 
   Future<void> bootstrap({required bool isWeb}) async {

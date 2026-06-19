@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../../core/enum/response_status.dart';
 import '../../../../../modules/common/request/permission_handler.dart';
-import '../../../../../modules/common/widget/notifications/app_notification.dart';
 import '../../../../home/view/main/home_screen.dart';
 import '../../controller/auth_controller.dart';
 import '../../state/auth_state.dart';
@@ -56,10 +55,6 @@ mixin LoginAuthMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
             ResponseStatus.success,
           ].contains(next.status) &&
           next.isTokenExist == false) {
-        AppNotification.error(
-          context,
-          next.errorMessage ?? 'Ocurrió un error, intente nuevamente.',
-        );
       }
     });
   }

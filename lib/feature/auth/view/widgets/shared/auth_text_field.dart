@@ -19,8 +19,10 @@ class AuthTextField extends StatelessWidget {
     this.onSubmitted,
     this.errorText,
     this.onChanged,
+    this.autovalidateMode = AutovalidateMode.onUserInteraction,
     this.successText,
     this.isChecking = false,
+    this.hasExternalError = false,
     super.key,
   });
 
@@ -37,10 +39,12 @@ class AuthTextField extends StatelessWidget {
   final ValueChanged<String>? onSubmitted;
   final String? errorText;
   final ValueChanged<String>? onChanged;
+  final AutovalidateMode autovalidateMode;
 
   // NUEVO
   final String? successText;
   final bool isChecking;
+  final bool hasExternalError;
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +74,7 @@ class AuthTextField extends StatelessWidget {
           obscureText: obscureText,
           textInputAction: textInputAction,
           validator: validator,
-          autovalidateMode: AutovalidateMode.onUserInteraction,
+          autovalidateMode: autovalidateMode,
           onFieldSubmitted: onSubmitted,
           onChanged: onChanged,
           cursorColor: colors.primary,
@@ -158,8 +162,14 @@ class AuthTextField extends StatelessWidget {
       ),
       suffixIcon: suffixIcon,
       contentPadding: kSpaceDeviceHVMd,
-      enabledBorder: border(colors.nightBorder),
-      focusedBorder: border(colors.primary, 1.4),
+      enabledBorder: border(
+        hasExternalError ? colors.error : colors.nightBorder,
+        hasExternalError ? 1.4 : 1,
+      ),
+      focusedBorder: border(
+        hasExternalError ? colors.error : colors.primary,
+        1.4,
+      ),
       errorBorder: border(colors.error),
       focusedErrorBorder: border(colors.error, 1.4),
       errorText: errorText,

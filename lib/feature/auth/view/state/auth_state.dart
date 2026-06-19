@@ -11,17 +11,19 @@ class AuthState {
     required this.isTokenExist,
     required this.isUpdateAvailable,
     this.errorMessage,
+    this.failedLoginAttempts = 0,
   });
 
   factory AuthState.initial() => AuthState(
-        status: ResponseStatus.initial,
-        profileState: ResponseStatus.initial,
-        version: Flavor.projectVersion,
-        user: null,
-        isTokenExist: false,
-        isUpdateAvailable: false,
-        errorMessage: null,
-      );
+    status: ResponseStatus.initial,
+    profileState: ResponseStatus.initial,
+    version: Flavor.projectVersion,
+    user: null,
+    isTokenExist: false,
+    isUpdateAvailable: false,
+    errorMessage: null,
+    failedLoginAttempts: 0,
+  );
 
   final ResponseStatus status;
   final ResponseStatus profileState;
@@ -30,6 +32,7 @@ class AuthState {
   final bool? isTokenExist;
   final bool? isUpdateAvailable;
   final String? errorMessage;
+  final int failedLoginAttempts;
 
   AuthState copyWith({
     ResponseStatus? status,
@@ -39,6 +42,8 @@ class AuthState {
     bool? isTokenExist,
     bool? isUpdateAvailable,
     String? errorMessage,
+    int? failedLoginAttempts,
+    bool clearErrorMessage = false,
   }) =>
       AuthState(
         status: status ?? this.status,
@@ -47,7 +52,8 @@ class AuthState {
         user: user ?? this.user,
         isTokenExist: isTokenExist ?? this.isTokenExist,
         isUpdateAvailable: isUpdateAvailable ?? this.isUpdateAvailable,
-        errorMessage: errorMessage ?? this.errorMessage,
+        errorMessage: clearErrorMessage ? null : errorMessage ?? this.errorMessage,
+        failedLoginAttempts: failedLoginAttempts ?? this.failedLoginAttempts,
       );
 
   AuthState reset() => AuthState.initial();
