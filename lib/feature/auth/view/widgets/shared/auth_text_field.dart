@@ -17,6 +17,10 @@ class AuthTextField extends StatelessWidget {
     this.suffixIcon,
     this.labelTrailing,
     this.onSubmitted,
+    this.errorText,
+    this.onChanged,
+    this.successText,
+    this.isChecking = false,
     super.key,
   });
 
@@ -29,10 +33,14 @@ class AuthTextField extends StatelessWidget {
   final TextInputAction? textInputAction;
   final FormFieldValidator<String>? validator;
   final Widget? suffixIcon;
-
-  /// Acción opcional alineada a la derecha del label (ej. "¿Olvidaste...?").
   final Widget? labelTrailing;
   final ValueChanged<String>? onSubmitted;
+  final String? errorText;
+  final ValueChanged<String>? onChanged;
+
+  // NUEVO
+  final String? successText;
+  final bool isChecking;
 
   @override
   Widget build(BuildContext context) {
@@ -64,10 +72,61 @@ class AuthTextField extends StatelessWidget {
           validator: validator,
           autovalidateMode: AutovalidateMode.onUserInteraction,
           onFieldSubmitted: onSubmitted,
+          onChanged: onChanged,
           cursorColor: colors.primary,
-          style: context.typography.bodyLarge?.copyWith(color: colors.white),
+          style: context.typography.bodyLarge?.copyWith(
+            color: colors.white,
+          ),
           decoration: _decoration(context),
         ),
+
+        // Loader mientras valida
+        if (isChecking) ...[
+          const Gap(separatorXSm),
+          Row(
+            children: [
+              SizedBox(
+                width: 14,
+                height: 14,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: colors.primary,
+                ),
+              ),
+              const Gap(separatorSm),
+              Text(
+                'Verificando...',
+                style: context.typography.bodySmall?.copyWith(
+                  color: colors.slate,
+                ),
+              ),
+            ],
+          ),
+        ],
+
+        // Mensaje verde
+        if (!isChecking &&
+            successText != null &&
+            successText!.isNotEmpty) ...[
+          const Gap(separatorXSm),
+          Row(
+            children: [
+              Icon(
+                Icons.check_circle_rounded,
+                size: 16,
+                color: colors.success,
+              ),
+              const Gap(separatorSm),
+              Text(
+                successText!,
+                style: context.typography.bodySmall?.copyWith(
+                  color: colors.success,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ],
       ],
     );
   }
@@ -78,7 +137,10 @@ class AuthTextField extends StatelessWidget {
     OutlineInputBorder border(Color color, [double width = 1]) =>
         OutlineInputBorder(
           borderRadius: kBorderRadiusAllMedium,
-          borderSide: BorderSide(color: color, width: width),
+          borderSide: BorderSide(
+            color: color,
+            width: width,
+          ),
         );
 
     return InputDecoration(
@@ -86,15 +148,24 @@ class AuthTextField extends StatelessWidget {
       filled: true,
       fillColor: colors.nightInput,
       hintText: hint,
-      hintStyle: context.typography.bodyMedium?.copyWith(color: colors.slate),
-      prefixIcon: Icon(prefixIcon, color: colors.slate, size: 20),
+      hintStyle: context.typography.bodyMedium?.copyWith(
+        color: colors.slate,
+      ),
+      prefixIcon: Icon(
+        prefixIcon,
+        color: colors.slate,
+        size: 20,
+      ),
       suffixIcon: suffixIcon,
       contentPadding: kSpaceDeviceHVMd,
       enabledBorder: border(colors.nightBorder),
       focusedBorder: border(colors.primary, 1.4),
       errorBorder: border(colors.error),
       focusedErrorBorder: border(colors.error, 1.4),
-      errorStyle: context.typography.bodySmall?.copyWith(color: colors.error),
+      errorText: errorText,
+      errorStyle: context.typography.bodySmall?.copyWith(
+        color: colors.error,
+      ),
     );
   }
 }

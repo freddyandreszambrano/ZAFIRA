@@ -14,72 +14,106 @@ class PasswordStrengthIndicator extends StatelessWidget {
     if (password.isEmpty) return const SizedBox.shrink();
 
     final colors = context.appColors;
-    final (label, color, fraction) = switch (_strength(password)) {
-      0 => ('Débil', colors.error, 0.33),
-      1 => ('Media', colors.warning, 0.66),
-      _ => ('Fuerte', colors.success, 1.0),
-    };
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                'Seguridad de la contraseña',
-                style: context.typography.bodySmall?.copyWith(
-                  color: colors.slate,
-                ),
-              ),
-            ),
-            Text(
-              label,
-              style: context.typography.bodySmall?.copyWith(
-                color: color,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
+    final requirements = [
+      _PasswordRequirement(
+        label: 'Al menos 8 caracteres',
+        valid: password.length >= 8,
+      ),
+      _PasswordRequirement(
+        label: 'Al menos una letra mayúscula',
+        valid: RegExp(r'[A-Z]').hasMatch(password),
+      ),
+      _PasswordRequirement(
+        label: 'Al menos una letra minúscula',
+        valid: RegExp(r'[a-z]').hasMatch(password),
+      ),
+      _PasswordRequirement(
+        label: 'Al menos un número',
+        valid: RegExp(r'\d').hasMatch(password),
+      ),
+      _PasswordRequirement(
+        label: 'Al menos un carácter especial',
+        valid: RegExp(r'[!@#$%^&*(),.?":{}|<>_\-+=/\\[\];]').hasMatch(password),
+      ),
+    ];
+
+    final validCount = requirements.where((item) => item.valid).length;
+    final isStrong = validCount == requirements.length;
+
+    return Container(
+      width: double.infinity,
+      padding: kSpaceDeviceMd,
+      decoration: BoxDecoration(
+        color: colors.nightCard.withValues(alpha: 0.75),
+        borderRadius: kBorderRadiusAllMedium,
+        border: Border.all(
+          color: isStrong
+              ? colors.success.withValues(alpha: 0.45)
+              : colors.nightBorder,
         ),
-        const Gap(separatorXSm),
-        ClipRRect(
-          borderRadius: kBorderRadiusAllSmall,
-          child: LinearProgressIndicator(
-            value: fraction,
-            minHeight: 4,
-            backgroundColor: colors.nightBorder.withValues(alpha: 0.5),
-            valueColor: AlwaysStoppedAnimation<Color>(color),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'La contraseña debe cumplir:',
+            style: context.typography.bodySmall?.copyWith(
+              color: colors.slateSoft,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const Gap(separatorSm),
+          for (final requirement in requirements) ...[
+            _RequirementRow(requirement: requirement),
+            const Gap(separatorXSm),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _PasswordRequirement {
+  const _PasswordRequirement({
+    required this.label,
+    required this.valid,
+  });
+
+  final String label;
+  final bool valid;
+}
+
+class _RequirementRow extends StatelessWidget {
+  const _RequirementRow({required this.requirement});
+
+  final _PasswordRequirement requirement;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+    final color = requirement.valid ? colors.success : colors.error;
+
+    return Row(
+      children: [
+        Icon(
+          requirement.valid
+              ? Icons.check_circle_rounded
+              : Icons.cancel_rounded,
+          size: 16,
+          color: color,
+        ),
+        const Gap(separatorSm),
+        Expanded(
+          child: Text(
+            requirement.label,
+            style: context.typography.bodySmall?.copyWith(
+              color: color,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
       ],
     );
-  }
-
-  int _strength(String pwd) {
-    var hasUpper = false;
-    var hasLower = false;
-    var hasDigit = false;
-    var hasSpecial = false;
-
-    for (final c in pwd.codeUnits) {
-      if (c >= 65 && c <= 90) {
-        hasUpper = true;
-      } else if (c >= 97 && c <= 122) {
-        hasLower = true;
-      } else if (c >= 48 && c <= 57) {
-        hasDigit = true;
-      } else {
-        hasSpecial = true;
-      }
-    }
-
-    final variety =
-        [hasUpper, hasLower, hasDigit, hasSpecial].where((e) => e).length;
-
-    var score = 0;
-    if (pwd.length >= 8 && variety >= 2) score++;
-    if (pwd.length >= 12 && variety >= 3) score++;
-    return score;
   }
 }

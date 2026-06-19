@@ -46,3 +46,25 @@ String parseErrorMessage(dynamic err) {
 
   return message;
 }
+
+Map<String, String> parseFieldErrors(dynamic err) {
+  if (err is! ServerException) return const {};
+
+  final data = err.message;
+  if (data is! Map) return const {};
+
+  final errors = <String, String>{};
+
+  for (final entry in data.entries) {
+    final key = entry.key.toString();
+    final value = entry.value;
+
+    if (value is List && value.isNotEmpty) {
+      errors[key] = value.first.toString();
+    } else if (value is String && value.isNotEmpty) {
+      errors[key] = value;
+    }
+  }
+
+  return errors;
+}

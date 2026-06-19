@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
@@ -31,11 +32,19 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmController = TextEditingController();
+
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
 
+  Timer? _usernameDebounce;
+  Timer? _dniDebounce;
+  Timer? _emailDebounce;
+
   @override
   void dispose() {
+    _usernameDebounce?.cancel();
+    _dniDebounce?.cancel();
+    _emailDebounce?.cancel();
     _nameController.dispose();
     _usernameController.dispose();
     _dniController.dispose();
@@ -47,7 +56,22 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
 
   void _submit() {
     FocusScope.of(context).unfocus();
-    if (!(_formKey.currentState?.validate() ?? false)) return;
+
+    final isValid = _formKey.currentState?.validate() ?? false;
+
+    if (!isValid) {
+      AppNotification.error(
+        context,
+        'Completa todos los campos obligatorios para continuar.',
+      );
+      return;
+    }
+
+    final passwordError = _validateStrongPassword(_passwordController.text);
+    if (passwordError != null) {
+      AppNotification.error(context, passwordError);
+      return;
+    }
 
     final names = _nameController.text
         .trim()
@@ -56,40 +80,176 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
         .toList();
 
     ref.read(registerControllerProvider.notifier).register(
-          RegisterRequest(
-            username: _usernameController.text.trim(),
-            email: _emailController.text.trim(),
-            dni: _dniController.text.trim(),
-            password: _passwordController.text,
-            firstName: names.isEmpty ? '' : names.first,
-            lastName: names.length > 1 ? names.sublist(1).join(' ') : '',
-          ),
-        );
+      RegisterRequest(
+        username: _usernameController.text.trim(),
+        email: _emailController.text.trim(),
+        dni: _dniController.text.trim(),
+        password: _passwordController.text,
+        firstName: names.isEmpty ? '' : names.first,
+        lastName: names.length > 1 ? names.sublist(1).join(' ') : '',
+      ),
+    );
   }
 
-  String? _required(String? value, String message) =>
-      (value?.trim() ?? '').isEmpty ? message : null;
+  void _clearFieldError(String field) {
+    ref.read(registerControllerProvider.notifier).clearFieldError(field);
+  }
+
+  void _debouncedValidateField({
+    required String field,
+    required String value,
+    required bool Function(String text) canValidate,
+  }) {
+    switch (field) {
+      case 'username':
+        _usernameDebounce?.cancel();
+        break;
+      case 'dni':
+        _dniDebounce?.cancel();
+        break;
+      case 'email':
+        _emailDebounce?.cancel();
+        break;
+    }
+
+    _clearFieldError(field);
+
+    final text = value.trim();
+
+    if (!canValidate(text)) return;
+
+    final timer = Timer(
+      const Duration(milliseconds: 700),
+          () {
+        ref.read(registerControllerProvider.notifier).validateField(
+          field: field,
+          value: text,
+        );
+      },
+    );
+
+    switch (field) {
+      case 'username':
+        _usernameDebounce = timer;
+        break;
+      case 'dni':
+        _dniDebounce = timer;
+        break;
+      case 'email':
+        _emailDebounce = timer;
+        break;
+    }
+  }
+
+  String? _validateFullName(String? value) {
+    final text = value?.trim() ?? '';
+
+    if (text.isEmpty) {
+      return 'Este campo es obligatorio';
+    }
+
+    final names =
+    text.split(' ').where((e) => e.isNotEmpty).toList();
+
+    if (names.length < 2) {
+      return 'Ingrese nombre y apellido';
+    }
+
+    if (text.length < 5) {
+      return 'Ingrese un nombre válido';
+    }
+
+    return null;
+  }
+
+  String? _validateUsername(String? value) {
+    final text = value?.trim() ?? '';
+
+    if (text.isEmpty) return 'Ingrese un usuario';
+    if (text.length < 4) return 'El usuario debe tener al menos 4 caracteres';
+    if (text.length > 20) return 'El usuario no puede superar los 20 caracteres';
+
+    final valid = RegExp(r'^[a-zA-Z0-9_]+$').hasMatch(text);
+    if (!valid) {
+      return 'Solo puede contener letras, números y guion bajo';
+    }
+
+    return null;
+  }
 
   String? _validateDni(String? value) {
     final text = value?.trim() ?? '';
+
     if (text.isEmpty) return 'Ingrese su cédula';
-    if (text.length != 10 || int.tryParse(text) == null) {
+    if (!RegExp(r'^\d+$').hasMatch(text)) {
+      return 'La cédula solo debe contener números';
+    }
+    if (text.length != 10) {
       return 'La cédula debe tener 10 dígitos';
     }
+
     return null;
   }
 
   String? _validateEmail(String? value) {
     final text = value?.trim() ?? '';
+
     if (text.isEmpty) return 'Ingrese su correo electrónico';
-    if (!text.contains('@')) return 'Ingrese un correo válido';
+
+    final valid = RegExp(
+      r'^[\w\.-]+@([\w-]+\.)+[\w-]{2,}$',
+    ).hasMatch(text);
+
+    if (!valid) return 'Ingrese un correo válido';
+
     return null;
   }
 
   String? _validatePassword(String? value) {
     final text = value ?? '';
+
     if (text.isEmpty) return 'Ingrese una contraseña';
-    if (text.length < 8) return 'Mínimo 8 caracteres';
+
+    return _validateStrongPassword(text);
+  }
+
+  String? _validateStrongPassword(String password) {
+    if (password.length < 8) {
+      return 'La contraseña debe tener al menos 8 caracteres';
+    }
+
+    if (!RegExp(r'[A-Z]').hasMatch(password)) {
+      return 'La contraseña debe contener al menos una letra mayúscula';
+    }
+
+    if (!RegExp(r'[a-z]').hasMatch(password)) {
+      return 'La contraseña debe contener al menos una letra minúscula';
+    }
+
+    if (!RegExp(r'\d').hasMatch(password)) {
+      return 'La contraseña debe contener al menos un número';
+    }
+
+    if (!RegExp(r'[!@#$%^&*(),.?":{}|<>_\-+=/\\[\];]').hasMatch(password)) {
+      return 'La contraseña debe contener al menos un carácter especial';
+    }
+
+    final commonPasswords = {
+      '12345678',
+      '123456789',
+      '1234567890',
+      'password',
+      'password123',
+      'qwerty',
+      'qwerty123',
+      'admin123',
+      'admin1234',
+    };
+
+    if (commonPasswords.contains(password.toLowerCase())) {
+      return 'Contraseña demasiado fácil. Usa una contraseña más segura';
+    }
+
     return null;
   }
 
@@ -106,7 +266,8 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
     ref.listen<RegisterState>(registerControllerProvider, (previous, next) {
       if (next.status == ResponseStatus.success) {
         context.go(RegisterSuccessScreen.routeName);
-      } else if (next.status == ResponseStatus.error) {
+      } else if (next.status == ResponseStatus.error &&
+          (next.errorMessage ?? '').isNotEmpty) {
         AppNotification.error(
           context,
           next.errorMessage ?? 'No se pudo crear la cuenta',
@@ -114,11 +275,9 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
       }
     });
 
-    final isLoading = ref.watch(
-      registerControllerProvider.select(
-        (s) => s.status == ResponseStatus.loading,
-      ),
-    );
+    final state = ref.watch(registerControllerProvider);
+    final isLoading = state.status == ResponseStatus.loading;
+    final fieldErrors = state.fieldErrors;
 
     return Form(
       key: _formKey,
@@ -145,7 +304,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
             prefixIcon: Icons.person_outline_rounded,
             keyboardType: TextInputType.name,
             textInputAction: TextInputAction.next,
-            validator: (value) => _required(value, 'Ingrese su nombre completo'),
+            validator: _validateFullName,
           ),
           const Gap(separatorLg),
           AuthTextField(
@@ -154,7 +313,19 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
             hint: 'Nombre de usuario',
             prefixIcon: Icons.alternate_email_rounded,
             textInputAction: TextInputAction.next,
-            validator: (value) => _required(value, 'Ingrese un usuario'),
+            validator: _validateUsername,
+            errorText: fieldErrors['username'],
+            successText: state.availableFields.contains('username')
+                ? 'Usuario disponible'
+                : null,
+            isChecking: state.validatingFields.contains('username'),
+            onChanged: (value) {
+              _debouncedValidateField(
+                field: 'username',
+                value: value,
+                canValidate: (text) => text.length >= 4,
+              );
+            },
           ),
           const Gap(separatorLg),
           AuthTextField(
@@ -165,6 +336,18 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
             keyboardType: TextInputType.number,
             textInputAction: TextInputAction.next,
             validator: _validateDni,
+            errorText: fieldErrors['dni'],
+            successText: state.availableFields.contains('dni')
+                ? 'Cédula disponible'
+                : null,
+            isChecking: state.validatingFields.contains('dni'),
+            onChanged: (value) {
+              _debouncedValidateField(
+                field: 'dni',
+                value: value,
+                canValidate: (text) => text.length == 10,
+              );
+            },
           ),
           const Gap(separatorLg),
           AuthTextField(
@@ -175,6 +358,18 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
             validator: _validateEmail,
+            errorText: fieldErrors['email'],
+            successText: state.availableFields.contains('email')
+                ? 'Correo disponible'
+                : null,
+            isChecking: state.validatingFields.contains('email'),
+            onChanged: (value) {
+              _debouncedValidateField(
+                field: 'email',
+                value: value,
+                canValidate: (text) => text.contains('@'),
+              );
+            },
           ),
           const Gap(separatorLg),
           AuthTextField(
@@ -185,6 +380,11 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
             obscureText: _obscurePassword,
             textInputAction: TextInputAction.next,
             validator: _validatePassword,
+            errorText: fieldErrors['password'],
+            onChanged: (_) {
+              _clearFieldError('password');
+              setState(() {});
+            },
             suffixIcon: ObscureToggleButton(
               obscured: _obscurePassword,
               onPressed: () =>
@@ -217,7 +417,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
           AppGradientButton(
             label: 'Crear cuenta',
             isLoading: isLoading,
-            onPressed: _submit,
+            onPressed: fieldErrors.isEmpty ? _submit : () {},
           ),
         ],
       ),

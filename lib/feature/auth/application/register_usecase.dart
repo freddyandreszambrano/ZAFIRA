@@ -13,8 +13,26 @@ class RegisterUseCase with ErrorExceptionHandler {
   Future<Either<Exception, void>> register(RegisterRequest request) async {
     const methodName = 'REGISTER_USER';
     DebugLogger(runtimeType).methodInit(methodName);
+
     return handlerApiExceptions(
-      () async => await _repository.createUser(request),
+          () async => await _repository.createUser(request),
+      methodName,
+      runtimeType,
+    );
+  }
+
+  Future<Either<Exception, Map<String, dynamic>>> validateField({
+    required String field,
+    required String value,
+  }) async {
+    const methodName = 'VALIDATE_REGISTER_FIELD';
+    DebugLogger(runtimeType).methodInit(methodName);
+
+    return handlerApiExceptions(
+          () async => await _repository.validateField(
+        field: field,
+        value: value,
+      ),
       methodName,
       runtimeType,
     );
