@@ -20,7 +20,7 @@ class PasswordResetState {
   }) {
     return PasswordResetState(
       status: status ?? this.status,
-      errorMessage: errorMessage,
+      errorMessage: errorMessage ?? this.errorMessage,
     );
   }
 }

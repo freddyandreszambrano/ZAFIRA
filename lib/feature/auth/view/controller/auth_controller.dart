@@ -10,7 +10,7 @@ import '../../data/repositories/auth_repository.dart';
 import '../state/auth_state.dart';
 
 final authControllerProvider =
-    StateNotifierProvider.autoDispose<AuthController, AuthState>((ref) {
+StateNotifierProvider<AuthController, AuthState>((ref) {
   final userRepository = ref.watch(authRepositoryProvider);
 
   return AuthController(
@@ -19,25 +19,22 @@ final authControllerProvider =
   );
 });
 
-final canViewClientDataProvider = Provider.autoDispose<bool>((ref) {
+final canViewClientDataProvider = Provider<bool>((ref) {
   return ref.watch(
-    authControllerProvider.select((s) => s.user?.canViewClientData ?? false),
+    authControllerProvider.select(
+          (s) => s.user?.canViewClientData ?? false,
+    ),
   );
 });
 
 class AuthController extends StateNotifier<AuthState> {
   AuthController(
-    this._serverUseCase,
-    this._tokenUseCase,
-    // this._profileUseCase,
-    // this._webUseCase,
-  ) : super(AuthState.initial());
+      this._serverUseCase,
+      this._tokenUseCase,
+      ) : super(AuthState.initial());
 
   final ServerUseCase _serverUseCase;
   final TokenUseCase _tokenUseCase;
-
-  // final ProfileUseCase _profileUseCase;
-  // final WebUseCase _webUseCase;
 
   Future<void> getToken(String username, String password) async {
     try {
@@ -49,15 +46,16 @@ class AuthController extends StateNotifier<AuthState> {
       final response = await _tokenUseCase.getToken(username, password);
 
       await response.fold<Future<void>>(
-        (err) async {
+            (err) async {
           await _tokenUseCase.removeToken();
+
           state = state.copyWith(
             status: ResponseStatus.error,
             isTokenExist: false,
             errorMessage: parseErrorMessage(err),
           );
         },
-        (model) async {
+            (model) async {
           if (model.token.isEmpty) {
             state = state.copyWith(
               status: ResponseStatus.error,
@@ -72,26 +70,29 @@ class AuthController extends StateNotifier<AuthState> {
           state = state.copyWith(
             status: ResponseStatus.success,
             isTokenExist: true,
+            user: model.user,
           );
         },
       );
     } catch (err) {
       await _tokenUseCase.removeToken();
 
-      String message = 'Ocurrió un error, intente nuevamente.';
-
       state = state.copyWith(
         status: ResponseStatus.error,
         isTokenExist: false,
-        errorMessage: message,
+        errorMessage: 'Ocurrió un error, intente nuevamente.',
       );
     }
+  }
+
+  Future<void> logout() async {
+    await _tokenUseCase.removeToken();
+    state = AuthState.initial();
   }
 
   Future<void> bootstrap({required bool isWeb}) async {
     _serverUseCase();
     await getVersion();
-    // await _webUseCase.savePlatformIsWeb(isWeb);
 
     final hasToken = await _tokenUseCase.checkToken();
 
@@ -104,7 +105,10 @@ class AuthController extends StateNotifier<AuthState> {
   Future<void> getVersion() async {
     try {
       final packageInfo = await PackageInfo.fromPlatform();
-      state = state.copyWith(version: packageInfo.version);
+
+      state = state.copyWith(
+        version: packageInfo.version,
+      );
     } catch (err) {
       ErrorLogger(runtimeType).regular(err);
     }
