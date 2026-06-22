@@ -52,7 +52,8 @@ class AuthController extends StateNotifier<AuthState> {
             status: ResponseStatus.error,
             isTokenExist: false,
             failedLoginAttempts: state.failedLoginAttempts + 1,
-            errorMessage: 'No pudimos iniciar sesión. Verifica tu usuario y contraseña e inténtalo nuevamente.',
+            errorMessage:
+            'No pudimos iniciar sesión. Verifica tu usuario y contraseña e inténtalo nuevamente.',
           );
         },
             (model) async {
@@ -85,6 +86,35 @@ class AuthController extends StateNotifier<AuthState> {
         errorMessage: 'Ocurrió un error, intente nuevamente.',
       );
     }
+  }
+
+  Future<bool> updateProfile(Map<String, dynamic> data) async {
+    state = state.copyWith(
+      profileState: ResponseStatus.loading,
+      errorMessage: null,
+    );
+
+    final response = await _tokenUseCase.updateProfile(data);
+
+    return response.fold(
+          (err) {
+        state = state.copyWith(
+          profileState: ResponseStatus.error,
+          errorMessage: 'No se pudo actualizar el perfil.',
+        );
+
+        return false;
+      },
+          (model) {
+        state = state.copyWith(
+          profileState: ResponseStatus.success,
+          user: model.user,
+          errorMessage: null,
+        );
+
+        return true;
+      },
+    );
   }
 
   Future<void> logout() async {

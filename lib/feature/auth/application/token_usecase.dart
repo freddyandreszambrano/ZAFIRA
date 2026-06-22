@@ -24,6 +24,19 @@ class TokenUseCase with ErrorExceptionHandler {
     );
   }
 
+  Future<Either<Exception, AuthTokenModel>> updateProfile(
+      Map<String, dynamic> data,
+      ) async {
+    const String methodName = "UPDATE_PROFILE";
+    DebugLogger(runtimeType).methodInit(methodName);
+
+    return await handlerApiExceptions(
+          () async => await interface.updateProfile(data),
+      methodName,
+      runtimeType,
+    );
+  }
+
   Future<void> removeToken() async {
     try {
       return await interface.removeToken();

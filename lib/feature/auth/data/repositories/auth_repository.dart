@@ -48,6 +48,10 @@ class AuthRepository implements IAuth {
       await remoteDataSource.getToken(username, password);
 
   @override
+  Future<AuthTokenModel> updateProfile(Map<String, dynamic> data) async =>
+      await remoteDataSource.updateProfile(data);
+
+  @override
   Future<void> saveToken(String token) async {
     DebugLogger(runtimeType).methodInit("saveToken");
     await sqlHelper.initDB();

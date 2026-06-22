@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 
@@ -6,10 +7,11 @@ import '../../../../core/constants/app_numbers.dart';
 import '../../../../core/helpers/context_helper.dart';
 import '../../../../feature/try_on/view/main/upload_photo_screen.dart';
 import '../../../../feature/profile/view/main/profile_screen.dart';
+import '../../../../feature/auth/view/controller/auth_controller.dart';
 import '../../../../modules/common/widget/notifications/app_notification.dart';
 import '../widget/home_bottom_nav.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   static const routeName = '/';
@@ -17,11 +19,10 @@ class HomeScreen extends StatelessWidget {
   void _onNavTap(BuildContext context, int index) {
     if (index == 0) return;
 
-    if (index == 4) {
+    if (index == 3) {
       context.go(ProfileScreen.routeName);
       return;
     }
-
     AppNotification.info(
       context,
       '${HomeBottomNav.items[index].label} disponible próximamente',
@@ -33,8 +34,18 @@ class HomeScreen extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.appColors;
+    final user = ref.watch(authControllerProvider.select((state) => state.user));
+
+    final firstName = (user?.firstName ?? '').trim();
+    final fullName = (user?.fullName ?? '').trim();
+
+    final displayName = firstName.isNotEmpty
+        ? firstName
+        : fullName.isNotEmpty
+        ? fullName.split(' ').first
+        : 'usuario';
 
     return Scaffold(
       backgroundColor: colors.nightDeep,
@@ -66,7 +77,7 @@ class HomeScreen extends StatelessWidget {
                 const Gap(separatorLg),
 
                 Text(
-                  'Hola, Sofía',
+                  'Hola, $displayName',
                   style: context.typography.headlineSmall?.copyWith(
                     color: colors.white,
                     fontWeight: FontWeight.w900,
@@ -110,73 +121,34 @@ class HomeScreen extends StatelessWidget {
                 ),
                 const Gap(separatorLg),
 
-                Row(
-                  children: [
-                    Expanded(
-                      child: _DashboardActionCard(
-                        icon: Icons.add_a_photo_outlined,
-                        title: 'Subir foto',
-                        subtitle: 'Desde galería',
-                        onTap: () => _goToUpload(context),
-                      ),
-                    ),
-                    const Gap(separatorMd),
-                    Expanded(
-                      child: _DashboardActionCard(
-                        icon: Icons.photo_camera_outlined,
-                        title: 'Tomarse foto',
-                        subtitle: 'Usar cámara',
-                        highlighted: true,
-                        onTap: () => _goToUpload(context),
-                      ),
-                    ),
-                  ],
+          Row(
+            children: [
+              Expanded(
+                child: _DashboardActionCard(
+                  icon: Icons.add_a_photo_outlined,
+                  title: 'Mi foto',
+                  subtitle: 'Gestionar foto',
+                  onTap: () => _goToUpload(context),
                 ),
-                const Gap(separatorMd),
-
-                Container(
-                  width: double.infinity,
-                  padding: kSpaceDeviceMd,
-                  decoration: BoxDecoration(
-                    color: colors.nightCard.withValues(alpha: 0.65),
-                    borderRadius: kBorderRadiusAllMedium,
-                    border: Border.all(color: colors.nightBorder),
-                  ),
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        backgroundColor: colors.primary.withValues(alpha: 0.18),
-                        child: Icon(
-                          Icons.checkroom_rounded,
-                          color: colors.primaryLight,
-                        ),
-                      ),
-                      const Gap(separatorMd),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Mi selección',
-                              style: context.typography.labelLarge?.copyWith(
-                                color: colors.white,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                            Text(
-                              'Tus looks guardados aparecerán aquí',
-                              style: context.typography.bodySmall?.copyWith(
-                                color: colors.slate,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Icon(Icons.arrow_forward_rounded, color: colors.slate),
-                    ],
-                  ),
+              ),
+              const Gap(separatorMd),
+              Expanded(
+                child: _DashboardActionCard(
+                  icon: Icons.grid_view_rounded,
+                  title: 'Catálogo',
+                  subtitle: 'Explorar prendas',
+                  highlighted: true,
+                  onTap: () {
+                    AppNotification.info(
+                      context,
+                      'Catálogo disponible próximamente',
+                    );
+                  },
                 ),
-                const Gap(separatorXLg),
+              ),
+            ],
+          ),
+          const Gap(separatorXLg),
 
                 Row(
                   children: [

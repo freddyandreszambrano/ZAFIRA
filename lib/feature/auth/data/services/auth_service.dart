@@ -23,6 +23,21 @@ class AuthService {
       runtimeType,
     ).response(url, [response.statusCode, response.data]);
     return AuthTokenModel.fromJson(response.data);
+
+  }
+
+  Future<AuthTokenModel> updateProfile(Map<String, dynamic> data) async {
+    const url = "/api/v1/auth/profile/update/";
+
+    DebugLogger(runtimeType).request(url, data);
+
+    final response = await remoteDataSource().patch(url, data: data);
+
+    DebugLogger(
+      runtimeType,
+    ).response(url, [response.statusCode, response.data]);
+
+    return AuthTokenModel.fromJson(response.data);
   }
 
   void showServerUrl() {

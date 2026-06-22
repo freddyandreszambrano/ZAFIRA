@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'edit_profile_screen.dart';
 
 import '../../../../core/constants/app_numbers.dart';
 import '../../../../core/helpers/context_helper.dart';
@@ -53,6 +54,14 @@ class ProfileScreen extends ConsumerWidget {
     final displayEmail =
     (user?.email ?? '').isNotEmpty ? user!.email : 'Correo no disponible';
 
+    final initials = [
+      user?.firstName ?? '',
+      user?.lastName ?? '',
+    ]
+        .where((e) => e.trim().isNotEmpty)
+        .map((e) => e.trim()[0].toUpperCase())
+        .join();
+
     return Scaffold(
       backgroundColor: colors.nightDeep,
       body: Container(
@@ -86,10 +95,12 @@ class ProfileScreen extends ConsumerWidget {
                     CircleAvatar(
                       radius: 48,
                       backgroundColor: colors.primary.withValues(alpha: 0.25),
-                      child: Icon(
-                        Icons.person_rounded,
-                        size: 60,
-                        color: colors.primaryLight,
+                      child: Text(
+                        initials.isNotEmpty ? initials : 'Z',
+                        style: context.typography.headlineMedium?.copyWith(
+                          color: colors.primaryLight,
+                          fontWeight: FontWeight.w900,
+                        ),
                       ),
                     ),
                     CircleAvatar(
@@ -142,7 +153,7 @@ class ProfileScreen extends ConsumerWidget {
                   title: 'Datos personales',
                   subtitle: 'Gestiona tu información básica',
                   onTap: () {
-                    _showPersonalData(context, ref);
+                    context.push(EditProfileScreen.routeName);
                   },
                 ),
                 const Gap(separatorSm),
@@ -213,56 +224,6 @@ class ProfileScreen extends ConsumerWidget {
       ),
     );
   }
-
-  void _showPersonalData(BuildContext context, WidgetRef ref) {
-    final colors = context.appColors;
-    final user = ref.read(authControllerProvider).user;
-
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: colors.nightCard,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(kRadiusXLg),
-        ),
-      ),
-      builder: (_) {
-        return Padding(
-          padding: kSpaceDeviceLg,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Datos personales',
-                style: context.typography.titleMedium?.copyWith(
-                  color: colors.white,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-              const Gap(separatorLg),
-              _PersonalDataItem(
-                label: 'Nombre',
-                value: user?.firstName ?? 'No disponible',
-              ),
-              _PersonalDataItem(
-                label: 'Apellido',
-                value: user?.lastName ?? 'No disponible',
-              ),
-              _PersonalDataItem(
-                label: 'Correo',
-                value: user?.email ?? 'No disponible',
-              ),
-              _PersonalDataItem(
-                label: 'DNI',
-                value: user?.dni ?? 'No disponible',
-              ),
-              const Gap(separatorMd),
-            ],
-          ),
-        );
-      },
-    );
-  }
 }
 
 class _ProfileOption extends StatelessWidget {
@@ -319,47 +280,6 @@ class _ProfileOption extends StatelessWidget {
             Icon(Icons.chevron_right_rounded, color: colors.slate),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _PersonalDataItem extends StatelessWidget {
-  const _PersonalDataItem({
-    required this.label,
-    required this.value,
-  });
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.appColors;
-
-    return Padding(
-      padding: kSpaceDeviceVSm,
-      child: Row(
-        children: [
-          Text(
-            '$label:',
-            style: context.typography.labelMedium?.copyWith(
-              color: colors.slate,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const Gap(separatorSm),
-          Expanded(
-            child: Text(
-              value.isNotEmpty ? value : 'No disponible',
-              textAlign: TextAlign.right,
-              style: context.typography.labelMedium?.copyWith(
-                color: colors.white,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

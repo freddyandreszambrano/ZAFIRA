@@ -11,6 +11,7 @@ import '../../../feature/try_on/view/main/photo_preview_screen.dart';
 import '../../../feature/try_on/view/main/upload_photo_screen.dart';
 import '../../../feature/profile/view/main/profile_screen.dart';
 import '../../connection/view/widgets/online_widget.dart';
+import '../../../feature/profile/view/main/edit_profile_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: LoginScreen.routeName,
@@ -50,6 +51,12 @@ final appRouter = GoRouter(
           path: ProfileScreen.routeName,
           builder: (context, state) => const ProfileScreen(),
         ),
+
+        GoRoute(
+          path: EditProfileScreen.routeName,
+          builder: (context, state) => const EditProfileScreen(),
+        ),
+
         GoRoute(
           path: UploadPhotoScreen.routeName,
           builder: (context, state) => const UploadPhotoScreen(),
