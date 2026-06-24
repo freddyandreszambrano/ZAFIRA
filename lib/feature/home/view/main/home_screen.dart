@@ -8,6 +8,7 @@ import '../../../../core/helpers/context_helper.dart';
 import '../../../../feature/try_on/view/main/upload_photo_screen.dart';
 import '../../../../feature/profile/view/main/profile_screen.dart';
 import '../../../../feature/auth/view/controller/auth_controller.dart';
+import '../../../../feature/catalog/view/main/catalog_screen.dart';
 import '../../../../modules/common/widget/notifications/app_notification.dart';
 import '../widget/home_bottom_nav.dart';
 
@@ -19,10 +20,16 @@ class HomeScreen extends ConsumerWidget {
   void _onNavTap(BuildContext context, int index) {
     if (index == 0) return;
 
+    if (index == 1) {
+      context.push(CatalogScreen.routeName);
+      return;
+    }
+
     if (index == 3) {
       context.go(ProfileScreen.routeName);
       return;
     }
+
     AppNotification.info(
       context,
       '${HomeBottomNav.items[index].label} disponible próximamente',
@@ -138,11 +145,8 @@ class HomeScreen extends ConsumerWidget {
                   title: 'Catálogo',
                   subtitle: 'Explorar prendas',
                   highlighted: true,
-                  onTap: () {
-                    AppNotification.info(
-                      context,
-                      'Catálogo disponible próximamente',
-                    );
+                    onTap: () {
+                    context.push(CatalogScreen.routeName);
                   },
                 ),
               ),
