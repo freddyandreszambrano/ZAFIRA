@@ -1,32 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_numbers.dart';
+import '../../../../core/enum/response_status.dart';
 import '../../../../core/helpers/context_helper.dart';
+import '../../domain/product_model.dart';
+import '../controller/catalog_controller.dart';
+import '../state/catalog_state.dart';
 import 'product_detail_screen.dart';
 
-class Garment {
-  const Garment({
-    required this.name,
-    required this.price,
-    required this.category,
-    required this.gender,
-    this.description = '',
-    this.imageUrl,
-    this.badgeLabel,
-  });
-
-  final String name;
-  final double price;
-  final String category;
-  final String gender;
-  final String description;
-  final String? imageUrl;
-  final String? badgeLabel;
-}
-
-class CatalogGarmentsScreen extends StatefulWidget {
+class CatalogGarmentsScreen extends ConsumerStatefulWidget {
   const CatalogGarmentsScreen({
     required this.gender,
     required this.category,
@@ -39,30 +24,27 @@ class CatalogGarmentsScreen extends StatefulWidget {
   final String category;
 
   @override
-  State<CatalogGarmentsScreen> createState() => _CatalogGarmentsScreenState();
+  ConsumerState<CatalogGarmentsScreen> createState() =>
+      _CatalogGarmentsScreenState();
 }
 
-class _CatalogGarmentsScreenState extends State<CatalogGarmentsScreen> {
-  static const _badges = [null, 'Nuevo', 'Oferta'];
-
-  List<Garment> get garments => List.generate(
-    6,
-        (index) => Garment(
-      name: '${widget.category} Modelo ${index + 1}',
-      price: 29.99 + (index * 5),
-      category: widget.category,
-      gender: widget.gender,
-      description:
-      'Prenda de la colección ${widget.category}, ideal para probar '
-          'virtualmente y combinar con tu estilo.',
-      badgeLabel: _badges[index % _badges.length],
-    ),
-  );
+class _CatalogGarmentsScreenState extends ConsumerState<CatalogGarmentsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(catalogControllerProvider.notifier).getProducts(
+        gender: widget.gender,
+        category: widget.category,
+      );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final genderLabel = widget.gender == 'woman' ? 'Mujer' : 'Hombre';
+    final state = ref.watch(catalogControllerProvider);
 
     return Scaffold(
       backgroundColor: colors.nightDeep,
@@ -112,26 +94,7 @@ class _CatalogGarmentsScreenState extends State<CatalogGarmentsScreen> {
                 ),
                 const Gap(separatorLg),
                 Expanded(
-                  child: GridView.builder(
-                    itemCount: garments.length,
-                    gridDelegate:
-                    const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: separatorMd,
-                      crossAxisSpacing: separatorMd,
-                      childAspectRatio: 0.62,
-                    ),
-                    itemBuilder: (context, index) {
-                      return _GarmentCard(
-                        garment: garments[index],
-                        genderLabel: genderLabel,
-                        onTap: () => context.push(
-                          ProductDetailScreen.routeName,
-                          extra: garments[index],
-                        ),
-                      );
-                    },
-                  ),
+                  child: _buildContent(context, state, genderLabel),
                 ),
               ],
             ),
@@ -140,16 +103,71 @@ class _CatalogGarmentsScreenState extends State<CatalogGarmentsScreen> {
       ),
     );
   }
+
+  Widget _buildContent(
+      BuildContext context,
+      CatalogState state,
+      String genderLabel,
+      ) {
+    final colors = context.appColors;
+
+    if (state.status == ResponseStatus.loading) {
+      return Center(
+        child: CircularProgressIndicator(color: colors.primaryLight),
+      );
+    }
+
+    if (state.status == ResponseStatus.error) {
+      return Center(
+        child: Text(
+          state.errorMessage ?? 'No se pudieron cargar las prendas.',
+          textAlign: TextAlign.center,
+          style: context.typography.bodyMedium?.copyWith(color: colors.slate),
+        ),
+      );
+    }
+
+    if (state.products.isEmpty) {
+      return Center(
+        child: Text(
+          'Todavía no hay prendas reales en esta categoría.',
+          textAlign: TextAlign.center,
+          style: context.typography.bodyMedium?.copyWith(color: colors.slate),
+        ),
+      );
+    }
+
+    return GridView.builder(
+      itemCount: state.products.length,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        mainAxisSpacing: separatorMd,
+        crossAxisSpacing: separatorMd,
+        childAspectRatio: 0.58,
+      ),
+      itemBuilder: (context, index) {
+        final product = state.products[index];
+        return _GarmentCard(
+          product: product,
+          genderLabel: genderLabel,
+          onTap: () => context.push(
+            ProductDetailScreen.routeName,
+            extra: product,
+          ),
+        );
+      },
+    );
+  }
 }
 
 class _GarmentCard extends StatefulWidget {
   const _GarmentCard({
-    required this.garment,
+    required this.product,
     required this.genderLabel,
     required this.onTap,
   });
 
-  final Garment garment;
+  final ProductModel product;
   final String genderLabel;
   final VoidCallback onTap;
 
@@ -163,6 +181,7 @@ class _GarmentCardState extends State<_GarmentCard> {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
+    final hasOffer = widget.product.priceOld != null;
 
     return InkWell(
       onTap: widget.onTap,
@@ -187,9 +206,9 @@ class _GarmentCardState extends State<_GarmentCard> {
                     child: Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
-                        color: colors.nightInput,
+                        color: colors.white,
                       ),
-                      child: widget.garment.imageUrl == null
+                      child: widget.product.firstImageUrl == null
                           ? Center(
                         child: Icon(
                           Icons.checkroom_rounded,
@@ -198,12 +217,20 @@ class _GarmentCardState extends State<_GarmentCard> {
                         ),
                       )
                           : Image.network(
-                        widget.garment.imageUrl!,
-                        fit: BoxFit.cover,
+                        widget.product.firstImageUrl!,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) =>
+                            Center(
+                              child: Icon(
+                                Icons.checkroom_rounded,
+                                color: colors.primaryLight,
+                                size: 54,
+                              ),
+                            ),
                       ),
                     ),
                   ),
-                  if (widget.garment.badgeLabel != null)
+                  if (hasOffer)
                     Positioned(
                       top: 8,
                       left: 8,
@@ -217,7 +244,7 @@ class _GarmentCardState extends State<_GarmentCard> {
                           borderRadius: kBorderRadiusAllXLarge,
                         ),
                         child: Text(
-                          widget.garment.badgeLabel!,
+                          'Oferta',
                           style: context.typography.labelSmall?.copyWith(
                             color: colors.white,
                             fontWeight: FontWeight.w800,
@@ -292,7 +319,7 @@ class _GarmentCardState extends State<_GarmentCard> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.garment.name,
+                          widget.product.name,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: context.typography.labelMedium?.copyWith(
@@ -302,7 +329,7 @@ class _GarmentCardState extends State<_GarmentCard> {
                         ),
                         const Gap(separatorXSm),
                         Text(
-                          '\$${widget.garment.price.toStringAsFixed(2)}',
+                          '\$${widget.product.price.toStringAsFixed(2)}',
                           style: context.typography.labelLarge?.copyWith(
                             color: colors.primaryLight,
                             fontWeight: FontWeight.w900,

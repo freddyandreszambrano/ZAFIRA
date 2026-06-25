@@ -5,14 +5,54 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_numbers.dart';
 import '../../../../core/helpers/context_helper.dart';
 import '../../../../modules/common/widget/notifications/app_notification.dart';
-import 'catalog_garments_screen.dart';
+import '../../domain/product_model.dart';
+
+String _cleanDescription(String raw) {
+  var text = raw.replaceFirst('DETALLES DEL PRODUCTO', '').trim();
+  text = text.replaceAll(
+    RegExp(r'(Nuestra|Nuestro|La) modelo mide[^.]*\.?', caseSensitive: false),
+    '',
+  );
+  text = text.replaceAllMapped(
+    RegExp(r'(?<=[a-záéíóúñ0-9])(?=[A-ZÁÉÍÓÚÑ])'),
+    (match) => '\n',
+  );
+  return text.trim();
+}
+
+String _formatCategory(String raw) {
+  final segments = raw
+      .split('/')
+      .map((segment) => segment.trim())
+      .where((segment) => segment.isNotEmpty)
+      .toList();
+
+  if (segments.isEmpty) return raw;
+
+  final unique = <String>[];
+  for (final segment in segments) {
+    if (unique.isEmpty || unique.last != segment) {
+      unique.add(segment);
+    }
+  }
+
+  final last = unique.last.toLowerCase();
+  return last
+      .split(' ')
+      .map((word) => word.isEmpty
+          ? word
+          : word == 'y'
+              ? word
+              : '${word[0].toUpperCase()}${word.substring(1)}')
+      .join(' ');
+}
 
 class ProductDetailScreen extends StatefulWidget {
-  const ProductDetailScreen({required this.garment, super.key});
+  const ProductDetailScreen({required this.product, super.key});
 
   static const routeName = '/catalog/product';
 
-  final Garment garment;
+  final ProductModel product;
 
   @override
   State<ProductDetailScreen> createState() => _ProductDetailScreenState();
@@ -20,12 +60,14 @@ class ProductDetailScreen extends StatefulWidget {
 
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
   bool isFavorite = false;
+  String? selectedSize;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final garment = widget.garment;
-    final genderLabel = garment.gender == 'woman' ? 'Mujer' : 'Hombre';
+    final product = widget.product;
+    final genderLabel = product.gender == 'woman' ? 'Mujer' : 'Hombre';
+    final hasOffer = product.priceOld != null;
 
     return Scaffold(
       backgroundColor: colors.nightDeep,
@@ -72,30 +114,38 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     children: [
                       Container(
                         width: double.infinity,
-                        height: 320,
+                        height: 380,
                         decoration: BoxDecoration(
-                          color: colors.nightCard,
+                          color: colors.white,
                           borderRadius: kBorderRadiusAllLarge,
                           border: Border.all(
                             color: colors.primary.withValues(alpha: 0.45),
                           ),
                           boxShadow: colors.shadowZafira,
                         ),
-                        child: garment.imageUrl == null
+                        child: product.firstImageUrl == null
                             ? Center(
-                          child: Icon(
-                            Icons.checkroom_rounded,
-                            color: colors.primaryLight,
-                            size: 96,
-                          ),
-                        )
+                                child: Icon(
+                                  Icons.checkroom_rounded,
+                                  color: colors.primaryLight,
+                                  size: 96,
+                                ),
+                              )
                             : ClipRRect(
-                          borderRadius: kBorderRadiusAllLarge,
-                          child: Image.network(
-                            garment.imageUrl!,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
+                                borderRadius: kBorderRadiusAllLarge,
+                                child: Image.network(
+                                  product.firstImageUrl!,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      Center(
+                                    child: Icon(
+                                      Icons.checkroom_rounded,
+                                      color: colors.primaryLight,
+                                      size: 96,
+                                    ),
+                                  ),
+                                ),
+                              ),
                       ),
                       const Gap(separatorLg),
                       Row(
@@ -118,7 +168,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             ),
                           ),
                           const Gap(separatorSm),
-                          if (garment.badgeLabel != null)
+                          if (product.colors.isNotEmpty)
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 10,
@@ -132,7 +182,29 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                 ),
                               ),
                               child: Text(
-                                garment.badgeLabel!,
+                                product.colors.first,
+                                style: context.typography.labelSmall?.copyWith(
+                                  color: colors.primaryLight,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ),
+                          const Gap(separatorSm),
+                          if (hasOffer)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: colors.nightCard,
+                                borderRadius: kBorderRadiusAllXLarge,
+                                border: Border.all(
+                                  color: colors.primary.withValues(alpha: 0.45),
+                                ),
+                              ),
+                              child: Text(
+                                'Oferta',
                                 style: context.typography.labelSmall?.copyWith(
                                   color: colors.primaryLight,
                                   fontWeight: FontWeight.w800,
@@ -143,7 +215,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       ),
                       const Gap(separatorMd),
                       Text(
-                        garment.name,
+                        product.name,
                         style: context.typography.headlineSmall?.copyWith(
                           color: colors.white,
                           fontWeight: FontWeight.w900,
@@ -151,19 +223,82 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       ),
                       const Gap(separatorXSm),
                       Text(
-                        garment.category,
+                        _formatCategory(product.category),
                         style: context.typography.bodyMedium?.copyWith(
                           color: colors.slate,
                         ),
                       ),
                       const Gap(separatorMd),
-                      Text(
-                        '\$${garment.price.toStringAsFixed(2)}',
-                        style: context.typography.headlineSmall?.copyWith(
-                          color: colors.primaryLight,
-                          fontWeight: FontWeight.w900,
-                        ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            '\$${product.price.toStringAsFixed(2)}',
+                            style: context.typography.headlineSmall?.copyWith(
+                              color: colors.primaryLight,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                          if (hasOffer) ...[
+                            const Gap(separatorSm),
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 4),
+                              child: Text(
+                                '\$${product.priceOld!.toStringAsFixed(2)}',
+                                style: context.typography.bodyMedium?.copyWith(
+                                  color: colors.slate,
+                                  decoration: TextDecoration.lineThrough,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
+                      if (product.sizes.isNotEmpty) ...[
+                        const Gap(separatorLg),
+                        Text(
+                          'Tallas disponibles',
+                          style: context.typography.titleMedium?.copyWith(
+                            color: colors.white,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const Gap(separatorSm),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: product.sizes.map((size) {
+                            final selected = selectedSize == size;
+                            return GestureDetector(
+                              onTap: () => setState(() => selectedSize = size),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 14,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  gradient:
+                                      selected ? colors.gradientPrimary : null,
+                                  color: selected ? null : colors.nightCard,
+                                  borderRadius: kBorderRadiusAllMedium,
+                                  border: Border.all(
+                                    color: selected
+                                        ? Colors.transparent
+                                        : colors.primary.withValues(alpha: 0.45),
+                                  ),
+                                ),
+                                child: Text(
+                                  size,
+                                  style: context.typography.labelSmall?.copyWith(
+                                    color: colors.white,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ],
                       const Gap(separatorLg),
                       Text(
                         'Descripción',
@@ -174,9 +309,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       ),
                       const Gap(separatorXSm),
                       Text(
-                        garment.description,
+                        product.description.isEmpty
+                            ? 'Sin descripción disponible.'
+                            : _cleanDescription(product.description),
                         style: context.typography.bodyMedium?.copyWith(
                           color: colors.slate,
+                          height: 1.5,
                         ),
                       ),
                       const Gap(separatorXLg),

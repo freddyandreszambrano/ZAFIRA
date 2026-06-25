@@ -16,6 +16,7 @@ import '../../../feature/catalog/view/main/catalog_screen.dart';
 import '../../../feature/catalog/view/main/catalog_categories_screen.dart';
 import '../../../feature/catalog/view/main/catalog_garments_screen.dart';
 import '../../../feature/catalog/view/main/product_detail_screen.dart';
+import '../../../feature/catalog/domain/product_model.dart';
 
 final appRouter = GoRouter(
   initialLocation: LoginScreen.routeName,
@@ -74,7 +75,7 @@ final appRouter = GoRouter(
         GoRoute(
           path: ProductDetailScreen.routeName,
           builder: (context, state) => ProductDetailScreen(
-            garment: state.extra as Garment,
+            product: state.extra as ProductModel,
           ),
         ),
         GoRoute(
