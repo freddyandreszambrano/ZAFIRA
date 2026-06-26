@@ -11,6 +11,7 @@ import '../../../domain/password_reset_confirm.dart';
 import '../../controller/password_reset_controller.dart';
 import '../../state/password_reset_state.dart';
 import '../login/login_screen.dart';
+import '../register/password_strength_indicator.dart';
 import '../shared/auth_text_field.dart';
 import '../shared/obscure_toggle_button.dart';
 
@@ -41,7 +42,15 @@ class _ResetPasswordFormState extends ConsumerState<ResetPasswordForm> {
 
   void _submit() {
     FocusScope.of(context).unfocus();
-    if (!(_formKey.currentState?.validate() ?? false)) return;
+
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      AppNotification.error(
+        context,
+        'Hay datos pendientes por completar o corregir.',
+      );
+      return;
+    }
+
     ref.read(passwordResetControllerProvider.notifier).confirmReset(
           PasswordResetConfirm(
             email: widget.email,
@@ -62,8 +71,33 @@ class _ResetPasswordFormState extends ConsumerState<ResetPasswordForm> {
 
   String? _validatePassword(String? value) {
     final text = value ?? '';
+
     if (text.isEmpty) return 'Ingrese una contraseña';
-    if (text.length < 8) return 'Mínimo 8 caracteres';
+
+    return _validateStrongPassword(text);
+  }
+
+  String? _validateStrongPassword(String password) {
+    if (password.length < 8) {
+      return 'La contraseña debe tener al menos 8 caracteres';
+    }
+
+    if (!RegExp(r'[A-Z]').hasMatch(password)) {
+      return 'La contraseña debe contener al menos una letra mayúscula';
+    }
+
+    if (!RegExp(r'[a-z]').hasMatch(password)) {
+      return 'La contraseña debe contener al menos una letra minúscula';
+    }
+
+    if (!RegExp(r'\d').hasMatch(password)) {
+      return 'La contraseña debe contener al menos un número';
+    }
+
+    if (!RegExp(r'[!@#$%^&*(),.?":{}|<>_\-+=/\\[\];]').hasMatch(password)) {
+      return 'La contraseña debe contener al menos un carácter especial';
+    }
+
     return null;
   }
 
@@ -116,11 +150,18 @@ class _ResetPasswordFormState extends ConsumerState<ResetPasswordForm> {
             obscureText: _obscurePassword,
             textInputAction: TextInputAction.next,
             validator: _validatePassword,
+            onChanged: (_) => setState(() {}),
             suffixIcon: ObscureToggleButton(
               obscured: _obscurePassword,
               onPressed: () =>
                   setState(() => _obscurePassword = !_obscurePassword),
             ),
+          ),
+          const Gap(separatorSm),
+          ValueListenableBuilder<TextEditingValue>(
+            valueListenable: _passwordController,
+            builder: (_, value, _) =>
+                PasswordStrengthIndicator(password: value.text),
           ),
           const Gap(separatorLg),
           AuthTextField(
@@ -139,10 +180,24 @@ class _ResetPasswordFormState extends ConsumerState<ResetPasswordForm> {
             ),
           ),
           const Gap(separatorXLg),
-          AppGradientButton(
-            label: 'Actualizar contraseña',
-            isLoading: isLoading,
-            onPressed: _submit,
+          AnimatedBuilder(
+            animation: Listenable.merge([
+              _codeController,
+              _passwordController,
+              _confirmController,
+            ]),
+            builder: (context, _) {
+              final allFilled = _codeController.text.trim().isNotEmpty &&
+                  _passwordController.text.isNotEmpty &&
+                  _confirmController.text.isNotEmpty;
+
+              return AppGradientButton(
+                label: 'Actualizar contraseña',
+                isLoading: isLoading,
+                enabled: allFilled,
+                onPressed: _submit,
+              );
+            },
           ),
         ],
       ),

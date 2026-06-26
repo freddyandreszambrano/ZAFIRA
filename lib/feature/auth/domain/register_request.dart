@@ -6,6 +6,8 @@ class RegisterRequest {
     required this.password,
     this.firstName = '',
     this.lastName = '',
+    this.gender = '',
+    this.preferredSize = '',
   });
 
   final String username;
@@ -14,6 +16,8 @@ class RegisterRequest {
   final String password;
   final String firstName;
   final String lastName;
+  final String gender;
+  final String preferredSize;
 
   Map<String, dynamic> toJson() => {
         'username': username,
@@ -22,5 +26,7 @@ class RegisterRequest {
         'password': password,
         'first_name': firstName,
         'last_name': lastName,
+        'gender': gender,
+        'preferred_size': preferredSize,
       };
 }

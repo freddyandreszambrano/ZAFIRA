@@ -7,6 +7,7 @@ import '../../../../core/constants/app_numbers.dart';
 import '../../../../core/enum/response_status.dart';
 import '../../../../core/helpers/context_helper.dart';
 import '../../../../feature/auth/view/controller/auth_controller.dart';
+import '../../../../feature/auth/view/widgets/shared/gender_selector.dart';
 import '../../../../modules/common/widget/notifications/app_notification.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
@@ -25,7 +26,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   late final TextEditingController _lastNameController;
   late final TextEditingController _emailController;
   late final TextEditingController _dniController;
-  late final TextEditingController _countryController;
   late final TextEditingController _sizeController;
 
   String _gender = '';
@@ -40,7 +40,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     _lastNameController = TextEditingController(text: user?.lastName ?? '');
     _emailController = TextEditingController(text: user?.email ?? '');
     _dniController = TextEditingController(text: user?.dni ?? '');
-    _countryController = TextEditingController(text: user?.country ?? 'Ecuador');
     _sizeController = TextEditingController(text: user?.preferredSize ?? '');
     _gender = user?.gender ?? '';
   }
@@ -51,7 +50,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     _lastNameController.dispose();
     _emailController.dispose();
     _dniController.dispose();
-    _countryController.dispose();
     _sizeController.dispose();
     super.dispose();
   }
@@ -65,7 +63,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       'first_name': _firstNameController.text.trim(),
       'last_name': _lastNameController.text.trim(),
       'gender': _gender,
-      'country': _countryController.text.trim(),
       'preferred_size': _sizeController.text.trim(),
     });
 
@@ -181,18 +178,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     readOnly: true,
                   ),
                   const Gap(separatorMd),
-                  _GenderSelector(
+                  GenderSelector(
                     value: _gender,
                     onChanged: (value) {
                       setState(() => _gender = value);
                     },
-                  ),
-                  const Gap(separatorMd),
-                  _EditField(
-                    controller: _countryController,
-                    label: 'País',
-                    hint: 'Ecuador',
-                    icon: Icons.public_rounded,
                   ),
                   const Gap(separatorMd),
                   _EditField(
@@ -337,98 +327,3 @@ class _EditField extends StatelessWidget {
   }
 }
 
-class _GenderSelector extends StatelessWidget {
-  const _GenderSelector({
-    required this.value,
-    required this.onChanged,
-  });
-
-  final String value;
-  final ValueChanged<String> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.appColors;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Género',
-          style: context.typography.labelMedium?.copyWith(
-            color: colors.slateSoft,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        const Gap(separatorSm),
-        Row(
-          children: [
-            Expanded(
-              child: _GenderChip(
-                label: 'Masculino',
-                value: 'M',
-                selectedValue: value,
-                onTap: onChanged,
-              ),
-            ),
-            const Gap(separatorSm),
-            Expanded(
-              child: _GenderChip(
-                label: 'Femenino',
-                value: 'F',
-                selectedValue: value,
-                onTap: onChanged,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _GenderChip extends StatelessWidget {
-  const _GenderChip({
-    required this.label,
-    required this.value,
-    required this.selectedValue,
-    required this.onTap,
-  });
-
-  final String label;
-  final String value;
-  final String selectedValue;
-  final ValueChanged<String> onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.appColors;
-    final selected = value == selectedValue;
-
-    return InkWell(
-      onTap: () => onTap(value),
-      borderRadius: kBorderRadiusAllMedium,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 220),
-        height: 48,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: selected
-              ? colors.primary.withValues(alpha: 0.22)
-              : colors.nightInput,
-          borderRadius: kBorderRadiusAllMedium,
-          border: Border.all(
-            color: selected ? colors.primaryLight : colors.nightBorder,
-          ),
-        ),
-        child: Text(
-          label,
-          style: context.typography.labelMedium?.copyWith(
-            color: selected ? colors.primaryLight : colors.slateSoft,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-      ),
-    );
-  }
-}
