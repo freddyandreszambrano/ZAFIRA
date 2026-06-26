@@ -36,7 +36,9 @@ class DioHttpClient {
               await localDataSource.getItem(AppStrings.keyTokenJwt);
           options.headers['app-source'] = kIsWeb ? 'zafira-web' : 'zafira-app';
           options.headers['kIsWeb'] = kIsWeb.toString();
-          options.headers['content-type'] = 'application/json';
+          if (options.data is! FormData) {
+            options.headers['content-type'] = 'application/json';
+          }
           options.baseUrl = Flavor.server ?? '';
           if (!kIsWeb) {
             if (Flavor.projectVersion != null) {

@@ -48,8 +48,28 @@ class AuthRepository implements IAuth {
       await remoteDataSource.getToken(username, password);
 
   @override
+  Future<AuthTokenModel> getCurrentUser() async =>
+      await remoteDataSource.getCurrentUser();
+
+  @override
   Future<AuthTokenModel> updateProfile(Map<String, dynamic> data) async =>
       await remoteDataSource.updateProfile(data);
+
+  @override
+  Future<AuthTokenModel> updateAvatar(String filePath) async =>
+      await remoteDataSource.updateAvatar(filePath);
+
+  @override
+  Future<AuthTokenModel> deleteAvatar() async =>
+      await remoteDataSource.deleteAvatar();
+
+  @override
+  Future<AuthTokenModel> updateTryOnPhoto(String filePath) async =>
+      await remoteDataSource.updateTryOnPhoto(filePath);
+
+  @override
+  Future<AuthTokenModel> deleteTryOnPhoto() async =>
+      await remoteDataSource.deleteTryOnPhoto();
 
   @override
   Future<void> saveToken(String token) async {

@@ -2,19 +2,117 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'edit_profile_screen.dart';
+import 'preferences_screen.dart';
+import 'settings_screen.dart';
 
 import '../../../../core/constants/app_numbers.dart';
 import '../../../../core/helpers/context_helper.dart';
 import '../../../../feature/auth/view/controller/auth_controller.dart';
 import '../../../../feature/auth/view/widgets/login/login_screen.dart';
+import '../../../../feature/catalog/view/main/catalog_screen.dart';
+import '../../../../feature/favorites/view/main/favorites_screen.dart';
 import '../../../../feature/home/view/widget/home_bottom_nav.dart';
+import '../../../../modules/common/widget/notifications/app_notification.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   static const routeName = '/profile';
+
+  Future<void> _pickAndUploadAvatar(
+    BuildContext context,
+    WidgetRef ref,
+    bool hasAvatar,
+  ) async {
+    final action = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(hasAvatar ? 'Cambiar foto' : 'Foto de perfil'),
+        content: Text(
+          hasAvatar ? '¿Deseas cambiar tu foto?' : '¿Deseas seleccionar una imagen?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancelar'),
+          ),
+          if (hasAvatar)
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, 'delete'),
+              style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
+              child: const Text('Eliminar foto'),
+            ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(dialogContext, 'select'),
+            child: Text(hasAvatar ? 'Cambiar foto' : 'Seleccionar imagen'),
+          ),
+        ],
+      ),
+    );
+
+    if (action == null || !context.mounted) return;
+
+    if (action == 'delete') {
+      final ok = await ref.read(authControllerProvider.notifier).deleteAvatar();
+
+      if (!context.mounted) return;
+
+      if (ok) {
+        AppNotification.success(context, 'Foto de perfil eliminada');
+      } else {
+        AppNotification.error(context, 'No se pudo eliminar la foto de perfil');
+      }
+      return;
+    }
+
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 85,
+    );
+
+    if (picked == null || !context.mounted) return;
+
+    final colors = context.appColors;
+    final cropped = await ImageCropper().cropImage(
+      sourcePath: picked.path,
+      aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+      uiSettings: [
+        AndroidUiSettings(
+          toolbarTitle: 'Ajustar foto',
+          toolbarColor: colors.nightDeep,
+          toolbarWidgetColor: colors.white,
+          backgroundColor: colors.nightDeep,
+          activeControlsWidgetColor: colors.primary,
+          cropFrameColor: colors.primary,
+          cropGridColor: colors.primary.withValues(alpha: 0.4),
+          lockAspectRatio: true,
+        ),
+        IOSUiSettings(
+          title: 'Ajustar foto',
+          aspectRatioLockEnabled: true,
+        ),
+      ],
+    );
+
+    if (cropped == null || !context.mounted) return;
+
+    final ok = await ref
+        .read(authControllerProvider.notifier)
+        .updateAvatar(cropped.path);
+
+    if (!context.mounted) return;
+
+    if (ok) {
+      AppNotification.success(context, 'Foto de perfil actualizada');
+    } else {
+      AppNotification.error(context, 'No se pudo actualizar la foto de perfil');
+    }
+  }
 
   Future<void> _logout(BuildContext context, WidgetRef ref) async {
     final preferences = await SharedPreferences.getInstance();
@@ -33,10 +131,19 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   void _onNavTap(BuildContext context, int index) {
-    if (index == 4) return;
-
     if (index == 0) {
       context.go('/');
+      return;
+    }
+
+    if (index == 1) {
+      context.push(CatalogScreen.routeName);
+      return;
+    }
+
+    if (index == 2) {
+      context.push(FavoritesScreen.routeName);
+      return;
     }
   }
 
@@ -89,30 +196,42 @@ class ProfileScreen extends ConsumerWidget {
                   ],
                 ),
                 const Gap(separatorLg),
-                Stack(
-                  alignment: Alignment.bottomRight,
-                  children: [
-                    CircleAvatar(
-                      radius: 48,
-                      backgroundColor: colors.primary.withValues(alpha: 0.25),
-                      child: Text(
-                        initials.isNotEmpty ? initials : 'Z',
-                        style: context.typography.headlineMedium?.copyWith(
-                          color: colors.primaryLight,
-                          fontWeight: FontWeight.w900,
+                GestureDetector(
+                  onTap: () => _pickAndUploadAvatar(
+                    context,
+                    ref,
+                    (user?.image ?? '').isNotEmpty,
+                  ),
+                  child: Stack(
+                    alignment: Alignment.bottomRight,
+                    children: [
+                      CircleAvatar(
+                        radius: 48,
+                        backgroundColor: colors.primary.withValues(alpha: 0.25),
+                        backgroundImage: (user?.image ?? '').isNotEmpty
+                            ? NetworkImage(user!.image)
+                            : null,
+                        child: (user?.image ?? '').isEmpty
+                            ? Text(
+                                initials.isNotEmpty ? initials : 'Z',
+                                style: context.typography.headlineMedium?.copyWith(
+                                  color: colors.primaryLight,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              )
+                            : null,
+                      ),
+                      CircleAvatar(
+                        radius: 14,
+                        backgroundColor: colors.nightCard,
+                        child: Icon(
+                          Icons.edit_rounded,
+                          size: 14,
+                          color: colors.white,
                         ),
                       ),
-                    ),
-                    CircleAvatar(
-                      radius: 14,
-                      backgroundColor: colors.nightCard,
-                      child: Icon(
-                        Icons.edit_rounded,
-                        size: 14,
-                        color: colors.white,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 const Gap(separatorMd),
                 Text(
@@ -161,14 +280,18 @@ class ProfileScreen extends ConsumerWidget {
                   icon: Icons.checkroom_rounded,
                   title: 'Preferencias',
                   subtitle: 'Tallas, estilos y colores AI',
-                  onTap: () {},
+                  onTap: () {
+                    context.push(PreferencesScreen.routeName);
+                  },
                 ),
                 const Gap(separatorSm),
                 _ProfileOption(
                   icon: Icons.settings_outlined,
                   title: 'Configuración',
                   subtitle: 'Privacidad y notificaciones',
-                  onTap: () {},
+                  onTap: () {
+                    context.push(SettingsScreen.routeName);
+                  },
                 ),
                 const Gap(separatorXLg),
                 SizedBox(

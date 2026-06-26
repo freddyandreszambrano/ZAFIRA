@@ -26,6 +26,8 @@ abstract class UserModel with _$UserModel {
     @JsonKey(name: 'style_preferences')
     @Default(<String, dynamic>{})
     Map<String, dynamic> stylePreferences,
+    @Default('es') String language,
+    @JsonKey(name: 'try_on_photo') @Default('') String tryOnPhoto,
     @JsonKey(name: 'can_view_client_data')
     @Default(false)
     bool canViewClientData,

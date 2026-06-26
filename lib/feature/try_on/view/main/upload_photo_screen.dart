@@ -1,54 +1,34 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/constants/app_numbers.dart';
 import '../../../../core/helpers/context_helper.dart';
+import '../../../../feature/auth/view/controller/auth_controller.dart';
+import '../../../../feature/catalog/view/main/catalog_screen.dart';
 import '../../../../modules/common/widget/notifications/app_notification.dart';
 import 'photo_preview_screen.dart';
 
-class UploadPhotoScreen extends StatefulWidget {
+class UploadPhotoScreen extends ConsumerStatefulWidget {
   const UploadPhotoScreen({super.key});
 
   static const routeName = '/upload-photo';
 
   @override
-  State<UploadPhotoScreen> createState() => _UploadPhotoScreenState();
+  ConsumerState<UploadPhotoScreen> createState() => _UploadPhotoScreenState();
 }
 
-class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
-  static const _photoKey = 'try_on_user_photo_path';
-
+class _UploadPhotoScreenState extends ConsumerState<UploadPhotoScreen> {
   final ImagePicker _picker = ImagePicker();
 
   bool _loading = false;
-  String? _savedPhotoPath;
 
-  @override
-  void initState() {
-    super.initState();
-    _loadSavedPhoto();
-  }
-
-  Future<void> _loadSavedPhoto() async {
-    final prefs = await SharedPreferences.getInstance();
-    final path = prefs.getString(_photoKey);
-
-    if (!mounted) return;
-
-    setState(() {
-      _savedPhotoPath = path;
-    });
-  }
-
-  Future<void> _pickImage(ImageSource source) async {
+  Future<void> _pickImage(ImageSource source, {required bool hasPhoto}) async {
     if (_loading) return;
 
-    if (_savedPhotoPath != null) {
+    if (hasPhoto) {
       final replace = await _confirmReplacePhoto();
       if (!replace) return;
     }
@@ -69,14 +49,10 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
         return;
       }
 
-      final saved = await context.push<bool>(
+      await context.push<bool>(
         PhotoPreviewScreen.routeName,
         extra: image.path,
       );
-
-      if (saved == true) {
-        await _loadSavedPhoto();
-      }
     } catch (_) {
       if (!mounted) return;
 
@@ -143,13 +119,10 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
   }
 
   void _goToCatalog() {
-    AppNotification.info(
-      context,
-      'El catálogo de prendas estará disponible próximamente',
-    );
+    context.push(CatalogScreen.routeName);
   }
 
-  Future<void> _showChangePhotoOptions() async {
+  Future<void> _showChangePhotoOptions({required bool hasPhoto}) async {
     final colors = context.appColors;
 
     showModalBottomSheet(
@@ -191,7 +164,7 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
                   subtitle: 'Usar la cámara del dispositivo',
                   onTap: () {
                     context.pop();
-                    _pickImage(ImageSource.camera);
+                    _pickImage(ImageSource.camera, hasPhoto: hasPhoto);
                   },
                 ),
                 const Gap(separatorSm),
@@ -201,7 +174,7 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
                   subtitle: 'Seleccionar una imagen guardada',
                   onTap: () {
                     context.pop();
-                    _pickImage(ImageSource.gallery);
+                    _pickImage(ImageSource.gallery, hasPhoto: hasPhoto);
                   },
                 ),
                 const Gap(separatorMd),
@@ -287,26 +260,29 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
 
     if (delete != true) return;
 
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_photoKey);
+    setState(() => _loading = true);
+
+    final success =
+        await ref.read(authControllerProvider.notifier).deleteTryOnPhoto();
 
     if (!mounted) return;
 
-    setState(() {
-      _savedPhotoPath = null;
-    });
+    setState(() => _loading = false);
 
-    AppNotification.success(
-      context,
-      'Foto eliminada correctamente',
-    );
+    if (success) {
+      AppNotification.success(context, 'Foto eliminada correctamente');
+    } else {
+      AppNotification.error(context, 'No se pudo eliminar la foto');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final hasPhoto =
-        _savedPhotoPath != null && File(_savedPhotoPath!).existsSync();
+    final tryOnPhoto = ref.watch(
+      authControllerProvider.select((state) => state.user?.tryOnPhoto ?? ''),
+    );
+    final hasPhoto = tryOnPhoto.isNotEmpty;
 
     return Scaffold(
       backgroundColor: colors.nightDeep,
@@ -375,9 +351,16 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
                     child: hasPhoto
                         ? ClipRRect(
                       borderRadius: kBorderRadiusAllLarge,
-                      child: Image.file(
-                        File(_savedPhotoPath!),
-                        fit: BoxFit.cover,
+                      child: Image.network(
+                        tryOnPhoto,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) => Center(
+                          child: Icon(
+                            Icons.broken_image_outlined,
+                            color: colors.slate,
+                            size: 54,
+                          ),
+                        ),
                       ),
                     )
                         : Column(
@@ -441,7 +424,7 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
                     icon: Icons.cached_rounded,
                     outlined: true,
                     loading: _loading,
-                    onTap: _showChangePhotoOptions,
+                    onTap: () => _showChangePhotoOptions(hasPhoto: hasPhoto),
                   ),
                   const Gap(separatorSm),
 
@@ -459,14 +442,14 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
                     icon: Icons.photo_camera_outlined,
                     outlined: true,
                     loading: _loading,
-                    onTap: () => _pickImage(ImageSource.camera),
+                    onTap: () => _pickImage(ImageSource.camera, hasPhoto: false),
                   ),
                   const Gap(separatorSm),
                   _UploadButton(
                     label: 'Subir desde galería',
                     icon: Icons.image_outlined,
                     loading: _loading,
-                    onTap: () => _pickImage(ImageSource.gallery),
+                    onTap: () => _pickImage(ImageSource.gallery, hasPhoto: false),
                   ),
                 ],
                 const Gap(separatorMd),

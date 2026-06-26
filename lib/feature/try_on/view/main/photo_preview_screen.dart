@@ -1,37 +1,50 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/constants/app_numbers.dart';
 import '../../../../core/helpers/context_helper.dart';
+import '../../../../feature/auth/view/controller/auth_controller.dart';
 import '../../../../modules/common/widget/notifications/app_notification.dart';
 
-class PhotoPreviewScreen extends StatelessWidget {
+class PhotoPreviewScreen extends ConsumerStatefulWidget {
   const PhotoPreviewScreen({
     required this.imagePath,
     super.key,
   });
 
   static const routeName = '/photo-preview';
-  static const _photoKey = 'try_on_user_photo_path';
 
   final String imagePath;
 
-  Future<void> _savePhoto(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
+  @override
+  ConsumerState<PhotoPreviewScreen> createState() =>
+      _PhotoPreviewScreenState();
+}
 
-    await prefs.setString(_photoKey, imagePath);
+class _PhotoPreviewScreenState extends ConsumerState<PhotoPreviewScreen> {
+  bool _saving = false;
 
-    if (!context.mounted) return;
+  Future<void> _savePhoto() async {
+    setState(() => _saving = true);
 
-    AppNotification.success(
-      context,
-      'Foto guardada correctamente',
-    );
+    final success = await ref
+        .read(authControllerProvider.notifier)
+        .updateTryOnPhoto(widget.imagePath);
 
+    if (!mounted) return;
+
+    setState(() => _saving = false);
+
+    if (!success) {
+      AppNotification.error(context, 'No se pudo guardar la foto.');
+      return;
+    }
+
+    AppNotification.success(context, 'Foto guardada correctamente');
     context.pop(true);
   }
 
@@ -109,8 +122,8 @@ class PhotoPreviewScreen extends StatelessWidget {
                           child: ClipRRect(
                             borderRadius: kBorderRadiusAllLarge,
                             child: Image.file(
-                              File(imagePath),
-                              fit: BoxFit.cover,
+                              File(widget.imagePath),
+                              fit: BoxFit.contain,
                             ),
                           ),
                         ),
@@ -154,7 +167,7 @@ class PhotoPreviewScreen extends StatelessWidget {
                             borderRadius: kBorderRadiusAllLarge,
                           ),
                           child: ElevatedButton.icon(
-                            onPressed: () => _savePhoto(context),
+                            onPressed: _saving ? null : _savePhoto,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.transparent,
                               shadowColor: Colors.transparent,
@@ -162,10 +175,19 @@ class PhotoPreviewScreen extends StatelessWidget {
                                 borderRadius: kBorderRadiusAllLarge,
                               ),
                             ),
-                            icon: Icon(
-                              Icons.save_alt_rounded,
-                              color: colors.white,
-                            ),
+                            icon: _saving
+                                ? SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: colors.white,
+                                    ),
+                                  )
+                                : Icon(
+                                    Icons.save_alt_rounded,
+                                    color: colors.white,
+                                  ),
                             label: Text(
                               'Guardar foto',
                               style: context.typography.labelLarge?.copyWith(

@@ -3,6 +3,8 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../../core/enum/response_status.dart';
 import '../../../../core/utils/logger.dart';
+import '../../../../modules/common/exceptions/regular_exception.dart';
+import '../../../../modules/common/exceptions/server_exception.dart';
 import '../../application/server_usecase.dart';
 import '../../application/token_usecase.dart';
 import '../../data/repositories/auth_repository.dart';
@@ -52,8 +54,7 @@ class AuthController extends StateNotifier<AuthState> {
             status: ResponseStatus.error,
             isTokenExist: false,
             failedLoginAttempts: state.failedLoginAttempts + 1,
-            errorMessage:
-            'No pudimos iniciar sesión. Verifica tu usuario y contraseña e inténtalo nuevamente.',
+            errorMessage: _extractLoginErrorMessage(err),
           );
         },
             (model) async {
@@ -88,6 +89,25 @@ class AuthController extends StateNotifier<AuthState> {
     }
   }
 
+  String _extractLoginErrorMessage(Exception err) {
+    const fallback =
+        'No pudimos iniciar sesión. Verifica tu usuario y contraseña e inténtalo nuevamente.';
+
+    dynamic data;
+    if (err is ServerException) {
+      data = err.message;
+    } else if (err is RegularException) {
+      data = err.message;
+    }
+
+    if (data is Map && data['message'] is String) {
+      final message = data['message'] as String;
+      if (message.isNotEmpty) return message;
+    }
+
+    return fallback;
+  }
+
   Future<bool> updateProfile(Map<String, dynamic> data) async {
     state = state.copyWith(
       profileState: ResponseStatus.loading,
@@ -117,6 +137,122 @@ class AuthController extends StateNotifier<AuthState> {
     );
   }
 
+  Future<bool> updateAvatar(String filePath) async {
+    state = state.copyWith(
+      profileState: ResponseStatus.loading,
+      errorMessage: null,
+    );
+
+    final response = await _tokenUseCase.updateAvatar(filePath);
+
+    return response.fold(
+      (err) {
+        state = state.copyWith(
+          profileState: ResponseStatus.error,
+          errorMessage: 'No se pudo actualizar la foto de perfil.',
+        );
+
+        return false;
+      },
+      (model) {
+        state = state.copyWith(
+          profileState: ResponseStatus.success,
+          user: model.user,
+          errorMessage: null,
+        );
+
+        return true;
+      },
+    );
+  }
+
+  Future<bool> deleteAvatar() async {
+    state = state.copyWith(
+      profileState: ResponseStatus.loading,
+      errorMessage: null,
+    );
+
+    final response = await _tokenUseCase.deleteAvatar();
+
+    return response.fold(
+      (err) {
+        state = state.copyWith(
+          profileState: ResponseStatus.error,
+          errorMessage: 'No se pudo eliminar la foto de perfil.',
+        );
+
+        return false;
+      },
+      (model) {
+        state = state.copyWith(
+          profileState: ResponseStatus.success,
+          user: model.user,
+          errorMessage: null,
+        );
+
+        return true;
+      },
+    );
+  }
+
+  Future<bool> updateTryOnPhoto(String filePath) async {
+    state = state.copyWith(
+      profileState: ResponseStatus.loading,
+      errorMessage: null,
+    );
+
+    final response = await _tokenUseCase.updateTryOnPhoto(filePath);
+
+    return response.fold(
+      (err) {
+        state = state.copyWith(
+          profileState: ResponseStatus.error,
+          errorMessage: 'No se pudo guardar la foto.',
+        );
+
+        return false;
+      },
+      (model) {
+        state = state.copyWith(
+          profileState: ResponseStatus.success,
+          user: model.user,
+          errorMessage: null,
+        );
+
+        return true;
+      },
+    );
+  }
+
+  Future<bool> deleteTryOnPhoto() async {
+    state = state.copyWith(
+      profileState: ResponseStatus.loading,
+      errorMessage: null,
+    );
+
+    final response = await _tokenUseCase.deleteTryOnPhoto();
+
+    return response.fold(
+      (err) {
+        state = state.copyWith(
+          profileState: ResponseStatus.error,
+          errorMessage: 'No se pudo eliminar la foto.',
+        );
+
+        return false;
+      },
+      (model) {
+        state = state.copyWith(
+          profileState: ResponseStatus.success,
+          user: model.user,
+          errorMessage: null,
+        );
+
+        return true;
+      },
+    );
+  }
+
   Future<void> logout() async {
     await _tokenUseCase.removeToken();
     state = AuthState.initial();
@@ -134,11 +270,40 @@ class AuthController extends StateNotifier<AuthState> {
     _serverUseCase();
     await getVersion();
 
-    final hasToken = await _tokenUseCase.checkToken();
+    try {
+      final hasToken = await _tokenUseCase.checkToken();
 
-    state = state.copyWith(
-      isTokenExist: hasToken,
-      status: hasToken ? ResponseStatus.success : ResponseStatus.initial,
+      state = state.copyWith(
+        isTokenExist: hasToken,
+        status: hasToken ? ResponseStatus.success : ResponseStatus.initial,
+      );
+
+      if (hasToken) {
+        await _loadCurrentUser();
+      }
+    } catch (_) {
+      state = state.copyWith(
+        isTokenExist: false,
+        status: ResponseStatus.initial,
+      );
+    }
+  }
+
+  Future<void> _loadCurrentUser() async {
+    final response = await _tokenUseCase.getCurrentUser();
+
+    await response.fold<Future<void>>(
+      (err) async {
+        final isUnauthorized = err is ServerException && err.statusCode == 401;
+        if (isUnauthorized) {
+          await logout();
+        }
+        // Si falló por otra razón (ej. sin conexión), se mantiene la
+        // sesión local y se reintentará en la próxima pantalla.
+      },
+      (model) async {
+        state = state.copyWith(user: model.user);
+      },
     );
   }
 
