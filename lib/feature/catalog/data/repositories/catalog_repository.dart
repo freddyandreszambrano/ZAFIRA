@@ -16,8 +16,8 @@ class CatalogRepository implements ICatalog {
 
   @override
   Future<List<ProductModel>> getProducts({
-    required String gender,
-    required String category,
+    String? gender,
+    String? category,
   }) async =>
       await remoteDataSource.getProducts(gender: gender, category: category);
 

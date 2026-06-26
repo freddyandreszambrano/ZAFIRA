@@ -11,8 +11,8 @@ class CatalogUseCase with ErrorExceptionHandler {
   final ICatalog interface;
 
   Future<Either<Exception, List<ProductModel>>> getProducts({
-    required String gender,
-    required String category,
+    String? gender,
+    String? category,
   }) async {
     const String methodName = "GET_PRODUCTS";
     DebugLogger(runtimeType).methodInit(methodName);

@@ -6,54 +6,34 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_numbers.dart';
 import '../../../../core/enum/response_status.dart';
 import '../../../../core/helpers/context_helper.dart';
-import '../../../favorites/view/controller/favorite_controller.dart';
-import '../../../favorites/view/favorite_feedback.dart';
-import '../../domain/product_model.dart';
-import '../controller/catalog_controller.dart';
-import '../state/catalog_state.dart';
-import 'product_detail_screen.dart';
+import '../../../catalog/domain/product_model.dart';
+import '../../../catalog/view/main/product_detail_screen.dart';
+import '../controller/favorite_controller.dart';
+import '../favorite_feedback.dart';
+import '../state/favorite_state.dart';
 
-class CatalogGarmentsScreen extends ConsumerStatefulWidget {
-  const CatalogGarmentsScreen({
-    required this.gender,
-    required this.category,
-    this.categoryLabel,
-    super.key,
-  });
+class FavoritesScreen extends ConsumerStatefulWidget {
+  const FavoritesScreen({super.key});
 
-  static const routeName = '/catalog/garments';
-
-  final String gender;
-  final String category;
-  final String? categoryLabel;
+  static const routeName = '/favorites';
 
   @override
-  ConsumerState<CatalogGarmentsScreen> createState() =>
-      _CatalogGarmentsScreenState();
+  ConsumerState<FavoritesScreen> createState() => _FavoritesScreenState();
 }
 
-class _CatalogGarmentsScreenState extends ConsumerState<CatalogGarmentsScreen> {
+class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await ref.read(catalogControllerProvider.notifier).getProducts(
-        gender: widget.gender,
-        category: widget.category,
-      );
-      if (!mounted) return;
-      ref.read(favoriteControllerProvider.notifier).syncFromProducts(
-            ref.read(catalogControllerProvider).products,
-          );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(favoriteControllerProvider.notifier).loadFavorites();
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final genderLabel = widget.gender == 'woman' ? 'Mujer' : 'Hombre';
-    final displayLabel = widget.categoryLabel ?? widget.category;
-    final state = ref.watch(catalogControllerProvider);
+    final state = ref.watch(favoriteControllerProvider);
 
     return Scaffold(
       backgroundColor: colors.nightDeep,
@@ -75,7 +55,7 @@ class _CatalogGarmentsScreenState extends ConsumerState<CatalogGarmentsScreen> {
                     ),
                     Expanded(
                       child: Text(
-                        displayLabel,
+                        'Favoritos',
                         textAlign: TextAlign.center,
                         style: context.typography.titleLarge?.copyWith(
                           color: colors.white,
@@ -88,7 +68,7 @@ class _CatalogGarmentsScreenState extends ConsumerState<CatalogGarmentsScreen> {
                 ),
                 const Gap(separatorLg),
                 Text(
-                  displayLabel,
+                  'Tus prendas guardadas',
                   style: context.typography.headlineSmall?.copyWith(
                     color: colors.white,
                     fontWeight: FontWeight.w900,
@@ -96,15 +76,13 @@ class _CatalogGarmentsScreenState extends ConsumerState<CatalogGarmentsScreen> {
                 ),
                 const Gap(separatorXSm),
                 Text(
-                  'Prendas disponibles en esta categoría.',
+                  'Prendas que marcaste con el corazón.',
                   style: context.typography.bodyMedium?.copyWith(
                     color: colors.slate,
                   ),
                 ),
                 const Gap(separatorLg),
-                Expanded(
-                  child: _buildContent(context, state, genderLabel),
-                ),
+                Expanded(child: _buildContent(context, state)),
               ],
             ),
           ),
@@ -113,14 +91,11 @@ class _CatalogGarmentsScreenState extends ConsumerState<CatalogGarmentsScreen> {
     );
   }
 
-  Widget _buildContent(
-      BuildContext context,
-      CatalogState state,
-      String genderLabel,
-      ) {
+  Widget _buildContent(BuildContext context, FavoriteState state) {
     final colors = context.appColors;
 
-    if (state.status == ResponseStatus.loading) {
+    if (state.status == ResponseStatus.loading ||
+        state.status == ResponseStatus.initial) {
       return Center(
         child: CircularProgressIndicator(color: colors.primaryLight),
       );
@@ -129,7 +104,7 @@ class _CatalogGarmentsScreenState extends ConsumerState<CatalogGarmentsScreen> {
     if (state.status == ResponseStatus.error) {
       return Center(
         child: Text(
-          state.errorMessage ?? 'No se pudieron cargar las prendas.',
+          state.errorMessage ?? 'No se pudieron cargar tus favoritos.',
           textAlign: TextAlign.center,
           style: context.typography.bodyMedium?.copyWith(color: colors.slate),
         ),
@@ -138,10 +113,31 @@ class _CatalogGarmentsScreenState extends ConsumerState<CatalogGarmentsScreen> {
 
     if (state.products.isEmpty) {
       return Center(
-        child: Text(
-          'Todavía no hay prendas reales en esta categoría.',
-          textAlign: TextAlign.center,
-          style: context.typography.bodyMedium?.copyWith(color: colors.slate),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.favorite_border_rounded,
+              color: colors.slate,
+              size: 48,
+            ),
+            const Gap(separatorSm),
+            Text(
+              'Todavía no tienes prendas favoritas.',
+              textAlign: TextAlign.center,
+              style: context.typography.bodyMedium?.copyWith(
+                color: colors.slate,
+              ),
+            ),
+            const Gap(separatorXSm),
+            Text(
+              'Toca el corazón en una prenda para guardarla aquí.',
+              textAlign: TextAlign.center,
+              style: context.typography.bodySmall?.copyWith(
+                color: colors.slate,
+              ),
+            ),
+          ],
         ),
       );
     }
@@ -154,41 +150,42 @@ class _CatalogGarmentsScreenState extends ConsumerState<CatalogGarmentsScreen> {
         crossAxisSpacing: separatorMd,
         childAspectRatio: 0.58,
       ),
-      itemBuilder: (context, index) {
+      itemBuilder: (gridItemContext, index) {
         final product = state.products[index];
-        return _GarmentCard(
+        return _FavoriteCard(
           product: product,
-          genderLabel: genderLabel,
-          onTap: () => context.push(
+          onTap: () => gridItemContext.push(
             ProductDetailScreen.routeName,
             extra: product,
           ),
+          // Usamos el context de la pantalla (no el del item del grid):
+          // el item desaparece de inmediato al quitar el favorito
+          // (actualización optimista), por lo que su context queda
+          // unmounted antes de que termine la llamada al backend.
+          onToggleFavorite: () =>
+              toggleFavoriteWithFeedback(context, ref, product),
         );
       },
     );
   }
 }
 
-class _GarmentCard extends ConsumerWidget {
-  const _GarmentCard({
+class _FavoriteCard extends StatelessWidget {
+  const _FavoriteCard({
     required this.product,
-    required this.genderLabel,
     required this.onTap,
+    required this.onToggleFavorite,
   });
 
   final ProductModel product;
-  final String genderLabel;
   final VoidCallback onTap;
+  final VoidCallback onToggleFavorite;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final colors = context.appColors;
+    final genderLabel = product.gender == 'woman' ? 'Mujer' : 'Hombre';
     final hasOffer = product.priceOld != null;
-    final isFavorite = ref.watch(
-      favoriteControllerProvider.select(
-        (state) => state.favoriteIds.contains(product.id),
-      ),
-    );
 
     return InkWell(
       onTap: onTap,
@@ -212,29 +209,27 @@ class _GarmentCard extends ConsumerWidget {
                     ),
                     child: Container(
                       width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: colors.white,
-                      ),
+                      decoration: BoxDecoration(color: colors.white),
                       child: product.firstImageUrl == null
                           ? Center(
-                        child: Icon(
-                          Icons.checkroom_rounded,
-                          color: colors.primaryLight,
-                          size: 54,
-                        ),
-                      )
-                          : Image.network(
-                        product.firstImageUrl!,
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) =>
-                            Center(
                               child: Icon(
                                 Icons.checkroom_rounded,
                                 color: colors.primaryLight,
                                 size: 54,
                               ),
+                            )
+                          : Image.network(
+                              product.firstImageUrl!,
+                              fit: BoxFit.contain,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Center(
+                                child: Icon(
+                                  Icons.checkroom_rounded,
+                                  color: colors.primaryLight,
+                                  size: 54,
+                                ),
+                              ),
                             ),
-                      ),
                     ),
                   ),
                   if (hasOffer)
@@ -264,25 +259,17 @@ class _GarmentCard extends ConsumerWidget {
                     top: 8,
                     right: 8,
                     child: GestureDetector(
-                      onTap: () =>
-                          toggleFavoriteWithFeedback(context, ref, product),
-                      child: AnimatedScale(
-                        scale: isFavorite ? 1.15 : 1.0,
-                        duration: const Duration(milliseconds: 180),
-                        curve: Curves.easeOutBack,
-                        child: Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: colors.nightDeep.withValues(alpha: 0.55),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            isFavorite
-                                ? Icons.favorite_rounded
-                                : Icons.favorite_border_rounded,
-                            color: isFavorite ? colors.primaryLight : colors.white,
-                            size: 18,
-                          ),
+                      onTap: onToggleFavorite,
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: colors.nightDeep.withValues(alpha: 0.55),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.favorite_rounded,
+                          color: colors.primaryLight,
+                          size: 18,
                         ),
                       ),
                     ),

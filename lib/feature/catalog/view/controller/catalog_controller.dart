@@ -19,8 +19,8 @@ class CatalogController extends StateNotifier<CatalogState> {
   final CatalogUseCase _catalogUseCase;
 
   Future<void> getProducts({
-    required String gender,
-    required String category,
+    String? gender,
+    String? category,
   }) async {
     state = state.copyWith(
       status: ResponseStatus.loading,
@@ -46,6 +46,28 @@ class CatalogController extends StateNotifier<CatalogState> {
         );
       },
     );
+  }
+
+  Future<String?> getCategoryThumbnail({
+    required String gender,
+    required String category,
+  }) async {
+    final response = await _catalogUseCase.getProducts(
+      gender: gender,
+      category: category,
+    );
+
+    return response.fold(
+      (err) => null,
+      (products) =>
+          products.isNotEmpty ? products.first.firstImageUrl : null,
+    );
+  }
+
+  Future<List<ProductModel>> getFeaturedProducts() async {
+    final response = await _catalogUseCase.getProducts();
+
+    return response.fold((err) => [], (products) => products);
   }
 
   Future<ProductModel?> getProductById(int id) async {

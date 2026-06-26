@@ -1,11 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/constants/app_numbers.dart';
 import '../../../../core/helpers/context_helper.dart';
 import '../../../../modules/common/widget/notifications/app_notification.dart';
+import '../../../favorites/view/controller/favorite_controller.dart';
+import '../../../favorites/view/favorite_feedback.dart';
 import '../../domain/product_model.dart';
+
+Future<void> _openOfficialStore(BuildContext context, String url) async {
+  final uri = Uri.tryParse(url);
+  if (uri == null || !await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+    if (context.mounted) {
+      AppNotification.info(context, 'No se pudo abrir el enlace de la tienda.');
+    }
+  }
+}
 
 String _cleanDescription(String raw) {
   var text = raw.replaceFirst('DETALLES DEL PRODUCTO', '').trim();
@@ -47,7 +60,7 @@ String _formatCategory(String raw) {
       .join(' ');
 }
 
-class ProductDetailScreen extends StatefulWidget {
+class ProductDetailScreen extends ConsumerStatefulWidget {
   const ProductDetailScreen({required this.product, super.key});
 
   static const routeName = '/catalog/product';
@@ -55,12 +68,22 @@ class ProductDetailScreen extends StatefulWidget {
   final ProductModel product;
 
   @override
-  State<ProductDetailScreen> createState() => _ProductDetailScreenState();
+  ConsumerState<ProductDetailScreen> createState() =>
+      _ProductDetailScreenState();
 }
 
-class _ProductDetailScreenState extends State<ProductDetailScreen> {
-  bool isFavorite = false;
+class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   String? selectedSize;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(favoriteControllerProvider.notifier).syncFromProducts(
+            [widget.product],
+          );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,6 +91,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     final product = widget.product;
     final genderLabel = product.gender == 'woman' ? 'Mujer' : 'Hombre';
     final hasOffer = product.priceOld != null;
+    final isFavorite = ref.watch(
+      favoriteControllerProvider.select(
+        (state) => state.favoriteIds.contains(product.id),
+      ),
+    );
 
     return Scaffold(
       backgroundColor: colors.nightDeep,
@@ -89,7 +117,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     ),
                     const Spacer(),
                     GestureDetector(
-                      onTap: () => setState(() => isFavorite = !isFavorite),
+                      onTap: () =>
+                          toggleFavoriteWithFeedback(context, ref, product),
                       child: AnimatedScale(
                         scale: isFavorite ? 1.15 : 1.0,
                         duration: const Duration(milliseconds: 180),
@@ -317,6 +346,33 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           height: 1.5,
                         ),
                       ),
+                      if (product.url.isNotEmpty) ...[
+                        const Gap(separatorLg),
+                        OutlinedButton.icon(
+                          onPressed: () => _openOfficialStore(context, product.url),
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size.fromHeight(48),
+                            side: BorderSide(
+                              color: colors.primary.withValues(alpha: 0.45),
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: kBorderRadiusAllMedium,
+                            ),
+                          ),
+                          icon: Icon(
+                            Icons.open_in_new_rounded,
+                            color: colors.primaryLight,
+                            size: 18,
+                          ),
+                          label: Text(
+                            'Comprar en la tienda oficial',
+                            style: context.typography.labelMedium?.copyWith(
+                              color: colors.primaryLight,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                      ],
                       const Gap(separatorXLg),
                     ],
                   ),

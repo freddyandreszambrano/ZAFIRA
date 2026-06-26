@@ -15,13 +15,13 @@ class CatalogService {
   final DioHttpClient remoteDataSource;
 
   Future<List<ProductModel>> getProducts({
-    required String gender,
-    required String category,
+    String? gender,
+    String? category,
   }) async {
     const url = '/api/v1/catalog/products/';
     final queryParameters = {
-      'gender': gender,
-      'category': category,
+      if (gender != null) 'gender': gender,
+      if (category != null) 'category': category,
     };
 
     DebugLogger(runtimeType).request(url, queryParameters);
