@@ -104,6 +104,9 @@ class _LoginFormState extends ConsumerState<LoginForm> {
     final hasLoginError = authState.status == ResponseStatus.error &&
         (authState.errorMessage ?? '').isNotEmpty;
 
+    final isAccountDeactivated =
+        (authState.errorMessage ?? '').toLowerCase().contains('desactivada');
+
     final showMessageCard = hasLoginError || _showRequiredMessage;
 
     return Form(
@@ -156,13 +159,17 @@ class _LoginFormState extends ConsumerState<LoginForm> {
               padding: const EdgeInsets.only(top: separatorLg),
               child: _LoginMessageCard(
                 title: hasLoginError
-                    ? 'No pudimos iniciar sesión'
+                    ? (isAccountDeactivated
+                        ? 'Cuenta desactivada'
+                        : 'No pudimos iniciar sesión')
                     : 'Campos obligatorios',
                 message: hasLoginError
-                    ? 'Verifica tu usuario y contraseña e inténtalo nuevamente.'
+                    ? (authState.errorMessage ??
+                        'Verifica tu usuario y contraseña e inténtalo nuevamente.')
                     : 'Ingresa tu usuario y contraseña para continuar.',
                 attempts: authState.failedLoginAttempts,
                 showRecovery: hasLoginError &&
+                    !isAccountDeactivated &&
                     authState.failedLoginAttempts >= 3,
                 onForgotPassword: _onForgotPassword,
               ),

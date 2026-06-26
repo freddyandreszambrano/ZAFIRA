@@ -6,20 +6,23 @@ import '../../../feature/auth/view/widgets/login/login_screen.dart';
 import '../../../feature/auth/view/widgets/register/register_screen.dart';
 import '../../../feature/auth/view/widgets/register/register_success_screen.dart';
 import '../../../feature/auth/view/widgets/reset_password/reset_password_screen.dart';
+import '../../../feature/auth/view/widgets/splash/splash_screen.dart';
 import '../../../feature/home/view/main/home_screen.dart';
 import '../../../feature/try_on/view/main/photo_preview_screen.dart';
 import '../../../feature/try_on/view/main/upload_photo_screen.dart';
 import '../../../feature/profile/view/main/profile_screen.dart';
 import '../../connection/view/widgets/online_widget.dart';
 import '../../../feature/profile/view/main/edit_profile_screen.dart';
+import '../../../feature/profile/view/main/preferences_screen.dart';
+import '../../../feature/profile/view/main/settings_screen.dart';
 import '../../../feature/catalog/view/main/catalog_screen.dart';
-import '../../../feature/catalog/view/main/catalog_categories_screen.dart';
 import '../../../feature/catalog/view/main/catalog_garments_screen.dart';
 import '../../../feature/catalog/view/main/product_detail_screen.dart';
 import '../../../feature/catalog/domain/product_model.dart';
+import '../../../feature/favorites/view/main/favorites_screen.dart';
 
 final appRouter = GoRouter(
-  initialLocation: LoginScreen.routeName,
+  initialLocation: SplashScreen.routeName,
   routes: [
     ShellRoute(
       builder: (context, state, child) => Scaffold(
@@ -27,6 +30,10 @@ final appRouter = GoRouter(
         bottomNavigationBar: const OnlineWidget(),
       ),
       routes: [
+        GoRoute(
+          path: SplashScreen.routeName,
+          builder: (context, state) => const SplashScreen(),
+        ),
         GoRoute(
           path: LoginScreen.routeName,
           builder: (context, state) => const LoginScreen(),
@@ -57,18 +64,13 @@ final appRouter = GoRouter(
           builder: (context, state) => const CatalogScreen(),
         ),
         GoRoute(
-          path: CatalogCategoriesScreen.routeName,
-          builder: (context, state) => CatalogCategoriesScreen(
-            gender: state.extra as String? ?? 'woman',
-          ),
-        ),
-        GoRoute(
           path: CatalogGarmentsScreen.routeName,
           builder: (context, state) {
             final extra = state.extra as Map<String, String>? ?? const {};
             return CatalogGarmentsScreen(
               gender: extra['gender'] ?? 'woman',
               category: extra['category'] ?? '',
+              categoryLabel: extra['categoryLabel'],
             );
           },
         ),
@@ -79,6 +81,11 @@ final appRouter = GoRouter(
           ),
         ),
         GoRoute(
+          path: FavoritesScreen.routeName,
+          builder: (context, state) => const FavoritesScreen(),
+        ),
+
+        GoRoute(
           path: ProfileScreen.routeName,
           builder: (context, state) => const ProfileScreen(),
         ),
@@ -86,6 +93,16 @@ final appRouter = GoRouter(
         GoRoute(
           path: EditProfileScreen.routeName,
           builder: (context, state) => const EditProfileScreen(),
+        ),
+
+        GoRoute(
+          path: PreferencesScreen.routeName,
+          builder: (context, state) => const PreferencesScreen(),
+        ),
+
+        GoRoute(
+          path: SettingsScreen.routeName,
+          builder: (context, state) => const SettingsScreen(),
         ),
 
         GoRoute(
