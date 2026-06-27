@@ -5,11 +5,7 @@ abstract class DaoSQL {
     String where = "id = ?",
   });
 
-  Future<void> remove(
-    String table,
-    dynamic data, {
-    String where = "id = ?",
-  });
+  Future<void> remove(String table, dynamic data, {String where = "id = ?"});
 
   Future<void> update(
     dynamic dataToUpdate,
@@ -26,11 +22,7 @@ abstract class ManagerSQL {
 
   Future<void> truncate(String table);
 
-  Future<void> remove(
-    String table,
-    dynamic data, {
-    String where = "id = ?",
-  });
+  Future<void> remove(String table, dynamic data, {String where = "id = ?"});
 
   Future<List<dynamic>> select(
     String table, {

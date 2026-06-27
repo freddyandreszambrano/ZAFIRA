@@ -47,10 +47,12 @@ class Flavor {
   static const _hereAppIdProd = String.fromEnvironment('HERE_APP_ID_PROD');
   static const _hereMapKeyDev = String.fromEnvironment('HERE_MAP_KEY_DEV');
   static const _hereMapKeyProd = String.fromEnvironment('HERE_MAP_KEY_PROD');
-  static const _googleAndroidDev =
-      String.fromEnvironment('GOOGLE_MAPS_ANDROID_DEV');
-  static const _googleAndroidProd =
-      String.fromEnvironment('GOOGLE_MAPS_ANDROID_PROD');
+  static const _googleAndroidDev = String.fromEnvironment(
+    'GOOGLE_MAPS_ANDROID_DEV',
+  );
+  static const _googleAndroidProd = String.fromEnvironment(
+    'GOOGLE_MAPS_ANDROID_PROD',
+  );
   static const _googleIosDev = String.fromEnvironment('GOOGLE_MAPS_IOS_DEV');
   static const _googleIosProd = String.fromEnvironment('GOOGLE_MAPS_IOS_PROD');
   static const _googleWebDev = String.fromEnvironment('GOOGLE_MAPS_WEB_DEV');

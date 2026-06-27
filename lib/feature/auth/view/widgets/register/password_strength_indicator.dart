@@ -74,8 +74,12 @@ class PasswordStrengthIndicator extends StatelessWidget {
       }
     }
 
-    final variety =
-        [hasUpper, hasLower, hasDigit, hasSpecial].where((e) => e).length;
+    final variety = [
+      hasUpper,
+      hasLower,
+      hasDigit,
+      hasSpecial,
+    ].where((e) => e).length;
 
     var score = 0;
     if (pwd.length >= 8 && variety >= 2) score++;

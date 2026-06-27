@@ -19,7 +19,8 @@ class RegisterSuccessScreen extends StatelessWidget {
     return StatusScreen(
       type: AppNotificationType.success,
       title: '¡Cuenta creada con éxito!',
-      message: 'Tu probador virtual está listo. '
+      message:
+          'Tu probador virtual está listo. '
           'Inicia sesión para comenzar tu experiencia.',
       actionLabel: 'Ir a Iniciar sesión',
       onAction: () => context.go(LoginScreen.routeName),

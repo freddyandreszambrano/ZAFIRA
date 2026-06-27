@@ -1,5 +1,1 @@
-enum ConnectionStatus {
-  unknown,
-  connected,
-  disconnected,
-}
+enum ConnectionStatus { unknown, connected, disconnected }

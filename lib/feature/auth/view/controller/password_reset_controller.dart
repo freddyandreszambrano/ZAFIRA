@@ -8,12 +8,14 @@ import '../../domain/password_reset_confirm.dart';
 import '../state/password_reset_state.dart';
 
 final passwordResetControllerProvider =
-    StateNotifierProvider.autoDispose<PasswordResetController,
-        PasswordResetState>((ref) {
-  return PasswordResetController(
-    PasswordResetUseCase(ref.watch(passwordResetRepositoryProvider)),
-  );
-});
+    StateNotifierProvider.autoDispose<
+      PasswordResetController,
+      PasswordResetState
+    >((ref) {
+      return PasswordResetController(
+        PasswordResetUseCase(ref.watch(passwordResetRepositoryProvider)),
+      );
+    });
 
 class PasswordResetController extends StateNotifier<PasswordResetState> {
   PasswordResetController(this._useCase) : super(PasswordResetState.initial());

@@ -7,8 +7,8 @@ import 'local_storage.dart';
 AndroidOptions _getAndroidOptions() => const AndroidOptions();
 
 IOSOptions _getIOSOptions() => const IOSOptions(
-      accessibility: KeychainAccessibility.first_unlock_this_device,
-    );
+  accessibility: KeychainAccessibility.first_unlock_this_device,
+);
 
 final secureLocalDataSourceProvider = Provider<LocalStorage>(
   (ref) => LocalStorageImpl(

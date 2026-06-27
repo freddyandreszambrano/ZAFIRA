@@ -12,19 +12,19 @@ import '../../data/repository/connection_network_repository.dart';
 import '../states/network_state.dart';
 
 final connectionControllerProvider =
-    StateNotifierProvider<ConnectionController, NetworkState>(
-  (ref) {
-    final connectionRepository = ref.watch(connectionNetworkRepositoryProvider);
-    return ConnectionController(SaveConnectionUseCase(connectionRepository));
-  },
-);
+    StateNotifierProvider<ConnectionController, NetworkState>((ref) {
+      final connectionRepository = ref.watch(
+        connectionNetworkRepositoryProvider,
+      );
+      return ConnectionController(SaveConnectionUseCase(connectionRepository));
+    });
 
 class ConnectionController extends StateNotifier<NetworkState> {
   ConnectionController(
     this._saveConnectionUseCase, {
     InternetConnection? internetConnection,
-  })  : _injectedInternetConnection = internetConnection,
-        super(NetworkState.initial()) {
+  }) : _injectedInternetConnection = internetConnection,
+       super(NetworkState.initial()) {
     _init();
   }
 
@@ -37,10 +37,12 @@ class ConnectionController extends StateNotifier<NetworkState> {
 
   void _init() {
     _serverChecker = _injectedInternetConnection ?? _createServerChecker();
-    _connectivitySub =
-        Connectivity().onConnectivityChanged.listen(_checkConnectivity);
-    _serverSub =
-        _serverChecker.onStatusChange.listen(_checkConnectivityToServer);
+    _connectivitySub = Connectivity().onConnectivityChanged.listen(
+      _checkConnectivity,
+    );
+    _serverSub = _serverChecker.onStatusChange.listen(
+      _checkConnectivityToServer,
+    );
     checkConnection();
   }
 

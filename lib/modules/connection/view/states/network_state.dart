@@ -11,11 +11,11 @@ class NetworkState {
   });
 
   factory NetworkState.initial() => NetworkState(
-        result: const [ConnectivityResult.none],
-        lastState: ConnectionStatus.disconnected,
-        newState: ConnectionStatus.disconnected,
-        message: 'Esperando...',
-      );
+    result: const [ConnectivityResult.none],
+    lastState: ConnectionStatus.disconnected,
+    newState: ConnectionStatus.disconnected,
+    message: 'Esperando...',
+  );
 
   final List<ConnectivityResult>? result;
   final ConnectionStatus? lastState;
@@ -27,13 +27,12 @@ class NetworkState {
     ConnectionStatus? lastState,
     ConnectionStatus? newState,
     String? message,
-  }) =>
-      NetworkState(
-        result: result ?? this.result,
-        lastState: lastState ?? this.lastState,
-        newState: newState ?? this.newState,
-        message: message ?? this.message,
-      );
+  }) => NetworkState(
+    result: result ?? this.result,
+    lastState: lastState ?? this.lastState,
+    newState: newState ?? this.newState,
+    message: message ?? this.message,
+  );
 
   bool get isOnline => newState == ConnectionStatus.connected;
 }

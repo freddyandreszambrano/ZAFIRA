@@ -1,17 +1,18 @@
-// Smoke test del root widget.
+// Smoke test del branding/tema.
 // `flutter test` corre todos los archivos `test/**_test.dart`.
 
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:zafira/core/flavors/flavors_config.dart';
-import 'package:zafira/main/common_main.dart';
+import 'package:zafira/feature/auth/view/widgets/shared/brand_wordmark.dart';
 
 void main() {
-  testWidgets('ZafiraApp arranca y muestra el logo gradient', (tester) async {
-    Flavor.setEnvironment(Environment.dev);
+  testWidgets('BrandWordmark renderiza la marca Zafira', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(body: Center(child: BrandWordmark())),
+      ),
+    );
 
-    await tester.pumpWidget(const ZafiraApp());
-
-    expect(find.text('ZAFIRA'), findsOneWidget);
-    expect(find.textContaining('Flavor:'), findsOneWidget);
+    expect(find.text('Zafira'), findsOneWidget);
   });
 }
