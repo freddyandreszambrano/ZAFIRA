@@ -58,23 +58,23 @@ class ProductModel {
   String? get firstImageUrl => imageUrls.isNotEmpty ? imageUrls.first : null;
 
   ProductModel copyWith({bool? isFavorite}) => ProductModel(
-        id: id,
-        idExternal: idExternal,
-        name: name,
-        category: category,
-        gender: gender,
-        url: url,
-        price: price,
-        priceOld: priceOld,
-        currency: currency,
-        sizes: sizes,
-        colors: colors,
-        description: description,
-        imageUrls: imageUrls,
-        availability: availability,
-        colorOptions: colorOptions,
-        isFavorite: isFavorite ?? this.isFavorite,
-      );
+    id: id,
+    idExternal: idExternal,
+    name: name,
+    category: category,
+    gender: gender,
+    url: url,
+    price: price,
+    priceOld: priceOld,
+    currency: currency,
+    sizes: sizes,
+    colors: colors,
+    description: description,
+    imageUrls: imageUrls,
+    availability: availability,
+    colorOptions: colorOptions,
+    isFavorite: isFavorite ?? this.isFavorite,
+  );
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
     return ProductModel(
@@ -95,7 +95,9 @@ class ProductModel {
       imageUrls: List<String>.from(json['image_urls'] as List? ?? []),
       availability: json['availability']?.toString() ?? 'unknown',
       colorOptions: (json['color_options'] as List? ?? [])
-          .map((item) => ColorOptionModel.fromJson(item as Map<String, dynamic>))
+          .map(
+            (item) => ColorOptionModel.fromJson(item as Map<String, dynamic>),
+          )
           .toList(),
       isFavorite: json['is_favorite'] as bool? ?? false,
     );

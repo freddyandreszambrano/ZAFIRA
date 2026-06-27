@@ -43,8 +43,9 @@ class AppGradientButton extends StatelessWidget {
                         width: 22,
                         child: CircularProgressIndicator(
                           strokeWidth: 2.4,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(colors.white),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            colors.white,
+                          ),
                         ),
                       )
                     : Text(

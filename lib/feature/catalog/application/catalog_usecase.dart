@@ -18,10 +18,8 @@ class CatalogUseCase with ErrorExceptionHandler {
     DebugLogger(runtimeType).methodInit(methodName);
 
     return await handlerApiExceptions(
-      () async => await interface.getProducts(
-        gender: gender,
-        category: category,
-      ),
+      () async =>
+          await interface.getProducts(gender: gender, category: category),
       methodName,
       runtimeType,
     );

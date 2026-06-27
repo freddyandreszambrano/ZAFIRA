@@ -46,8 +46,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Future<void> _loadProducts() async {
-    final products =
-        await ref.read(catalogControllerProvider.notifier).getFeaturedProducts();
+    final products = await ref
+        .read(catalogControllerProvider.notifier)
+        .getFeaturedProducts();
 
     if (!mounted) return;
 
@@ -97,7 +98,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final user = ref.watch(authControllerProvider.select((state) => state.user));
+    final user = ref.watch(
+      authControllerProvider.select((state) => state.user),
+    );
 
     final firstName = (user?.firstName ?? '').trim();
     final fullName = (user?.fullName ?? '').trim();
@@ -212,31 +215,31 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
                 const Gap(separatorLg),
 
-          Row(
-            children: [
-              Expanded(
-                child: _DashboardActionCard(
-                  icon: Icons.add_a_photo_outlined,
-                  title: 'Mi foto',
-                  subtitle: 'Gestionar foto',
-                  onTap: () => _goToUpload(context),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _DashboardActionCard(
+                        icon: Icons.add_a_photo_outlined,
+                        title: 'Mi foto',
+                        subtitle: 'Gestionar foto',
+                        onTap: () => _goToUpload(context),
+                      ),
+                    ),
+                    const Gap(separatorMd),
+                    Expanded(
+                      child: _DashboardActionCard(
+                        icon: Icons.grid_view_rounded,
+                        title: 'Categorías',
+                        subtitle: 'Explorar prendas',
+                        highlighted: true,
+                        onTap: () {
+                          context.push(CatalogScreen.routeName);
+                        },
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              const Gap(separatorMd),
-              Expanded(
-                child: _DashboardActionCard(
-                  icon: Icons.grid_view_rounded,
-                  title: 'Categorías',
-                  subtitle: 'Explorar prendas',
-                  highlighted: true,
-                    onTap: () {
-                    context.push(CatalogScreen.routeName);
-                  },
-                ),
-              ),
-            ],
-          ),
-          const Gap(separatorXLg),
+                const Gap(separatorXLg),
 
                 if (!_isLoadingProducts && _recentProducts.isNotEmpty) ...[
                   Text(
@@ -277,7 +280,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         width: isActive ? 16 : 5,
                         height: 4,
                         decoration: BoxDecoration(
-                          color: isActive ? colors.primaryLight : colors.nightBorder,
+                          color: isActive
+                              ? colors.primaryLight
+                              : colors.nightBorder,
                           borderRadius: kBorderRadiusAllXLarge,
                         ),
                       );

@@ -17,15 +17,10 @@ class RegularException implements Exception {
         ? error.response?.data
         : error.toString();
 
-    return RegularException(
-      message: message,
-    );
+    return RegularException(message: message);
   }
 
-  RegularException({
-    this.statusCode = -1,
-    this.message = '',
-  });
+  RegularException({this.statusCode = -1, this.message = ''});
 
   final int statusCode;
   final dynamic message;

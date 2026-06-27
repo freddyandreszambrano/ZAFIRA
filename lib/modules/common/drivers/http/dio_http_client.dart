@@ -7,12 +7,10 @@ import '../../../../core/flavors/flavors_config.dart';
 import '../storage/local_storage.dart';
 import '../storage/local_storage_impl.dart';
 
-final dioHttpClientProvider = Provider<DioHttpClient>(
-  (ref) {
-    final localDataSource = ref.watch(secureLocalDataSourceProvider);
-    return DioHttpClient(localDataSource);
-  },
-);
+final dioHttpClientProvider = Provider<DioHttpClient>((ref) {
+  final localDataSource = ref.watch(secureLocalDataSourceProvider);
+  return DioHttpClient(localDataSource);
+});
 
 class DioHttpClient {
   DioHttpClient(this.localDataSource);
@@ -32,8 +30,9 @@ class DioHttpClient {
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          options.headers['Authorization'] =
-              await localDataSource.getItem(AppStrings.keyTokenJwt);
+          options.headers['Authorization'] = await localDataSource.getItem(
+            AppStrings.keyTokenJwt,
+          );
           options.headers['app-source'] = kIsWeb ? 'zafira-web' : 'zafira-app';
           options.headers['kIsWeb'] = kIsWeb.toString();
           if (options.data is! FormData) {

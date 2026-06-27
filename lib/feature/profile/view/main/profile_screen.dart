@@ -33,7 +33,9 @@ class ProfileScreen extends ConsumerWidget {
       builder: (dialogContext) => AlertDialog(
         title: Text(hasAvatar ? 'Cambiar foto' : 'Foto de perfil'),
         content: Text(
-          hasAvatar ? '¿Deseas cambiar tu foto?' : '¿Deseas seleccionar una imagen?',
+          hasAvatar
+              ? '¿Deseas cambiar tu foto?'
+              : '¿Deseas seleccionar una imagen?',
         ),
         actions: [
           TextButton(
@@ -43,7 +45,9 @@ class ProfileScreen extends ConsumerWidget {
           if (hasAvatar)
             TextButton(
               onPressed: () => Navigator.pop(dialogContext, 'delete'),
-              style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
+              style: TextButton.styleFrom(
+                foregroundColor: context.appColors.error,
+              ),
               child: const Text('Eliminar foto'),
             ),
           ElevatedButton(
@@ -92,10 +96,7 @@ class ProfileScreen extends ConsumerWidget {
           cropGridColor: colors.primary.withValues(alpha: 0.4),
           lockAspectRatio: true,
         ),
-        IOSUiSettings(
-          title: 'Ajustar foto',
-          aspectRatioLockEnabled: true,
-        ),
+        IOSUiSettings(title: 'Ajustar foto', aspectRatioLockEnabled: true),
       ],
     );
 
@@ -158,13 +159,11 @@ class ProfileScreen extends ConsumerWidget {
     ].where((value) => value.trim().isNotEmpty).join(' ');
 
     final displayName = fullName.isNotEmpty ? fullName : 'Usuario Zafira';
-    final displayEmail =
-    (user?.email ?? '').isNotEmpty ? user!.email : 'Correo no disponible';
+    final displayEmail = (user?.email ?? '').isNotEmpty
+        ? user!.email
+        : 'Correo no disponible';
 
-    final initials = [
-      user?.firstName ?? '',
-      user?.lastName ?? '',
-    ]
+    final initials = [user?.firstName ?? '', user?.lastName ?? '']
         .where((e) => e.trim().isNotEmpty)
         .map((e) => e.trim()[0].toUpperCase())
         .join();
@@ -214,10 +213,11 @@ class ProfileScreen extends ConsumerWidget {
                         child: (user?.image ?? '').isEmpty
                             ? Text(
                                 initials.isNotEmpty ? initials : 'Z',
-                                style: context.typography.headlineMedium?.copyWith(
-                                  color: colors.primaryLight,
-                                  fontWeight: FontWeight.w900,
-                                ),
+                                style: context.typography.headlineMedium
+                                    ?.copyWith(
+                                      color: colors.primaryLight,
+                                      fontWeight: FontWeight.w900,
+                                    ),
                               )
                             : null,
                       ),
@@ -308,11 +308,13 @@ class ProfileScreen extends ConsumerWidget {
                           ),
                           actions: [
                             TextButton(
-                              onPressed: () => Navigator.pop(dialogContext, false),
+                              onPressed: () =>
+                                  Navigator.pop(dialogContext, false),
                               child: const Text('Cancelar'),
                             ),
                             ElevatedButton(
-                              onPressed: () => Navigator.pop(dialogContext, true),
+                              onPressed: () =>
+                                  Navigator.pop(dialogContext, true),
                               child: const Text('Sí'),
                             ),
                           ],
@@ -326,16 +328,16 @@ class ProfileScreen extends ConsumerWidget {
                     icon: const Icon(Icons.logout_rounded),
                     label: const Text('Cerrar sesión'),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.redAccent,
+                      foregroundColor: colors.error,
                       side: BorderSide(
-                        color: Colors.redAccent.withValues(alpha: 0.5),
+                        color: colors.error.withValues(alpha: kOpacityHalf),
                       ),
                       shape: const RoundedRectangleBorder(
                         borderRadius: kBorderRadiusAllSmall,
                       ),
                     ),
                   ),
-                    ),
+                ),
               ],
             ),
           ),

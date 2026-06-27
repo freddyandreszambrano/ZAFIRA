@@ -54,8 +54,7 @@ mixin LoginAuthMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
             ResponseStatus.error,
             ResponseStatus.success,
           ].contains(next.status) &&
-          next.isTokenExist == false) {
-      }
+          next.isTokenExist == false) {}
     });
   }
 }

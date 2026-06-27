@@ -44,17 +44,16 @@ class AuthState {
     String? errorMessage,
     int? failedLoginAttempts,
     bool clearErrorMessage = false,
-  }) =>
-      AuthState(
-        status: status ?? this.status,
-        profileState: profileState ?? this.profileState,
-        version: version ?? this.version,
-        user: user ?? this.user,
-        isTokenExist: isTokenExist ?? this.isTokenExist,
-        isUpdateAvailable: isUpdateAvailable ?? this.isUpdateAvailable,
-        errorMessage: clearErrorMessage ? null : errorMessage ?? this.errorMessage,
-        failedLoginAttempts: failedLoginAttempts ?? this.failedLoginAttempts,
-      );
+  }) => AuthState(
+    status: status ?? this.status,
+    profileState: profileState ?? this.profileState,
+    version: version ?? this.version,
+    user: user ?? this.user,
+    isTokenExist: isTokenExist ?? this.isTokenExist,
+    isUpdateAvailable: isUpdateAvailable ?? this.isUpdateAvailable,
+    errorMessage: clearErrorMessage ? null : errorMessage ?? this.errorMessage,
+    failedLoginAttempts: failedLoginAttempts ?? this.failedLoginAttempts,
+  );
 
   AuthState reset() => AuthState.initial();
 

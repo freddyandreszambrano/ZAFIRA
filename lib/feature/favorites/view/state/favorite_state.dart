@@ -10,11 +10,11 @@ class FavoriteState {
   });
 
   factory FavoriteState.initial() => FavoriteState(
-        status: ResponseStatus.initial,
-        products: const [],
-        favoriteIds: const {},
-        errorMessage: null,
-      );
+    status: ResponseStatus.initial,
+    products: const [],
+    favoriteIds: const {},
+    errorMessage: null,
+  );
 
   final ResponseStatus status;
   final List<ProductModel> products;
@@ -27,12 +27,10 @@ class FavoriteState {
     Set<int>? favoriteIds,
     String? errorMessage,
     bool clearErrorMessage = false,
-  }) =>
-      FavoriteState(
-        status: status ?? this.status,
-        products: products ?? this.products,
-        favoriteIds: favoriteIds ?? this.favoriteIds,
-        errorMessage:
-            clearErrorMessage ? null : errorMessage ?? this.errorMessage,
-      );
+  }) => FavoriteState(
+    status: status ?? this.status,
+    products: products ?? this.products,
+    favoriteIds: favoriteIds ?? this.favoriteIds,
+    errorMessage: clearErrorMessage ? null : errorMessage ?? this.errorMessage,
+  );
 }

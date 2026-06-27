@@ -29,33 +29,33 @@ class TokenUseCase with ErrorExceptionHandler {
     DebugLogger(runtimeType).methodInit(methodName);
 
     return await handlerApiExceptions(
-          () async => await interface.getCurrentUser(),
+      () async => await interface.getCurrentUser(),
       methodName,
       runtimeType,
     );
   }
 
   Future<Either<Exception, AuthTokenModel>> updateProfile(
-      Map<String, dynamic> data,
-      ) async {
+    Map<String, dynamic> data,
+  ) async {
     const String methodName = "UPDATE_PROFILE";
     DebugLogger(runtimeType).methodInit(methodName);
 
     return await handlerApiExceptions(
-          () async => await interface.updateProfile(data),
+      () async => await interface.updateProfile(data),
       methodName,
       runtimeType,
     );
   }
 
   Future<Either<Exception, AuthTokenModel>> updateAvatar(
-      String filePath,
-      ) async {
+    String filePath,
+  ) async {
     const String methodName = "UPDATE_AVATAR";
     DebugLogger(runtimeType).methodInit(methodName);
 
     return await handlerApiExceptions(
-          () async => await interface.updateAvatar(filePath),
+      () async => await interface.updateAvatar(filePath),
       methodName,
       runtimeType,
     );
@@ -66,20 +66,20 @@ class TokenUseCase with ErrorExceptionHandler {
     DebugLogger(runtimeType).methodInit(methodName);
 
     return await handlerApiExceptions(
-          () async => await interface.deleteAvatar(),
+      () async => await interface.deleteAvatar(),
       methodName,
       runtimeType,
     );
   }
 
   Future<Either<Exception, AuthTokenModel>> updateTryOnPhoto(
-      String filePath,
-      ) async {
+    String filePath,
+  ) async {
     const String methodName = "UPDATE_TRY_ON_PHOTO";
     DebugLogger(runtimeType).methodInit(methodName);
 
     return await handlerApiExceptions(
-          () async => await interface.updateTryOnPhoto(filePath),
+      () async => await interface.updateTryOnPhoto(filePath),
       methodName,
       runtimeType,
     );
@@ -90,7 +90,7 @@ class TokenUseCase with ErrorExceptionHandler {
     DebugLogger(runtimeType).methodInit(methodName);
 
     return await handlerApiExceptions(
-          () async => await interface.deleteTryOnPhoto(),
+      () async => await interface.deleteTryOnPhoto(),
       methodName,
       runtimeType,
     );
@@ -100,11 +100,7 @@ class TokenUseCase with ErrorExceptionHandler {
     try {
       return await interface.removeToken();
     } catch (err) {
-      throw RegularException.fromError(
-        err,
-        "removeToken",
-        runtimeType,
-      );
+      throw RegularException.fromError(err, "removeToken", runtimeType);
     }
   }
 
@@ -112,11 +108,7 @@ class TokenUseCase with ErrorExceptionHandler {
     try {
       await interface.saveToken(token);
     } catch (err) {
-      throw RegularException.fromError(
-        err,
-        "saveToken",
-        runtimeType,
-      );
+      throw RegularException.fromError(err, "saveToken", runtimeType);
     }
   }
 
@@ -124,11 +116,7 @@ class TokenUseCase with ErrorExceptionHandler {
     try {
       return await interface.checkToken();
     } catch (err) {
-      throw RegularException.fromError(
-        err,
-        "checkToken",
-        runtimeType,
-      );
+      throw RegularException.fromError(err, "checkToken", runtimeType);
     }
   }
 }

@@ -75,10 +75,7 @@ class PasswordStrengthIndicator extends StatelessWidget {
 }
 
 class _PasswordRequirement {
-  const _PasswordRequirement({
-    required this.label,
-    required this.valid,
-  });
+  const _PasswordRequirement({required this.label, required this.valid});
 
   final String label;
   final bool valid;
@@ -97,9 +94,7 @@ class _RequirementRow extends StatelessWidget {
     return Row(
       children: [
         Icon(
-          requirement.valid
-              ? Icons.check_circle_rounded
-              : Icons.cancel_rounded,
+          requirement.valid ? Icons.check_circle_rounded : Icons.cancel_rounded,
           size: 16,
           color: color,
         ),

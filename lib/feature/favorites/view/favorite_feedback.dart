@@ -15,8 +15,9 @@ Future<void> toggleFavoriteWithFeedback(
       .favoriteIds
       .contains(product.id);
 
-  final success =
-      await ref.read(favoriteControllerProvider.notifier).toggleFavorite(product);
+  final success = await ref
+      .read(favoriteControllerProvider.notifier)
+      .toggleFavorite(product);
 
   if (!success || !context.mounted) return;
 

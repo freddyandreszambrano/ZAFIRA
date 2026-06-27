@@ -11,18 +11,14 @@ import '../../../../feature/auth/view/controller/auth_controller.dart';
 import '../../../../modules/common/widget/notifications/app_notification.dart';
 
 class PhotoPreviewScreen extends ConsumerStatefulWidget {
-  const PhotoPreviewScreen({
-    required this.imagePath,
-    super.key,
-  });
+  const PhotoPreviewScreen({required this.imagePath, super.key});
 
   static const routeName = '/photo-preview';
 
   final String imagePath;
 
   @override
-  ConsumerState<PhotoPreviewScreen> createState() =>
-      _PhotoPreviewScreenState();
+  ConsumerState<PhotoPreviewScreen> createState() => _PhotoPreviewScreenState();
 }
 
 class _PhotoPreviewScreenState extends ConsumerState<PhotoPreviewScreen> {

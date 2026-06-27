@@ -8,10 +8,10 @@ import '../state/favorite_state.dart';
 
 final favoriteControllerProvider =
     StateNotifierProvider<FavoriteController, FavoriteState>((ref) {
-  final favoriteRepository = ref.watch(favoriteRepositoryProvider);
+      final favoriteRepository = ref.watch(favoriteRepositoryProvider);
 
-  return FavoriteController(FavoriteUseCase(favoriteRepository));
-});
+      return FavoriteController(FavoriteUseCase(favoriteRepository));
+    });
 
 class FavoriteController extends StateNotifier<FavoriteState> {
   FavoriteController(this._favoriteUseCase) : super(FavoriteState.initial());
@@ -77,26 +77,23 @@ class FavoriteController extends StateNotifier<FavoriteState> {
         ? await _favoriteUseCase.removeFavorite(product.id)
         : await _favoriteUseCase.addFavorite(product.id);
 
-    return response.fold(
-      (err) {
-        final revertedIds = Set<int>.from(state.favoriteIds);
-        final revertedProducts = List<ProductModel>.from(state.products);
+    return response.fold((err) {
+      final revertedIds = Set<int>.from(state.favoriteIds);
+      final revertedProducts = List<ProductModel>.from(state.products);
 
-        if (wasFavorite) {
-          revertedIds.add(product.id);
-          revertedProducts.insert(0, product.copyWith(isFavorite: true));
-        } else {
-          revertedIds.remove(product.id);
-          revertedProducts.removeWhere((item) => item.id == product.id);
-        }
+      if (wasFavorite) {
+        revertedIds.add(product.id);
+        revertedProducts.insert(0, product.copyWith(isFavorite: true));
+      } else {
+        revertedIds.remove(product.id);
+        revertedProducts.removeWhere((item) => item.id == product.id);
+      }
 
-        state = state.copyWith(
-          favoriteIds: revertedIds,
-          products: revertedProducts,
-        );
-        return false;
-      },
-      (_) => true,
-    );
+      state = state.copyWith(
+        favoriteIds: revertedIds,
+        products: revertedProducts,
+      );
+      return false;
+    }, (_) => true);
   }
 }

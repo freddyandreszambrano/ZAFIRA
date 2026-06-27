@@ -25,10 +25,8 @@ final appRouter = GoRouter(
   initialLocation: SplashScreen.routeName,
   routes: [
     ShellRoute(
-      builder: (context, state, child) => Scaffold(
-        body: child,
-        bottomNavigationBar: const OnlineWidget(),
-      ),
+      builder: (context, state, child) =>
+          Scaffold(body: child, bottomNavigationBar: const OnlineWidget()),
       routes: [
         GoRoute(
           path: SplashScreen.routeName,
@@ -76,9 +74,8 @@ final appRouter = GoRouter(
         ),
         GoRoute(
           path: ProductDetailScreen.routeName,
-          builder: (context, state) => ProductDetailScreen(
-            product: state.extra as ProductModel,
-          ),
+          builder: (context, state) =>
+              ProductDetailScreen(product: state.extra as ProductModel),
         ),
         GoRoute(
           path: FavoritesScreen.routeName,
@@ -112,9 +109,8 @@ final appRouter = GoRouter(
 
         GoRoute(
           path: PhotoPreviewScreen.routeName,
-          builder: (context, state) => PhotoPreviewScreen(
-            imagePath: state.extra as String? ?? '',
-          ),
+          builder: (context, state) =>
+              PhotoPreviewScreen(imagePath: state.extra as String? ?? ''),
         ),
       ],
     ),

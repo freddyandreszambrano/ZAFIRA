@@ -37,14 +37,13 @@ class _CatalogGarmentsScreenState extends ConsumerState<CatalogGarmentsScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await ref.read(catalogControllerProvider.notifier).getProducts(
-        gender: widget.gender,
-        category: widget.category,
-      );
+      await ref
+          .read(catalogControllerProvider.notifier)
+          .getProducts(gender: widget.gender, category: widget.category);
       if (!mounted) return;
-      ref.read(favoriteControllerProvider.notifier).syncFromProducts(
-            ref.read(catalogControllerProvider).products,
-          );
+      ref
+          .read(favoriteControllerProvider.notifier)
+          .syncFromProducts(ref.read(catalogControllerProvider).products);
     });
   }
 
@@ -102,9 +101,7 @@ class _CatalogGarmentsScreenState extends ConsumerState<CatalogGarmentsScreen> {
                   ),
                 ),
                 const Gap(separatorLg),
-                Expanded(
-                  child: _buildContent(context, state, genderLabel),
-                ),
+                Expanded(child: _buildContent(context, state, genderLabel)),
               ],
             ),
           ),
@@ -114,10 +111,10 @@ class _CatalogGarmentsScreenState extends ConsumerState<CatalogGarmentsScreen> {
   }
 
   Widget _buildContent(
-      BuildContext context,
-      CatalogState state,
-      String genderLabel,
-      ) {
+    BuildContext context,
+    CatalogState state,
+    String genderLabel,
+  ) {
     final colors = context.appColors;
 
     if (state.status == ResponseStatus.loading) {
@@ -159,10 +156,8 @@ class _CatalogGarmentsScreenState extends ConsumerState<CatalogGarmentsScreen> {
         return _GarmentCard(
           product: product,
           genderLabel: genderLabel,
-          onTap: () => context.push(
-            ProductDetailScreen.routeName,
-            extra: product,
-          ),
+          onTap: () =>
+              context.push(ProductDetailScreen.routeName, extra: product),
         );
       },
     );
@@ -212,29 +207,27 @@ class _GarmentCard extends ConsumerWidget {
                     ),
                     child: Container(
                       width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: colors.white,
-                      ),
+                      decoration: BoxDecoration(color: colors.white),
                       child: product.firstImageUrl == null
                           ? Center(
-                        child: Icon(
-                          Icons.checkroom_rounded,
-                          color: colors.primaryLight,
-                          size: 54,
-                        ),
-                      )
-                          : Image.network(
-                        product.firstImageUrl!,
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) =>
-                            Center(
                               child: Icon(
                                 Icons.checkroom_rounded,
                                 color: colors.primaryLight,
                                 size: 54,
                               ),
+                            )
+                          : Image.network(
+                              product.firstImageUrl!,
+                              fit: BoxFit.contain,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Center(
+                                    child: Icon(
+                                      Icons.checkroom_rounded,
+                                      color: colors.primaryLight,
+                                      size: 54,
+                                    ),
+                                  ),
                             ),
-                      ),
                     ),
                   ),
                   if (hasOffer)
@@ -280,7 +273,9 @@ class _GarmentCard extends ConsumerWidget {
                             isFavorite
                                 ? Icons.favorite_rounded
                                 : Icons.favorite_border_rounded,
-                            color: isFavorite ? colors.primaryLight : colors.white,
+                            color: isFavorite
+                                ? colors.primaryLight
+                                : colors.white,
                             size: 18,
                           ),
                         ),

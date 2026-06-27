@@ -20,13 +20,13 @@ class RegisterRequest {
   final String preferredSize;
 
   Map<String, dynamic> toJson() => {
-        'username': username,
-        'email': email,
-        'dni': dni,
-        'password': password,
-        'first_name': firstName,
-        'last_name': lastName,
-        'gender': gender,
-        'preferred_size': preferredSize,
-      };
+    'username': username,
+    'email': email,
+    'dni': dni,
+    'password': password,
+    'first_name': firstName,
+    'last_name': lastName,
+    'gender': gender,
+    'preferred_size': preferredSize,
+  };
 }

@@ -19,10 +19,7 @@ class CatalogService {
     String? category,
   }) async {
     const url = '/api/v1/catalog/products/';
-    final queryParameters = {
-      if (gender != null) 'gender': gender,
-      if (category != null) 'category': category,
-    };
+    final queryParameters = {'gender': ?gender, 'category': ?category};
 
     DebugLogger(runtimeType).request(url, queryParameters);
 

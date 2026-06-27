@@ -26,16 +26,36 @@ class _GenderSection {
 
 const _genderSections = [
   _GenderSection('Mujer', 'woman', [
-    _CategoryEntry('Vestidos y faldas', Icons.checkroom_rounded, 'FALDAS Y VESTIDOS'),
+    _CategoryEntry(
+      'Vestidos y faldas',
+      Icons.checkroom_rounded,
+      'FALDAS Y VESTIDOS',
+    ),
     _CategoryEntry('Blusas', Icons.dry_cleaning_rounded, 'BLUSAS'),
-    _CategoryEntry('Pantalones', Icons.shopping_bag_rounded, 'JEANS Y PANTALONES'),
+    _CategoryEntry(
+      'Pantalones',
+      Icons.shopping_bag_rounded,
+      'JEANS Y PANTALONES',
+    ),
     _CategoryEntry('Chaquetas', Icons.layers_rounded, 'BLAZERS Y CONJUNTOS'),
   ]),
   _GenderSection('Hombre', 'man', [
     _CategoryEntry('Camisas', Icons.checkroom_rounded, 'CAMISAS'),
-    _CategoryEntry('Camisetas', Icons.dry_cleaning_rounded, 'CAMISETAS Y POLOS'),
-    _CategoryEntry('Pantalones', Icons.shopping_bag_rounded, 'JEANS Y PANTALONES'),
-    _CategoryEntry('Shorts', Icons.accessibility_new_rounded, 'SHORTS Y BERMUDAS'),
+    _CategoryEntry(
+      'Camisetas',
+      Icons.dry_cleaning_rounded,
+      'CAMISETAS Y POLOS',
+    ),
+    _CategoryEntry(
+      'Pantalones',
+      Icons.shopping_bag_rounded,
+      'JEANS Y PANTALONES',
+    ),
+    _CategoryEntry(
+      'Shorts',
+      Icons.accessibility_new_rounded,
+      'SHORTS Y BERMUDAS',
+    ),
     _CategoryEntry('Chaquetas', Icons.layers_rounded, 'CHAQUETAS Y ABRIGOS'),
   ]),
 ];
@@ -102,7 +122,9 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 10),
                             decoration: BoxDecoration(
-                              gradient: isSelected ? colors.gradientPrimary : null,
+                              gradient: isSelected
+                                  ? colors.gradientPrimary
+                                  : null,
                               borderRadius: kBorderRadiusAllXLarge,
                             ),
                             child: Text(

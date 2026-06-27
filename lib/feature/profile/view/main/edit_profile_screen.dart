@@ -82,7 +82,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
     final isLoading = ref.watch(
       authControllerProvider.select(
-            (state) => state.profileState == ResponseStatus.loading,
+        (state) => state.profileState == ResponseStatus.loading,
       ),
     );
 
@@ -211,17 +211,14 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                         ),
                         icon: isLoading
                             ? SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: colors.white,
-                          ),
-                        )
-                            : Icon(
-                          Icons.save_outlined,
-                          color: colors.white,
-                        ),
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: colors.white,
+                                ),
+                              )
+                            : Icon(Icons.save_outlined, color: colors.white),
                         label: Text(
                           isLoading ? 'Guardando...' : 'Guardar cambios',
                           style: context.typography.labelLarge?.copyWith(
@@ -298,11 +295,7 @@ class _EditField extends StatelessWidget {
               size: 20,
             ),
             suffixIcon: readOnly
-                ? Icon(
-              Icons.lock_rounded,
-              color: colors.slate,
-              size: 18,
-            )
+                ? Icon(Icons.lock_rounded, color: colors.slate, size: 18)
                 : null,
             enabledBorder: OutlineInputBorder(
               borderRadius: kBorderRadiusAllMedium,
@@ -326,4 +319,3 @@ class _EditField extends StatelessWidget {
     );
   }
 }
-

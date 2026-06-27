@@ -15,7 +15,7 @@ class RegisterUseCase with ErrorExceptionHandler {
     DebugLogger(runtimeType).methodInit(methodName);
 
     return handlerApiExceptions(
-          () async => await _repository.createUser(request),
+      () async => await _repository.createUser(request),
       methodName,
       runtimeType,
     );
@@ -29,10 +29,7 @@ class RegisterUseCase with ErrorExceptionHandler {
     DebugLogger(runtimeType).methodInit(methodName);
 
     return handlerApiExceptions(
-          () async => await _repository.validateField(
-        field: field,
-        value: value,
-      ),
+      () async => await _repository.validateField(field: field, value: value),
       methodName,
       runtimeType,
     );

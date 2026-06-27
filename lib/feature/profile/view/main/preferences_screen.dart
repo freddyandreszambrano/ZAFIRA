@@ -10,14 +10,30 @@ import '../../../../feature/auth/view/controller/auth_controller.dart';
 import '../../../../modules/common/widget/notifications/app_notification.dart';
 
 const _availableColors = [
-  'Negro', 'Blanco', 'Azul', 'Rojo', 'Verde', 'Amarillo',
-  'Rosado', 'Gris', 'Café', 'Beige', 'Morado', 'Naranja',
-  'Celeste', 'Vino',
+  'Negro',
+  'Blanco',
+  'Azul',
+  'Rojo',
+  'Verde',
+  'Amarillo',
+  'Rosado',
+  'Gris',
+  'Café',
+  'Beige',
+  'Morado',
+  'Naranja',
+  'Celeste',
+  'Vino',
 ];
 
 const _availableCategories = [
-  'Vestidos y faldas', 'Blusas', 'Pantalones', 'Chaquetas',
-  'Camisas', 'Camisetas', 'Shorts',
+  'Vestidos y faldas',
+  'Blusas',
+  'Pantalones',
+  'Chaquetas',
+  'Camisas',
+  'Camisetas',
+  'Shorts',
 ];
 
 class PreferencesScreen extends ConsumerStatefulWidget {
@@ -37,7 +53,8 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
   void initState() {
     super.initState();
 
-    final preferences = ref.read(authControllerProvider).user?.stylePreferences ?? {};
+    final preferences =
+        ref.read(authControllerProvider).user?.stylePreferences ?? {};
 
     _selectedColors = {
       ...List<String>.from(preferences['colors'] as List? ?? const []),
@@ -58,10 +75,16 @@ class _PreferencesScreenState extends ConsumerState<PreferencesScreen> {
     if (!mounted) return;
 
     if (ok) {
-      AppNotification.success(context, 'Preferencias actualizadas correctamente');
+      AppNotification.success(
+        context,
+        'Preferencias actualizadas correctamente',
+      );
       context.pop();
     } else {
-      AppNotification.error(context, 'No se pudieron actualizar las preferencias');
+      AppNotification.error(
+        context,
+        'No se pudieron actualizar las preferencias',
+      );
     }
   }
 
