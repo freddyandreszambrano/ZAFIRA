@@ -15,10 +15,7 @@ import 'package:dio/dio.dart';
 /// Espejo de `hey-support/test/helpers/http_test_dio.dart`.
 Dio stubDio(Response<dynamic> Function(RequestOptions options) resolve) {
   final dio = Dio(
-    BaseOptions(
-      baseUrl: 'https://unit.test/',
-      validateStatus: (_) => true,
-    ),
+    BaseOptions(baseUrl: 'https://unit.test/', validateStatus: (_) => true),
   );
   dio.interceptors.add(
     InterceptorsWrapper(
@@ -33,11 +30,8 @@ Dio stubDio(Response<dynamic> Function(RequestOptions options) resolve) {
 /// Atajo: stub Dio que SIEMPRE responde con [data] y [statusCode].
 Dio stubDioOk(dynamic data, {int statusCode = 200}) {
   return stubDio(
-    (options) => Response(
-      requestOptions: options,
-      statusCode: statusCode,
-      data: data,
-    ),
+    (options) =>
+        Response(requestOptions: options, statusCode: statusCode, data: data),
   );
 }
 
@@ -47,18 +41,16 @@ Dio stubDioError({
   String path = '/test',
   DioExceptionType type = DioExceptionType.badResponse,
 }) {
-  return stubDio(
-    (options) {
-      final req = RequestOptions(path: path);
-      throw DioException(
+  return stubDio((options) {
+    final req = RequestOptions(path: path);
+    throw DioException(
+      requestOptions: req,
+      response: Response(
         requestOptions: req,
-        response: Response(
-          requestOptions: req,
-          statusCode: statusCode,
-          data: 'stubbed error',
-        ),
-        type: type,
-      );
-    },
-  );
+        statusCode: statusCode,
+        data: 'stubbed error',
+      ),
+      type: type,
+    );
+  });
 }
