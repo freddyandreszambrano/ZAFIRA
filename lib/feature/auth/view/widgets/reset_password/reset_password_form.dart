@@ -42,7 +42,9 @@ class _ResetPasswordFormState extends ConsumerState<ResetPasswordForm> {
   void _submit() {
     FocusScope.of(context).unfocus();
     if (!(_formKey.currentState?.validate() ?? false)) return;
-    ref.read(passwordResetControllerProvider.notifier).confirmReset(
+    ref
+        .read(passwordResetControllerProvider.notifier)
+        .confirmReset(
           PasswordResetConfirm(
             email: widget.email,
             code: _codeController.text.trim(),
@@ -69,7 +71,9 @@ class _ResetPasswordFormState extends ConsumerState<ResetPasswordForm> {
 
   String? _validateConfirm(String? value) {
     if ((value ?? '').isEmpty) return 'Confirme su contraseña';
-    if (value != _passwordController.text) return 'Las contraseñas no coinciden';
+    if (value != _passwordController.text) {
+      return 'Las contraseñas no coinciden';
+    }
     return null;
   }
 
@@ -77,7 +81,10 @@ class _ResetPasswordFormState extends ConsumerState<ResetPasswordForm> {
   Widget build(BuildContext context) {
     ref.listen<PasswordResetState>(passwordResetControllerProvider, (_, next) {
       if (next.status == ResponseStatus.success) {
-        AppNotification.success(context, 'Contraseña actualizada correctamente');
+        AppNotification.success(
+          context,
+          'Contraseña actualizada correctamente',
+        );
         context.go(LoginScreen.routeName);
       } else if (next.status == ResponseStatus.error) {
         AppNotification.error(

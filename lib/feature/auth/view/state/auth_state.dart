@@ -14,14 +14,14 @@ class AuthState {
   });
 
   factory AuthState.initial() => AuthState(
-        status: ResponseStatus.initial,
-        profileState: ResponseStatus.initial,
-        version: Flavor.projectVersion,
-        user: null,
-        isTokenExist: false,
-        isUpdateAvailable: false,
-        errorMessage: null,
-      );
+    status: ResponseStatus.initial,
+    profileState: ResponseStatus.initial,
+    version: Flavor.projectVersion,
+    user: null,
+    isTokenExist: false,
+    isUpdateAvailable: false,
+    errorMessage: null,
+  );
 
   final ResponseStatus status;
   final ResponseStatus profileState;
@@ -39,16 +39,15 @@ class AuthState {
     bool? isTokenExist,
     bool? isUpdateAvailable,
     String? errorMessage,
-  }) =>
-      AuthState(
-        status: status ?? this.status,
-        profileState: profileState ?? this.profileState,
-        version: version ?? this.version,
-        user: user ?? this.user,
-        isTokenExist: isTokenExist ?? this.isTokenExist,
-        isUpdateAvailable: isUpdateAvailable ?? this.isUpdateAvailable,
-        errorMessage: errorMessage ?? this.errorMessage,
-      );
+  }) => AuthState(
+    status: status ?? this.status,
+    profileState: profileState ?? this.profileState,
+    version: version ?? this.version,
+    user: user ?? this.user,
+    isTokenExist: isTokenExist ?? this.isTokenExist,
+    isUpdateAvailable: isUpdateAvailable ?? this.isUpdateAvailable,
+    errorMessage: errorMessage ?? this.errorMessage,
+  );
 
   AuthState reset() => AuthState.initial();
 

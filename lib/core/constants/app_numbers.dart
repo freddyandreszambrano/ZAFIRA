@@ -117,25 +117,46 @@ const EdgeInsets kSpaceDeviceHSm = EdgeInsets.symmetric(horizontal: 10);
 const EdgeInsets kSpaceDeviceHMd = EdgeInsets.symmetric(horizontal: 15);
 const EdgeInsets kSpaceDeviceHLg = EdgeInsets.symmetric(horizontal: 20);
 const EdgeInsets kSpaceDeviceHXLg = EdgeInsets.symmetric(horizontal: 30);
-const EdgeInsets kSpaceDeviceHVMd =
-    EdgeInsets.symmetric(horizontal: 15, vertical: 15);
-const EdgeInsets kSpaceDeviceHVNormal =
-    EdgeInsets.symmetric(horizontal: 15, vertical: 5);
-const EdgeInsets kSpaceDeviceHVNSmall =
-    EdgeInsets.symmetric(horizontal: 15, vertical: 2.5);
-const EdgeInsets kSpaceDeviceHVSpecial =
-    EdgeInsets.symmetric(horizontal: 15, vertical: 10);
-const EdgeInsets kReceiptStatePadding =
-    EdgeInsets.symmetric(horizontal: 8, vertical: 2);
-const EdgeInsets kSpaceDeviceHTAsymmetric =
-    EdgeInsets.only(top: 8, right: 15, left: 15);
+const EdgeInsets kSpaceDeviceHVMd = EdgeInsets.symmetric(
+  horizontal: 15,
+  vertical: 15,
+);
+const EdgeInsets kSpaceDeviceHVNormal = EdgeInsets.symmetric(
+  horizontal: 15,
+  vertical: 5,
+);
+const EdgeInsets kSpaceDeviceHVNSmall = EdgeInsets.symmetric(
+  horizontal: 15,
+  vertical: 2.5,
+);
+const EdgeInsets kSpaceDeviceHVSpecial = EdgeInsets.symmetric(
+  horizontal: 15,
+  vertical: 10,
+);
+const EdgeInsets kReceiptStatePadding = EdgeInsets.symmetric(
+  horizontal: 8,
+  vertical: 2,
+);
+const EdgeInsets kSpaceDeviceHTAsymmetric = EdgeInsets.only(
+  top: 8,
+  right: 15,
+  left: 15,
+);
 const EdgeInsets kSpaceDeviceHT = EdgeInsets.only(top: 15, right: 15, left: 15);
-const EdgeInsets kSpaceDeviceHBSm =
-    EdgeInsets.only(bottom: 10, right: 10, left: 10);
-const EdgeInsets kSpaceDeviceHB =
-    EdgeInsets.only(bottom: 15, right: 15, left: 15);
-const EdgeInsets kSectionPadding =
-    EdgeInsets.symmetric(horizontal: 16, vertical: 8);
+const EdgeInsets kSpaceDeviceHBSm = EdgeInsets.only(
+  bottom: 10,
+  right: 10,
+  left: 10,
+);
+const EdgeInsets kSpaceDeviceHB = EdgeInsets.only(
+  bottom: 15,
+  right: 15,
+  left: 15,
+);
+const EdgeInsets kSectionPadding = EdgeInsets.symmetric(
+  horizontal: 16,
+  vertical: 8,
+);
 const Radius bubbleBorder = Radius.circular(kRadiusSm);
 const Duration retailDurationTimer = Duration(minutes: 15);
 const double imageSize = 25;
@@ -149,16 +170,21 @@ const RoundedRectangleBorder roundedRectangleTMd = RoundedRectangleBorder(
 const RoundedRectangleBorder roundedRectangleAllMd = RoundedRectangleBorder(
   borderRadius: BorderRadius.all(Radius.circular(kRadiusMd)),
 );
-const BorderRadius kBorderRadiusAllMedium =
-    BorderRadius.all(Radius.circular(kRadiusMd));
-const BorderRadius kBorderRadiusAllSmall =
-    BorderRadius.all(Radius.circular(kRadiusSm));
-const BorderRadius kBorderRadiusAllLarge =
-    BorderRadius.all(Radius.circular(kRadiusLg));
-const BorderRadius kBorderRadiusAllXLarge =
-    BorderRadius.all(Radius.circular(kRadiusXLg));
-const BorderRadius kBorderRadiusAllXXLarge =
-    BorderRadius.all(Radius.circular(kRadiusXXLg));
+const BorderRadius kBorderRadiusAllMedium = BorderRadius.all(
+  Radius.circular(kRadiusMd),
+);
+const BorderRadius kBorderRadiusAllSmall = BorderRadius.all(
+  Radius.circular(kRadiusSm),
+);
+const BorderRadius kBorderRadiusAllLarge = BorderRadius.all(
+  Radius.circular(kRadiusLg),
+);
+const BorderRadius kBorderRadiusAllXLarge = BorderRadius.all(
+  Radius.circular(kRadiusXLg),
+);
+const BorderRadius kBorderRadiusAllXXLarge = BorderRadius.all(
+  Radius.circular(kRadiusXXLg),
+);
 
 const String defaultLanguage = "ES";
 
@@ -196,3 +222,52 @@ const double kNotificationShadowBlur = 18;
 const double kNotificationShadowSpread = -6;
 const Offset kNotificationShadowOffset = Offset(0, 8);
 const double kNotificationCloseAlpha = 0.7;
+
+// ── Icon sizes ────────────────────────────────────────────────────────────
+const double kIconXs = 14;
+const double kIconSm = 20;
+const double kIconMd = 22;
+const double kIconLg = 28;
+const double kIconXl = 56;
+const double kIconXxl = 58;
+const double kIconHero = 60;
+const double kIconButtonSize = 48;
+
+// ── Component heights ─────────────────────────────────────────────────────
+const double kButtonHeight = 52;
+const double kButtonHeightSm = 50;
+const double kActionCardHeight = 118;
+const double kGarmentCardHeight = 164;
+
+// ── Avatar radii ──────────────────────────────────────────────────────────
+const double kAvatarRadius = 48;
+const double kAvatarBadgeRadius = 14;
+
+// ── Border widths ─────────────────────────────────────────────────────────
+const double kBorderWidthThin = 1;
+const double kBorderWidthMd = 1.4;
+const double kBorderWidthLg = 1.5;
+
+// ── Loaders ───────────────────────────────────────────────────────────────
+const double kLoaderSize = 18;
+const double kLoaderStroke = 2;
+
+// ── Opacidades ────────────────────────────────────────────────────────────
+const double kOpacityFaint = 0.18;
+const double kOpacityMuted = 0.25;
+const double kOpacityBorder = 0.45;
+const double kOpacityHalf = 0.5;
+const double kOpacityCard = 0.65;
+const double kOpacityStrong = 0.7;
+const double kOpacityCardStrong = 0.72;
+
+// ── Paddings específicos ──────────────────────────────────────────────────
+const EdgeInsets kSpaceScreenContent = EdgeInsets.fromLTRB(20, 12, 20, 24);
+const EdgeInsets kSpaceSearchField = EdgeInsets.symmetric(
+  horizontal: 16,
+  vertical: 12,
+);
+const EdgeInsets kSpaceBadge = EdgeInsets.symmetric(
+  horizontal: 14,
+  vertical: 8,
+);

@@ -17,7 +17,8 @@ class DatabaseManager {
   final String homeState = 'home_state';
   final String orderState = 'order_state';
 
-  String get createTableManagement => """
+  String get createTableManagement =>
+      """
     CREATE TABLE IF NOT EXISTS $tableTicketManagement(
       $id INTEGER,
       $status INTEGER,

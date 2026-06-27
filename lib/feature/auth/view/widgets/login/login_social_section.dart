@@ -88,7 +88,9 @@ class _SocialButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: separatorMd),
           decoration: BoxDecoration(
             borderRadius: kBorderRadiusAllMedium,
-            border: Border.all(color: colors.nightBorder.withValues(alpha: 0.6)),
+            border: Border.all(
+              color: colors.nightBorder.withValues(alpha: 0.6),
+            ),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,

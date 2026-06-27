@@ -26,8 +26,9 @@ class ConnectionNetworkRepository implements IConnection {
         AppStrings.keyServerConnection,
         status.toString(),
       );
-      DebugLogger(runtimeType)
-          .toLocalStorage('saveConnectionStatusData', 'Connection: $status');
+      DebugLogger(
+        runtimeType,
+      ).toLocalStorage('saveConnectionStatusData', 'Connection: $status');
     } catch (err) {
       ErrorLogger(runtimeType).regular(err, 'saveConnectionStatusData');
       throw RegularException(message: err);

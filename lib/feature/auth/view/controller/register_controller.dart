@@ -9,10 +9,10 @@ import '../state/register_state.dart';
 
 final registerControllerProvider =
     StateNotifierProvider.autoDispose<RegisterController, RegisterState>((ref) {
-  return RegisterController(
-    RegisterUseCase(ref.watch(registerRepositoryProvider)),
-  );
-});
+      return RegisterController(
+        RegisterUseCase(ref.watch(registerRepositoryProvider)),
+      );
+    });
 
 class RegisterController extends StateNotifier<RegisterState> {
   RegisterController(this._registerUseCase) : super(RegisterState.initial());

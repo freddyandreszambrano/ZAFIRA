@@ -75,10 +75,7 @@ Future<bool> requestPermissionLocation(BuildContext context) async {
 
   if (permission == LocationPermission.deniedForever) {
     if (context.mounted) {
-      AppNotification.error(
-        context,
-        'Debe permitir el acceso a la ubicación',
-      );
+      AppNotification.error(context, 'Debe permitir el acceso a la ubicación');
     }
     await Geolocator.openAppSettings();
     return false;

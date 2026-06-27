@@ -4,8 +4,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_numbers.dart';
 import '../../../../core/helpers/context_helper.dart';
-import '../../../../feature/try_on/view/main/upload_photo_screen.dart';
 import '../../../../feature/profile/view/main/profile_screen.dart';
+import '../../../../feature/try_on/view/main/upload_photo_screen.dart';
+import '../../../../modules/common/widget/app_top_bar.dart';
 import '../../../../modules/common/widget/notifications/app_notification.dart';
 import '../widget/home_bottom_nav.dart';
 
@@ -16,20 +17,14 @@ class HomeScreen extends StatelessWidget {
 
   void _onNavTap(BuildContext context, int index) {
     if (index == 0) return;
-
     if (index == 4) {
       context.go(ProfileScreen.routeName);
       return;
     }
-
     AppNotification.info(
       context,
       '${HomeBottomNav.items[index].label} disponible próximamente',
     );
-  }
-
-  void _goToUpload(BuildContext context) {
-    context.push(UploadPhotoScreen.routeName);
   }
 
   @override
@@ -44,27 +39,12 @@ class HomeScreen extends StatelessWidget {
         decoration: BoxDecoration(gradient: colors.authBackground),
         child: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+            padding: kSpaceScreenContent,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Icon(Icons.menu_rounded, color: colors.white),
-                    const Spacer(),
-                    Text(
-                      'Zafira',
-                      style: context.typography.titleLarge?.copyWith(
-                        color: colors.white,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                    const Spacer(),
-                    Icon(Icons.notifications_none_rounded, color: colors.white),
-                  ],
-                ),
+                const AppTopBar(),
                 const Gap(separatorLg),
-
                 Text(
                   'Hola, Sofía',
                   style: context.typography.headlineSmall?.copyWith(
@@ -73,7 +53,6 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 const Gap(separatorXSm),
-
                 Text(
                   '¿Qué look vamos a probar hoy?',
                   style: context.typography.bodyMedium?.copyWith(
@@ -81,35 +60,8 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 const Gap(separatorLg),
-
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  decoration: BoxDecoration(
-                    color: colors.nightInput,
-                    borderRadius: kBorderRadiusAllXLarge,
-                    border: Border.all(color: colors.nightBorder),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.search_rounded, color: colors.slate, size: 20),
-                      const Gap(separatorSm),
-                      Expanded(
-                        child: Text(
-                          'Buscar prendas, estilos o colores...',
-                          style: context.typography.bodySmall?.copyWith(
-                            color: colors.slate,
-                          ),
-                        ),
-                      ),
-                      Icon(Icons.tune_rounded, color: colors.slate, size: 20),
-                    ],
-                  ),
-                ),
+                const _SearchBar(),
                 const Gap(separatorLg),
-
                 Row(
                   children: [
                     Expanded(
@@ -117,7 +69,7 @@ class HomeScreen extends StatelessWidget {
                         icon: Icons.add_a_photo_outlined,
                         title: 'Subir foto',
                         subtitle: 'Desde galería',
-                        onTap: () => _goToUpload(context),
+                        onTap: () => context.push(UploadPhotoScreen.routeName),
                       ),
                     ),
                     const Gap(separatorMd),
@@ -127,57 +79,14 @@ class HomeScreen extends StatelessWidget {
                         title: 'Tomarse foto',
                         subtitle: 'Usar cámara',
                         highlighted: true,
-                        onTap: () => _goToUpload(context),
+                        onTap: () => context.push(UploadPhotoScreen.routeName),
                       ),
                     ),
                   ],
                 ),
                 const Gap(separatorMd),
-
-                Container(
-                  width: double.infinity,
-                  padding: kSpaceDeviceMd,
-                  decoration: BoxDecoration(
-                    color: colors.nightCard.withValues(alpha: 0.65),
-                    borderRadius: kBorderRadiusAllMedium,
-                    border: Border.all(color: colors.nightBorder),
-                  ),
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        backgroundColor: colors.primary.withValues(alpha: 0.18),
-                        child: Icon(
-                          Icons.checkroom_rounded,
-                          color: colors.primaryLight,
-                        ),
-                      ),
-                      const Gap(separatorMd),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Mi selección',
-                              style: context.typography.labelLarge?.copyWith(
-                                color: colors.white,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                            Text(
-                              'Tus looks guardados aparecerán aquí',
-                              style: context.typography.bodySmall?.copyWith(
-                                color: colors.slate,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Icon(Icons.arrow_forward_rounded, color: colors.slate),
-                    ],
-                  ),
-                ),
+                const _SelectionCard(),
                 const Gap(separatorXLg),
-
                 Row(
                   children: [
                     Text(
@@ -197,7 +106,6 @@ class HomeScreen extends StatelessWidget {
                   ],
                 ),
                 const Gap(separatorMd),
-
                 const Row(
                   children: [
                     Expanded(child: _GarmentCard(title: 'Vestido neón')),
@@ -213,6 +121,88 @@ class HomeScreen extends StatelessWidget {
       bottomNavigationBar: HomeBottomNav(
         currentIndex: 0,
         onTap: (index) => _onNavTap(context, index),
+      ),
+    );
+  }
+}
+
+class _SearchBar extends StatelessWidget {
+  const _SearchBar();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+
+    return Container(
+      padding: kSpaceSearchField,
+      decoration: BoxDecoration(
+        color: colors.nightInput,
+        borderRadius: kBorderRadiusAllXLarge,
+        border: Border.all(color: colors.nightBorder),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.search_rounded, color: colors.slate, size: kIconSm),
+          const Gap(separatorSm),
+          Expanded(
+            child: Text(
+              'Buscar prendas, estilos o colores...',
+              style: context.typography.bodySmall?.copyWith(
+                color: colors.slate,
+              ),
+            ),
+          ),
+          Icon(Icons.tune_rounded, color: colors.slate, size: kIconSm),
+        ],
+      ),
+    );
+  }
+}
+
+class _SelectionCard extends StatelessWidget {
+  const _SelectionCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+
+    return Container(
+      width: double.infinity,
+      padding: kSpaceDeviceMd,
+      decoration: BoxDecoration(
+        color: colors.nightCard.withValues(alpha: kOpacityCard),
+        borderRadius: kBorderRadiusAllMedium,
+        border: Border.all(color: colors.nightBorder),
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            backgroundColor: colors.primary.withValues(alpha: kOpacityFaint),
+            child: Icon(Icons.checkroom_rounded, color: colors.primaryLight),
+          ),
+          const Gap(separatorMd),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Mi selección',
+                  style: context.typography.labelLarge?.copyWith(
+                    color: colors.white,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                Text(
+                  'Tus looks guardados aparecerán aquí',
+                  style: context.typography.bodySmall?.copyWith(
+                    color: colors.slate,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Icon(Icons.arrow_forward_rounded, color: colors.slate),
+        ],
       ),
     );
   }
@@ -241,14 +231,14 @@ class _DashboardActionCard extends StatelessWidget {
       onTap: onTap,
       borderRadius: kBorderRadiusAllMedium,
       child: Container(
-        height: 118,
+        height: kActionCardHeight,
         padding: kSpaceDeviceMd,
         decoration: BoxDecoration(
-          color: colors.nightCard.withValues(alpha: 0.72),
+          color: colors.nightCard.withValues(alpha: kOpacityCardStrong),
           borderRadius: kBorderRadiusAllMedium,
           border: Border.all(
             color: highlighted ? colors.primaryLight : colors.nightBorder,
-            width: highlighted ? 1.4 : 1,
+            width: highlighted ? kBorderWidthMd : kBorderWidthThin,
           ),
         ),
         child: Column(
@@ -257,7 +247,7 @@ class _DashboardActionCard extends StatelessWidget {
             Icon(
               icon,
               color: highlighted ? colors.primaryLight : colors.white,
-              size: 28,
+              size: kIconLg,
             ),
             const Spacer(),
             Text(
@@ -291,11 +281,13 @@ class _GarmentCard extends StatelessWidget {
     final colors = context.appColors;
 
     return Container(
-      height: 164,
+      height: kGarmentCardHeight,
       decoration: BoxDecoration(
         color: colors.nightCard,
         borderRadius: kBorderRadiusAllLarge,
-        border: Border.all(color: colors.primary.withValues(alpha: 0.45)),
+        border: Border.all(
+          color: colors.primary.withValues(alpha: kOpacityBorder),
+        ),
         boxShadow: colors.shadowZafira,
       ),
       child: Column(
@@ -305,7 +297,7 @@ class _GarmentCard extends StatelessWidget {
               child: Icon(
                 Icons.checkroom_rounded,
                 color: colors.primaryLight,
-                size: 58,
+                size: kIconXxl,
               ),
             ),
           ),

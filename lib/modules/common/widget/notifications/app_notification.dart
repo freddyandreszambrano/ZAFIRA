@@ -67,7 +67,10 @@ class _AppNotificationStyle {
   final IconData icon;
 }
 
-_AppNotificationStyle _styleFor(BuildContext context, AppNotificationType type) {
+_AppNotificationStyle _styleFor(
+  BuildContext context,
+  AppNotificationType type,
+) {
   final colors = context.appColors;
   switch (type) {
     case AppNotificationType.success:
@@ -264,7 +267,9 @@ class _AppNotificationCard extends StatelessWidget {
             behavior: HitTestBehavior.opaque,
             child: Icon(
               Icons.close_rounded,
-              color: style.foreground.withValues(alpha: kNotificationCloseAlpha),
+              color: style.foreground.withValues(
+                alpha: kNotificationCloseAlpha,
+              ),
               size: kNotificationIconSize,
             ),
           ),

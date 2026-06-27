@@ -8,22 +8,14 @@ import '../../../../modules/common/exceptions/regular_exception.dart';
 import '../../../constants/app_strings.dart';
 import '../data/database_manager.dart';
 
-final sqlHelperProvider = Provider<SQLHelper>(
-  (ref) {
-    final databaseManager = ref.watch(dataBaseManagerProvider);
-    final localDataSource = ref.watch(secureLocalDataSourceProvider);
-    return SQLHelper(
-      databaseManager,
-      localDataSource,
-    );
-  },
-);
+final sqlHelperProvider = Provider<SQLHelper>((ref) {
+  final databaseManager = ref.watch(dataBaseManagerProvider);
+  final localDataSource = ref.watch(secureLocalDataSourceProvider);
+  return SQLHelper(databaseManager, localDataSource);
+});
 
 class SQLHelper {
-  SQLHelper(
-    this._databaseManager,
-    this.localDataSource,
-  );
+  SQLHelper(this._databaseManager, this.localDataSource);
 
   static const int _databaseVersion = 1;
   static const String _databaseName = 'data.db';
@@ -74,8 +66,10 @@ class SQLHelper {
   Future<void> deleteDB() async {
     if (await checkPlatformIsWeb()) return;
     logger.i("DELETE_DB");
-    final dbReference =
-        await openDatabase(_databaseName, version: _databaseVersion);
+    final dbReference = await openDatabase(
+      _databaseName,
+      version: _databaseVersion,
+    );
     _db = null;
     await dbReference.close();
     await deleteDatabase(_databaseName);
@@ -87,11 +81,7 @@ class SQLHelper {
       final result = await localDataSource.getItem(AppStrings.keyIsWeb);
       return result == "true";
     } catch (err) {
-      throw RegularException.fromError(
-        err,
-        "checkPlatformIsWeb",
-        runtimeType,
-      );
+      throw RegularException.fromError(err, "checkPlatformIsWeb", runtimeType);
     }
   }
 }

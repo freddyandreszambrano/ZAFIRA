@@ -18,17 +18,15 @@ void errorLogger({
 }) {
   // TODO: implement sentry
   if (kDebugMode) {
-    _logger
-        .e('ERROR: $message in the function $functionName on file $fileName');
+    _logger.e(
+      'ERROR: $message in the function $functionName on file $fileName',
+    );
   }
 }
 
 // ---------------------- new impl
 
-final _loggerNew = Logger(
-  printer: SimpleLogPrinter(),
-  level: Level.debug,
-);
+final _loggerNew = Logger(printer: SimpleLogPrinter(), level: Level.debug);
 
 void errorLoggerNew({
   required Type className,
@@ -45,17 +43,12 @@ class SimpleLogPrinter extends LogPrinter {
     var emoji = PrettyPrinter.defaultLevelEmojis[event.level];
     var message = event.message;
 
-    return [
-      color("─" * 40),
-      color("$emoji $message"),
-    ];
+    return [color("─" * 40), color("$emoji $message")];
   }
 }
 
 class DebugLogger {
-  DebugLogger(
-    this.className,
-  );
+  DebugLogger(this.className);
   final Type className;
 
   void init() {
@@ -143,9 +136,7 @@ class DebugLogger {
 }
 
 class InformationLogger {
-  InformationLogger(
-    this.className,
-  );
+  InformationLogger(this.className);
   final Type className;
 
   void regular(String message) {

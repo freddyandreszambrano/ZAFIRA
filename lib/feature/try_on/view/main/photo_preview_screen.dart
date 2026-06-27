@@ -6,12 +6,10 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_numbers.dart';
 import '../../../../core/helpers/context_helper.dart';
+import '../../../../modules/common/widget/notifications/app_notification.dart';
 
 class PhotoPreviewScreen extends StatelessWidget {
-  const PhotoPreviewScreen({
-    required this.imagePath,
-    super.key,
-  });
+  const PhotoPreviewScreen({required this.imagePath, super.key});
 
   static const routeName = '/photo-preview';
 
@@ -64,8 +62,10 @@ class PhotoPreviewScreen extends StatelessWidget {
                           decoration: BoxDecoration(
                             borderRadius: kBorderRadiusAllXLarge,
                             border: Border.all(
-                              color: colors.primary.withValues(alpha: 0.45),
-                              width: 1.5,
+                              color: colors.primary.withValues(
+                                alpha: kOpacityBorder,
+                              ),
+                              width: kBorderWidthLg,
                             ),
                             boxShadow: colors.shadowZafira,
                             color: colors.nightCard,
@@ -82,10 +82,7 @@ class PhotoPreviewScreen extends StatelessWidget {
                       const Gap(separatorMd),
                       Row(
                         children: const [
-                          _ActionButton(
-                            icon: Icons.open_with,
-                            label: 'Mover',
-                          ),
+                          _ActionButton(icon: Icons.open_with, label: 'Mover'),
                           _ActionButton(
                             icon: Icons.zoom_out_map,
                             label: 'Escalar',
@@ -103,14 +100,17 @@ class PhotoPreviewScreen extends StatelessWidget {
                       const Gap(separatorMd),
                       SizedBox(
                         width: double.infinity,
-                        height: 52,
+                        height: kButtonHeight,
                         child: DecoratedBox(
                           decoration: BoxDecoration(
                             gradient: colors.gradientPrimary,
                             borderRadius: kBorderRadiusAllLarge,
                           ),
                           child: ElevatedButton.icon(
-                            onPressed: () {},
+                            onPressed: () => AppNotification.info(
+                              context,
+                              'Generación de outfit disponible próximamente',
+                            ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.transparent,
                               shadowColor: Colors.transparent,
@@ -146,10 +146,7 @@ class PhotoPreviewScreen extends StatelessWidget {
 }
 
 class _ActionButton extends StatelessWidget {
-  const _ActionButton({
-    required this.icon,
-    required this.label,
-  });
+  const _ActionButton({required this.icon, required this.label});
 
   final IconData icon;
   final String label;
@@ -161,13 +158,11 @@ class _ActionButton extends StatelessWidget {
     return Expanded(
       child: Column(
         children: [
-          Icon(icon, color: colors.white, size: 22),
+          Icon(icon, color: colors.white, size: kIconMd),
           const Gap(separatorXSm),
           Text(
             label,
-            style: context.typography.labelSmall?.copyWith(
-              color: colors.slate,
-            ),
+            style: context.typography.labelSmall?.copyWith(color: colors.slate),
           ),
         ],
       ),

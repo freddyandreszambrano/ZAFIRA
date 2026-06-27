@@ -25,7 +25,9 @@ const Color _zafiraSlateSoft = Color(0xFFE2E8F0);
 const Color _zafiraSlateDeep = Color(0xFF475569);
 
 // ── Night / Auth (login con fondo azul + glow central) ─────────────────
-const Color _nightDeep = Color(0xFF060912); // azul casi negro (bordes, arriba/abajo)
+const Color _nightDeep = Color(
+  0xFF060912,
+); // azul casi negro (bordes, arriba/abajo)
 const Color _nightMid = Color(0xFF223A6E); // azul más claro (glow central)
 const Color _nightCard = Color(0xFF131D33); // superficie del card
 const Color _nightInput = Color(0xFF273450); // relleno de inputs (gris azulado)
@@ -141,37 +143,37 @@ extension ColorSchemeX on ColorScheme {
 /// ColorScheme aplicado en `ThemeData` (ver `app_theme.dart`).
 class AppColorScheme extends ColorScheme {
   const AppColorScheme()
-      : super(
-          primary: _primary,
-          onPrimary: _onPrimary,
-          primaryContainer: _primaryContainer,
-          onPrimaryContainer: _onPrimaryContainer,
-          secondary: _secondary,
-          onSecondary: _onSecondary,
-          secondaryContainer: _secondaryContainer,
-          onSecondaryContainer: _onSecondaryContainer,
-          tertiary: _tertiary,
-          onTertiary: _onTertiary,
-          tertiaryContainer: _tertiaryContainer,
-          onTertiaryContainer: _onTertiaryContainer,
-          error: _error,
-          onError: _onError,
-          errorContainer: _errorContainer,
-          onErrorContainer: _onErrorContainer,
-          surface: _surface,
-          onSurface: _onSurface,
-          surfaceContainer: _surfaceContainer,
-          onSurfaceVariant: _onSurfaceVariant,
-          surfaceContainerLow: _surfaceContainerLow,
-          surfaceContainerLowest: _surfaceContainerLowest,
-          inverseSurface: _inverseSurface,
-          onInverseSurface: _onInverseSurface,
-          outline: _outline,
-          outlineVariant: _outlineVariant,
-          brightness: Brightness.light,
-          scrim: _scrim,
-          shadow: _shadow,
-        );
+    : super(
+        primary: _primary,
+        onPrimary: _onPrimary,
+        primaryContainer: _primaryContainer,
+        onPrimaryContainer: _onPrimaryContainer,
+        secondary: _secondary,
+        onSecondary: _onSecondary,
+        secondaryContainer: _secondaryContainer,
+        onSecondaryContainer: _onSecondaryContainer,
+        tertiary: _tertiary,
+        onTertiary: _onTertiary,
+        tertiaryContainer: _tertiaryContainer,
+        onTertiaryContainer: _onTertiaryContainer,
+        error: _error,
+        onError: _onError,
+        errorContainer: _errorContainer,
+        onErrorContainer: _onErrorContainer,
+        surface: _surface,
+        onSurface: _onSurface,
+        surfaceContainer: _surfaceContainer,
+        onSurfaceVariant: _onSurfaceVariant,
+        surfaceContainerLow: _surfaceContainerLow,
+        surfaceContainerLowest: _surfaceContainerLowest,
+        inverseSurface: _inverseSurface,
+        onInverseSurface: _onInverseSurface,
+        outline: _outline,
+        outlineVariant: _outlineVariant,
+        brightness: Brightness.light,
+        scrim: _scrim,
+        shadow: _shadow,
+      );
 }
 
 /// Acceso por instancia — `context.appColors.primary`, etc.
@@ -284,61 +286,61 @@ class AppColors {
   // ── Gradients ZAFIRA ────────────────────────────────────────────────
   /// `gradient-primary` del DESIGN_SYSTEM (Cyber-Magenta → Electric-Violet, 135°).
   LinearGradient get gradientPrimary => const LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [_zafiraPrimary, _zafiraSecondary],
-      );
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [_zafiraPrimary, _zafiraSecondary],
+  );
 
   /// `gradient-dark` (obsidian → obsidian-soft).
   LinearGradient get gradientDark => const LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [_zafiraObsidian, _zafiraObsidianSoft],
-      );
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [_zafiraObsidian, _zafiraObsidianSoft],
+  );
 
   /// `gradient-soft` (primary-soft → secondary-soft).
   LinearGradient get gradientSoft => const LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [_zafiraPrimarySoft, _zafiraSecondarySoft],
-      );
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [_zafiraPrimarySoft, _zafiraSecondarySoft],
+  );
 
   /// Fondo del login: glow azul en el centro que se oscurece hacia los
   /// bordes (azul oscuro arriba y abajo, más claro al centro).
   RadialGradient get authBackground => const RadialGradient(
-        center: Alignment(0, 0),
-        radius: 0.95,
-        colors: [_nightMid, _nightDeep],
-      );
+    center: Alignment(0, 0),
+    radius: 0.95,
+    colors: [_nightMid, _nightDeep],
+  );
 
   // ── Shadows ZAFIRA ──────────────────────────────────────────────────
   /// `shadow-zafira` — halo magenta sutil.
   List<BoxShadow> get shadowZafira => const [
-        BoxShadow(
-          color: Color(0x59FF3BBE), // rgba(255,59,190,0.35)
-          blurRadius: 30,
-          spreadRadius: -10,
-          offset: Offset(0, 10),
-        ),
-      ];
+    BoxShadow(
+      color: Color(0x59FF3BBE), // rgba(255,59,190,0.35)
+      blurRadius: 30,
+      spreadRadius: -10,
+      offset: Offset(0, 10),
+    ),
+  ];
 
   /// `shadow-zafira-lg` — halo magenta más amplio.
   List<BoxShadow> get shadowZafiraLg => const [
-        BoxShadow(
-          color: Color(0x73FF3BBE), // rgba(255,59,190,0.45)
-          blurRadius: 45,
-          spreadRadius: -15,
-          offset: Offset(0, 20),
-        ),
-      ];
+    BoxShadow(
+      color: Color(0x73FF3BBE), // rgba(255,59,190,0.45)
+      blurRadius: 45,
+      spreadRadius: -15,
+      offset: Offset(0, 20),
+    ),
+  ];
 
   /// `shadow-zafira-violet` — halo violeta.
   List<BoxShadow> get shadowZafiraViolet => const [
-        BoxShadow(
-          color: Color(0x598E54FF), // rgba(142,84,255,0.35)
-          blurRadius: 30,
-          spreadRadius: -10,
-          offset: Offset(0, 10),
-        ),
-      ];
+    BoxShadow(
+      color: Color(0x598E54FF), // rgba(142,84,255,0.35)
+      blurRadius: 30,
+      spreadRadius: -10,
+      offset: Offset(0, 10),
+    ),
+  ];
 }

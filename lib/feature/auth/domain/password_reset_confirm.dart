@@ -10,8 +10,8 @@ class PasswordResetConfirm {
   final String password;
 
   Map<String, dynamic> toJson() => {
-        'email': email,
-        'code': code,
-        'password': password,
-      };
+    'email': email,
+    'code': code,
+    'password': password,
+  };
 }

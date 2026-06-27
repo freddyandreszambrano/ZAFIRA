@@ -28,11 +28,7 @@ class TokenUseCase with ErrorExceptionHandler {
     try {
       return await interface.removeToken();
     } catch (err) {
-      throw RegularException.fromError(
-        err,
-        "removeToken",
-        runtimeType,
-      );
+      throw RegularException.fromError(err, "removeToken", runtimeType);
     }
   }
 
@@ -40,11 +36,7 @@ class TokenUseCase with ErrorExceptionHandler {
     try {
       await interface.saveToken(token);
     } catch (err) {
-      throw RegularException.fromError(
-        err,
-        "saveToken",
-        runtimeType,
-      );
+      throw RegularException.fromError(err, "saveToken", runtimeType);
     }
   }
 
@@ -52,11 +44,7 @@ class TokenUseCase with ErrorExceptionHandler {
     try {
       return await interface.checkToken();
     } catch (err) {
-      throw RegularException.fromError(
-        err,
-        "checkToken",
-        runtimeType,
-      );
+      throw RegularException.fromError(err, "checkToken", runtimeType);
     }
   }
 }

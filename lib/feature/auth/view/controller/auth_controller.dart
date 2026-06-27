@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/enum/response_status.dart';
 import '../../../../core/utils/error_parser.dart';
@@ -9,29 +10,26 @@ import '../../application/token_usecase.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../state/auth_state.dart';
 
-final authControllerProvider =
-StateNotifierProvider<AuthController, AuthState>((ref) {
-  final userRepository = ref.watch(authRepositoryProvider);
+final authControllerProvider = StateNotifierProvider<AuthController, AuthState>(
+  (ref) {
+    final userRepository = ref.watch(authRepositoryProvider);
 
-  return AuthController(
-    ServerUseCase(userRepository),
-    TokenUseCase(userRepository),
-  );
-});
+    return AuthController(
+      ServerUseCase(userRepository),
+      TokenUseCase(userRepository),
+    );
+  },
+);
 
 final canViewClientDataProvider = Provider<bool>((ref) {
   return ref.watch(
-    authControllerProvider.select(
-          (s) => s.user?.canViewClientData ?? false,
-    ),
+    authControllerProvider.select((s) => s.user?.canViewClientData ?? false),
   );
 });
 
 class AuthController extends StateNotifier<AuthState> {
-  AuthController(
-      this._serverUseCase,
-      this._tokenUseCase,
-      ) : super(AuthState.initial());
+  AuthController(this._serverUseCase, this._tokenUseCase)
+    : super(AuthState.initial());
 
   final ServerUseCase _serverUseCase;
   final TokenUseCase _tokenUseCase;
@@ -46,7 +44,7 @@ class AuthController extends StateNotifier<AuthState> {
       final response = await _tokenUseCase.getToken(username, password);
 
       await response.fold<Future<void>>(
-            (err) async {
+        (err) async {
           await _tokenUseCase.removeToken();
 
           state = state.copyWith(
@@ -55,7 +53,7 @@ class AuthController extends StateNotifier<AuthState> {
             errorMessage: parseErrorMessage(err),
           );
         },
-            (model) async {
+        (model) async {
           if (model.token.isEmpty) {
             state = state.copyWith(
               status: ResponseStatus.error,
@@ -87,6 +85,8 @@ class AuthController extends StateNotifier<AuthState> {
 
   Future<void> logout() async {
     await _tokenUseCase.removeToken();
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.clear();
     state = AuthState.initial();
   }
 
@@ -106,9 +106,7 @@ class AuthController extends StateNotifier<AuthState> {
     try {
       final packageInfo = await PackageInfo.fromPlatform();
 
-      state = state.copyWith(
-        version: packageInfo.version,
-      );
+      state = state.copyWith(version: packageInfo.version);
     } catch (err) {
       ErrorLogger(runtimeType).regular(err);
     }

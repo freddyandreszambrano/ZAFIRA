@@ -5,7 +5,9 @@ import '../../../../modules/common/drivers/http/dio_http_client.dart';
 import '../../domain/password_reset_confirm.dart';
 
 final passwordResetServiceProvider = Provider<PasswordResetService>((ref) {
-  return PasswordResetService(remoteDataSource: ref.watch(dioHttpClientProvider));
+  return PasswordResetService(
+    remoteDataSource: ref.watch(dioHttpClientProvider),
+  );
 });
 
 class PasswordResetService {

@@ -16,10 +16,8 @@ final appRouter = GoRouter(
   initialLocation: LoginScreen.routeName,
   routes: [
     ShellRoute(
-      builder: (context, state, child) => Scaffold(
-        body: child,
-        bottomNavigationBar: const OnlineWidget(),
-      ),
+      builder: (context, state, child) =>
+          Scaffold(body: child, bottomNavigationBar: const OnlineWidget()),
       routes: [
         GoRoute(
           path: LoginScreen.routeName,
@@ -57,9 +55,8 @@ final appRouter = GoRouter(
 
         GoRoute(
           path: PhotoPreviewScreen.routeName,
-          builder: (context, state) => PhotoPreviewScreen(
-            imagePath: state.extra as String? ?? '',
-          ),
+          builder: (context, state) =>
+              PhotoPreviewScreen(imagePath: state.extra as String? ?? ''),
         ),
       ],
     ),

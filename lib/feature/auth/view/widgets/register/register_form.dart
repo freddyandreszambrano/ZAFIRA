@@ -55,7 +55,9 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
         .where((part) => part.isNotEmpty)
         .toList();
 
-    ref.read(registerControllerProvider.notifier).register(
+    ref
+        .read(registerControllerProvider.notifier)
+        .register(
           RegisterRequest(
             username: _usernameController.text.trim(),
             email: _emailController.text.trim(),
@@ -95,7 +97,9 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
 
   String? _validateConfirm(String? value) {
     if ((value ?? '').isEmpty) return 'Confirme su contraseña';
-    if (value != _passwordController.text) return 'Las contraseñas no coinciden';
+    if (value != _passwordController.text) {
+      return 'Las contraseñas no coinciden';
+    }
     return null;
   }
 
@@ -145,7 +149,8 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
             prefixIcon: Icons.person_outline_rounded,
             keyboardType: TextInputType.name,
             textInputAction: TextInputAction.next,
-            validator: (value) => _required(value, 'Ingrese su nombre completo'),
+            validator: (value) =>
+                _required(value, 'Ingrese su nombre completo'),
           ),
           const Gap(separatorLg),
           AuthTextField(
