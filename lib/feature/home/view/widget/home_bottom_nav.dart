@@ -24,7 +24,6 @@ class HomeBottomNav extends StatelessWidget {
   static const items = <HomeNavItem>[
     HomeNavItem(icon: Icons.home_rounded, label: 'Inicio'),
     HomeNavItem(icon: Icons.grid_view_rounded, label: 'Catálogo'),
-    HomeNavItem(icon: Icons.checkroom_rounded, label: 'Selección'),
     HomeNavItem(icon: Icons.favorite_rounded, label: 'Favoritos'),
     HomeNavItem(icon: Icons.person_rounded, label: 'Perfil'),
   ];

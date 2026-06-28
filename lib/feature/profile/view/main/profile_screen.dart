@@ -2,58 +2,171 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'edit_profile_screen.dart';
+import 'preferences_screen.dart';
+import 'settings_screen.dart';
 
 import '../../../../core/constants/app_numbers.dart';
 import '../../../../core/helpers/context_helper.dart';
 import '../../../../feature/auth/view/controller/auth_controller.dart';
 import '../../../../feature/auth/view/widgets/login/login_screen.dart';
-import '../../../../feature/home/view/main/home_screen.dart';
+import '../../../../feature/catalog/view/main/catalog_screen.dart';
+import '../../../../feature/favorites/view/main/favorites_screen.dart';
 import '../../../../feature/home/view/widget/home_bottom_nav.dart';
-import '../../../../modules/common/widget/app_top_bar.dart';
+import '../../../../modules/common/widget/notifications/app_notification.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   static const routeName = '/profile';
 
-  void _onNavTap(BuildContext context, int index) {
-    if (index == 0) context.go(HomeScreen.routeName);
-  }
-
-  Future<void> _confirmLogout(BuildContext context, WidgetRef ref) async {
-    final confirm = await showDialog<bool>(
+  Future<void> _pickAndUploadAvatar(
+    BuildContext context,
+    WidgetRef ref,
+    bool hasAvatar,
+  ) async {
+    final action = await showDialog<String>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Cerrar sesión'),
-        content: const Text('¿Estás seguro de que deseas cerrar sesión?'),
+        title: Text(hasAvatar ? 'Cambiar foto' : 'Foto de perfil'),
+        content: Text(
+          hasAvatar
+              ? '¿Deseas cambiar tu foto?'
+              : '¿Deseas seleccionar una imagen?',
+        ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Cancelar'),
           ),
+          if (hasAvatar)
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, 'delete'),
+              style: TextButton.styleFrom(
+                foregroundColor: context.appColors.error,
+              ),
+              child: const Text('Eliminar foto'),
+            ),
           ElevatedButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Sí'),
+            onPressed: () => Navigator.pop(dialogContext, 'select'),
+            child: Text(hasAvatar ? 'Cambiar foto' : 'Seleccionar imagen'),
           ),
         ],
       ),
     );
 
-    if (confirm != true || !context.mounted) return;
+    if (action == null || !context.mounted) return;
+
+    if (action == 'delete') {
+      final ok = await ref.read(authControllerProvider.notifier).deleteAvatar();
+
+      if (!context.mounted) return;
+
+      if (ok) {
+        AppNotification.success(context, 'Foto de perfil eliminada');
+      } else {
+        AppNotification.error(context, 'No se pudo eliminar la foto de perfil');
+      }
+      return;
+    }
+
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 85,
+    );
+
+    if (picked == null || !context.mounted) return;
+
+    final colors = context.appColors;
+    final cropped = await ImageCropper().cropImage(
+      sourcePath: picked.path,
+      aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+      uiSettings: [
+        AndroidUiSettings(
+          toolbarTitle: 'Ajustar foto',
+          toolbarColor: colors.nightDeep,
+          toolbarWidgetColor: colors.white,
+          backgroundColor: colors.nightDeep,
+          activeControlsWidgetColor: colors.primary,
+          cropFrameColor: colors.primary,
+          cropGridColor: colors.primary.withValues(alpha: 0.4),
+          lockAspectRatio: true,
+        ),
+        IOSUiSettings(title: 'Ajustar foto', aspectRatioLockEnabled: true),
+      ],
+    );
+
+    if (cropped == null || !context.mounted) return;
+
+    final ok = await ref
+        .read(authControllerProvider.notifier)
+        .updateAvatar(cropped.path);
+
+    if (!context.mounted) return;
+
+    if (ok) {
+      AppNotification.success(context, 'Foto de perfil actualizada');
+    } else {
+      AppNotification.error(context, 'No se pudo actualizar la foto de perfil');
+    }
+  }
+
+  Future<void> _logout(BuildContext context, WidgetRef ref) async {
+    final preferences = await SharedPreferences.getInstance();
 
     await ref.read(authControllerProvider.notifier).logout();
+
+    await preferences.clear();
+
     if (!context.mounted) return;
 
     while (context.canPop()) {
       context.pop();
     }
+
     context.go(LoginScreen.routeName);
+  }
+
+  void _onNavTap(BuildContext context, int index) {
+    if (index == 0) {
+      context.go('/');
+      return;
+    }
+
+    if (index == 1) {
+      context.push(CatalogScreen.routeName);
+      return;
+    }
+
+    if (index == 2) {
+      context.push(FavoritesScreen.routeName);
+      return;
+    }
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.appColors;
     final user = ref.watch(authControllerProvider).user;
+
+    final fullName = [
+      user?.firstName ?? '',
+      user?.lastName ?? '',
+    ].where((value) => value.trim().isNotEmpty).join(' ');
+
+    final displayName = fullName.isNotEmpty ? fullName : 'Usuario Zafira';
+    final displayEmail = (user?.email ?? '').isNotEmpty
+        ? user!.email
+        : 'Correo no disponible';
+
+    final initials = [user?.firstName ?? '', user?.lastName ?? '']
+        .where((e) => e.trim().isNotEmpty)
+        .map((e) => e.trim()[0].toUpperCase())
+        .join();
 
     return Scaffold(
       backgroundColor: colors.nightDeep,
@@ -63,39 +176,168 @@ class ProfileScreen extends ConsumerWidget {
         decoration: BoxDecoration(gradient: colors.authBackground),
         child: SafeArea(
           child: SingleChildScrollView(
-            padding: kSpaceScreenContent,
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
             child: Column(
               children: [
-                const AppTopBar(),
+                Row(
+                  children: [
+                    Icon(Icons.menu_rounded, color: colors.white),
+                    const Spacer(),
+                    Text(
+                      'Zafira',
+                      style: context.typography.titleLarge?.copyWith(
+                        color: colors.white,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    const Spacer(),
+                    Icon(Icons.notifications_none_rounded, color: colors.white),
+                  ],
+                ),
                 const Gap(separatorLg),
-                _ProfileHeader(
-                  firstName: user?.firstName ?? '',
-                  lastName: user?.lastName ?? '',
-                  email: user?.email ?? '',
+                GestureDetector(
+                  onTap: () => _pickAndUploadAvatar(
+                    context,
+                    ref,
+                    (user?.image ?? '').isNotEmpty,
+                  ),
+                  child: Stack(
+                    alignment: Alignment.bottomRight,
+                    children: [
+                      CircleAvatar(
+                        radius: 48,
+                        backgroundColor: colors.primary.withValues(alpha: 0.25),
+                        backgroundImage: (user?.image ?? '').isNotEmpty
+                            ? NetworkImage(user!.image)
+                            : null,
+                        child: (user?.image ?? '').isEmpty
+                            ? Text(
+                                initials.isNotEmpty ? initials : 'Z',
+                                style: context.typography.headlineMedium
+                                    ?.copyWith(
+                                      color: colors.primaryLight,
+                                      fontWeight: FontWeight.w900,
+                                    ),
+                              )
+                            : null,
+                      ),
+                      CircleAvatar(
+                        radius: 14,
+                        backgroundColor: colors.nightCard,
+                        child: Icon(
+                          Icons.edit_rounded,
+                          size: 14,
+                          color: colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Gap(separatorMd),
+                Text(
+                  displayName,
+                  style: context.typography.titleMedium?.copyWith(
+                    color: colors.white,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const Gap(separatorXSm),
+                Text(
+                  displayEmail,
+                  style: context.typography.bodySmall?.copyWith(
+                    color: colors.slate,
+                  ),
+                ),
+                const Gap(separatorSm),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: colors.primary.withValues(alpha: 0.18),
+                    borderRadius: kBorderRadiusAllLarge,
+                  ),
+                  child: Text(
+                    'Usuario Mobile',
+                    style: context.typography.labelSmall?.copyWith(
+                      color: colors.primaryLight,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ),
                 const Gap(separatorLg),
                 _ProfileOption(
                   icon: Icons.lock_outline,
                   title: 'Datos personales',
                   subtitle: 'Gestiona tu información básica',
-                  onTap: () => _showPersonalData(context, ref),
+                  onTap: () {
+                    context.push(EditProfileScreen.routeName);
+                  },
                 ),
                 const Gap(separatorSm),
                 _ProfileOption(
                   icon: Icons.checkroom_rounded,
                   title: 'Preferencias',
                   subtitle: 'Tallas, estilos y colores AI',
-                  onTap: () {},
+                  onTap: () {
+                    context.push(PreferencesScreen.routeName);
+                  },
                 ),
                 const Gap(separatorSm),
                 _ProfileOption(
                   icon: Icons.settings_outlined,
                   title: 'Configuración',
                   subtitle: 'Privacidad y notificaciones',
-                  onTap: () {},
+                  onTap: () {
+                    context.push(SettingsScreen.routeName);
+                  },
                 ),
                 const Gap(separatorXLg),
-                _LogoutButton(onPressed: () => _confirmLogout(context, ref)),
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: OutlinedButton.icon(
+                    onPressed: () async {
+                      final confirm = await showDialog<bool>(
+                        context: context,
+                        builder: (dialogContext) => AlertDialog(
+                          title: const Text('Cerrar sesión'),
+                          content: const Text(
+                            '¿Estás seguro de que deseas cerrar sesión?',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () =>
+                                  Navigator.pop(dialogContext, false),
+                              child: const Text('Cancelar'),
+                            ),
+                            ElevatedButton(
+                              onPressed: () =>
+                                  Navigator.pop(dialogContext, true),
+                              child: const Text('Sí'),
+                            ),
+                          ],
+                        ),
+                      );
+
+                      if (confirm == true && context.mounted) {
+                        await _logout(context, ref);
+                      }
+                    },
+                    icon: const Icon(Icons.logout_rounded),
+                    label: const Text('Cerrar sesión'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: colors.error,
+                      side: BorderSide(
+                        color: colors.error.withValues(alpha: kOpacityHalf),
+                      ),
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: kBorderRadiusAllSmall,
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -104,150 +346,6 @@ class ProfileScreen extends ConsumerWidget {
       bottomNavigationBar: HomeBottomNav(
         currentIndex: 4,
         onTap: (index) => _onNavTap(context, index),
-      ),
-    );
-  }
-
-  void _showPersonalData(BuildContext context, WidgetRef ref) {
-    final colors = context.appColors;
-    final user = ref.read(authControllerProvider).user;
-
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: colors.nightCard,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(kRadiusXLg)),
-      ),
-      builder: (_) {
-        return Padding(
-          padding: kSpaceDeviceLg,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Datos personales',
-                style: context.typography.titleMedium?.copyWith(
-                  color: colors.white,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-              const Gap(separatorLg),
-              _PersonalDataItem(label: 'Nombre', value: user?.firstName ?? ''),
-              _PersonalDataItem(label: 'Apellido', value: user?.lastName ?? ''),
-              _PersonalDataItem(label: 'Correo', value: user?.email ?? ''),
-              _PersonalDataItem(label: 'DNI', value: user?.dni ?? ''),
-              const Gap(separatorMd),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _ProfileHeader extends StatelessWidget {
-  const _ProfileHeader({
-    required this.firstName,
-    required this.lastName,
-    required this.email,
-  });
-
-  final String firstName;
-  final String lastName;
-  final String email;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.appColors;
-
-    final fullName = [
-      firstName,
-      lastName,
-    ].where((value) => value.trim().isNotEmpty).join(' ');
-    final displayName = fullName.isNotEmpty ? fullName : 'Usuario Zafira';
-    final displayEmail = email.isNotEmpty ? email : 'Correo no disponible';
-
-    return Column(
-      children: [
-        Stack(
-          alignment: Alignment.bottomRight,
-          children: [
-            CircleAvatar(
-              radius: kAvatarRadius,
-              backgroundColor: colors.primary.withValues(alpha: kOpacityMuted),
-              child: Icon(
-                Icons.person_rounded,
-                size: kIconHero,
-                color: colors.primaryLight,
-              ),
-            ),
-            CircleAvatar(
-              radius: kAvatarBadgeRadius,
-              backgroundColor: colors.nightCard,
-              child: Icon(
-                Icons.edit_rounded,
-                size: kIconXs,
-                color: colors.white,
-              ),
-            ),
-          ],
-        ),
-        const Gap(separatorMd),
-        Text(
-          displayName,
-          style: context.typography.titleMedium?.copyWith(
-            color: colors.white,
-            fontWeight: FontWeight.w900,
-          ),
-        ),
-        const Gap(separatorXSm),
-        Text(
-          displayEmail,
-          style: context.typography.bodySmall?.copyWith(color: colors.slate),
-        ),
-        const Gap(separatorSm),
-        Container(
-          padding: kSpaceBadge,
-          decoration: BoxDecoration(
-            color: colors.primary.withValues(alpha: kOpacityFaint),
-            borderRadius: kBorderRadiusAllLarge,
-          ),
-          child: Text(
-            'Usuario Mobile',
-            style: context.typography.labelSmall?.copyWith(
-              color: colors.primaryLight,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _LogoutButton extends StatelessWidget {
-  const _LogoutButton({required this.onPressed});
-
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.appColors;
-
-    return SizedBox(
-      width: double.infinity,
-      height: kButtonHeightSm,
-      child: OutlinedButton.icon(
-        onPressed: onPressed,
-        icon: const Icon(Icons.logout_rounded),
-        label: const Text('Cerrar sesión'),
-        style: OutlinedButton.styleFrom(
-          foregroundColor: colors.error,
-          side: BorderSide(color: colors.error.withValues(alpha: kOpacityHalf)),
-          shape: const RoundedRectangleBorder(
-            borderRadius: kBorderRadiusAllSmall,
-          ),
-        ),
       ),
     );
   }
@@ -276,7 +374,7 @@ class _ProfileOption extends StatelessWidget {
       child: Container(
         padding: kSpaceDeviceMd,
         decoration: BoxDecoration(
-          color: colors.nightCard.withValues(alpha: kOpacityCardStrong),
+          color: colors.nightCard.withValues(alpha: 0.72),
           borderRadius: kBorderRadiusAllMedium,
           border: Border.all(color: colors.nightBorder),
         ),
@@ -307,44 +405,6 @@ class _ProfileOption extends StatelessWidget {
             Icon(Icons.chevron_right_rounded, color: colors.slate),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _PersonalDataItem extends StatelessWidget {
-  const _PersonalDataItem({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.appColors;
-
-    return Padding(
-      padding: kSpaceDeviceVSm,
-      child: Row(
-        children: [
-          Text(
-            '$label:',
-            style: context.typography.labelMedium?.copyWith(
-              color: colors.slate,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const Gap(separatorSm),
-          Expanded(
-            child: Text(
-              value.isNotEmpty ? value : 'No disponible',
-              textAlign: TextAlign.right,
-              style: context.typography.labelMedium?.copyWith(
-                color: colors.white,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

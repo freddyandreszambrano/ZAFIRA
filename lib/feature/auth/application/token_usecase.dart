@@ -24,6 +24,78 @@ class TokenUseCase with ErrorExceptionHandler {
     );
   }
 
+  Future<Either<Exception, AuthTokenModel>> getCurrentUser() async {
+    const String methodName = "GET_CURRENT_USER";
+    DebugLogger(runtimeType).methodInit(methodName);
+
+    return await handlerApiExceptions(
+      () async => await interface.getCurrentUser(),
+      methodName,
+      runtimeType,
+    );
+  }
+
+  Future<Either<Exception, AuthTokenModel>> updateProfile(
+    Map<String, dynamic> data,
+  ) async {
+    const String methodName = "UPDATE_PROFILE";
+    DebugLogger(runtimeType).methodInit(methodName);
+
+    return await handlerApiExceptions(
+      () async => await interface.updateProfile(data),
+      methodName,
+      runtimeType,
+    );
+  }
+
+  Future<Either<Exception, AuthTokenModel>> updateAvatar(
+    String filePath,
+  ) async {
+    const String methodName = "UPDATE_AVATAR";
+    DebugLogger(runtimeType).methodInit(methodName);
+
+    return await handlerApiExceptions(
+      () async => await interface.updateAvatar(filePath),
+      methodName,
+      runtimeType,
+    );
+  }
+
+  Future<Either<Exception, AuthTokenModel>> deleteAvatar() async {
+    const String methodName = "DELETE_AVATAR";
+    DebugLogger(runtimeType).methodInit(methodName);
+
+    return await handlerApiExceptions(
+      () async => await interface.deleteAvatar(),
+      methodName,
+      runtimeType,
+    );
+  }
+
+  Future<Either<Exception, AuthTokenModel>> updateTryOnPhoto(
+    String filePath,
+  ) async {
+    const String methodName = "UPDATE_TRY_ON_PHOTO";
+    DebugLogger(runtimeType).methodInit(methodName);
+
+    return await handlerApiExceptions(
+      () async => await interface.updateTryOnPhoto(filePath),
+      methodName,
+      runtimeType,
+    );
+  }
+
+  Future<Either<Exception, AuthTokenModel>> deleteTryOnPhoto() async {
+    const String methodName = "DELETE_TRY_ON_PHOTO";
+    DebugLogger(runtimeType).methodInit(methodName);
+
+    return await handlerApiExceptions(
+      () async => await interface.deleteTryOnPhoto(),
+      methodName,
+      runtimeType,
+    );
+  }
+
   Future<void> removeToken() async {
     try {
       return await interface.removeToken();

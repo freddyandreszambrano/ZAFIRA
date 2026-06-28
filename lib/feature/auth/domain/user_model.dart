@@ -20,6 +20,14 @@ abstract class UserModel with _$UserModel {
     @Default('') String email,
     @Default(false) bool state,
     @Default('') String image,
+    @Default('') String gender,
+    @Default('Ecuador') String country,
+    @JsonKey(name: 'preferred_size') @Default('') String preferredSize,
+    @JsonKey(name: 'style_preferences')
+    @Default(<String, dynamic>{})
+    Map<String, dynamic> stylePreferences,
+    @Default('es') String language,
+    @JsonKey(name: 'try_on_photo') @Default('') String tryOnPhoto,
     @JsonKey(name: 'can_view_client_data')
     @Default(false)
     bool canViewClientData,
@@ -28,5 +36,15 @@ abstract class UserModel with _$UserModel {
   factory UserModel.fromJson(Map<String, dynamic> json) =>
       _$UserModelFromJson(json);
 
-  String get fullInitialName => '${firstName[0]}${lastName[0]}'.toUpperCase();
+  String get fullInitialName {
+    final first = firstName.trim();
+    final last = lastName.trim();
+
+    final initials = [
+      if (first.isNotEmpty) first[0],
+      if (last.isNotEmpty) last[0],
+    ].join();
+
+    return initials.isNotEmpty ? initials.toUpperCase() : 'Z';
+  }
 }

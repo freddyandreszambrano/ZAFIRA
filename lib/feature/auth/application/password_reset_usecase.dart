@@ -11,7 +11,7 @@ class PasswordResetUseCase with ErrorExceptionHandler {
   final IPasswordReset _repository;
 
   Future<Either<Exception, void>> requestCode(String email) async {
-    const methodName = 'PASSWORD_RESET_REQUEST_CODE';
+    const methodName = 'REQUEST_PASSWORD_RESET';
     DebugLogger(runtimeType).methodInit(methodName);
 
     return handlerApiExceptions(

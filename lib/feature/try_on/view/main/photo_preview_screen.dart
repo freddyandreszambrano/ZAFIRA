@@ -1,19 +1,48 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_numbers.dart';
 import '../../../../core/helpers/context_helper.dart';
+import '../../../../feature/auth/view/controller/auth_controller.dart';
 import '../../../../modules/common/widget/notifications/app_notification.dart';
 
-class PhotoPreviewScreen extends StatelessWidget {
+class PhotoPreviewScreen extends ConsumerStatefulWidget {
   const PhotoPreviewScreen({required this.imagePath, super.key});
 
   static const routeName = '/photo-preview';
 
   final String imagePath;
+
+  @override
+  ConsumerState<PhotoPreviewScreen> createState() => _PhotoPreviewScreenState();
+}
+
+class _PhotoPreviewScreenState extends ConsumerState<PhotoPreviewScreen> {
+  bool _saving = false;
+
+  Future<void> _savePhoto() async {
+    setState(() => _saving = true);
+
+    final success = await ref
+        .read(authControllerProvider.notifier)
+        .updateTryOnPhoto(widget.imagePath);
+
+    if (!mounted) return;
+
+    setState(() => _saving = false);
+
+    if (!success) {
+      AppNotification.error(context, 'No se pudo guardar la foto.');
+      return;
+    }
+
+    AppNotification.success(context, 'Foto guardada correctamente');
+    context.pop(true);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,12 +62,12 @@ class PhotoPreviewScreen extends StatelessWidget {
                 child: Row(
                   children: [
                     IconButton(
-                      onPressed: () => context.pop(),
+                      onPressed: () => context.pop(false),
                       icon: Icon(Icons.arrow_back, color: colors.white),
                     ),
                     Expanded(
                       child: Text(
-                        'Zafira',
+                        'Vista previa',
                         textAlign: TextAlign.center,
                         style: context.typography.titleLarge?.copyWith(
                           color: colors.white,
@@ -46,7 +75,7 @@ class PhotoPreviewScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    Icon(Icons.notifications_none_rounded, color: colors.white),
+                    const SizedBox(width: 48),
                   ],
                 ),
               ),
@@ -55,6 +84,24 @@ class PhotoPreviewScreen extends StatelessWidget {
                   padding: kSpaceDeviceHLg,
                   child: Column(
                     children: [
+                      Text(
+                        'Tu foto está lista',
+                        textAlign: TextAlign.center,
+                        style: context.typography.headlineSmall?.copyWith(
+                          color: colors.white,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      const Gap(separatorXSm),
+                      Text(
+                        'Esta foto se utilizará para probarte prendas virtualmente.',
+                        textAlign: TextAlign.center,
+                        style: context.typography.bodySmall?.copyWith(
+                          color: colors.slate,
+                          height: 1.35,
+                        ),
+                      ),
+                      const Gap(separatorLg),
                       Expanded(
                         child: Container(
                           width: double.infinity,
@@ -62,10 +109,8 @@ class PhotoPreviewScreen extends StatelessWidget {
                           decoration: BoxDecoration(
                             borderRadius: kBorderRadiusAllXLarge,
                             border: Border.all(
-                              color: colors.primary.withValues(
-                                alpha: kOpacityBorder,
-                              ),
-                              width: kBorderWidthLg,
+                              color: colors.primary.withValues(alpha: 0.45),
+                              width: 1.5,
                             ),
                             boxShadow: colors.shadowZafira,
                             color: colors.nightCard,
@@ -73,44 +118,52 @@ class PhotoPreviewScreen extends StatelessWidget {
                           child: ClipRRect(
                             borderRadius: kBorderRadiusAllLarge,
                             child: Image.file(
-                              File(imagePath),
-                              fit: BoxFit.cover,
+                              File(widget.imagePath),
+                              fit: BoxFit.contain,
                             ),
                           ),
                         ),
                       ),
                       const Gap(separatorMd),
-                      Row(
-                        children: const [
-                          _ActionButton(icon: Icons.open_with, label: 'Mover'),
-                          _ActionButton(
-                            icon: Icons.zoom_out_map,
-                            label: 'Escalar',
-                          ),
-                          _ActionButton(
-                            icon: Icons.rotate_right,
-                            label: 'Rotar',
-                          ),
-                          _ActionButton(
-                            icon: Icons.auto_awesome,
-                            label: 'IA Fit',
-                          ),
-                        ],
+                      Container(
+                        width: double.infinity,
+                        padding: kSpaceDeviceMd,
+                        decoration: BoxDecoration(
+                          color: colors.nightCard.withValues(alpha: 0.65),
+                          borderRadius: kBorderRadiusAllMedium,
+                          border: Border.all(color: colors.nightBorder),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.tips_and_updates_outlined,
+                              color: colors.primaryLight,
+                              size: 22,
+                            ),
+                            const Gap(separatorMd),
+                            Expanded(
+                              child: Text(
+                                'Para mejores resultados, usa una foto de cuerpo completo con buena iluminación.',
+                                style: context.typography.bodySmall?.copyWith(
+                                  color: colors.slateSoft,
+                                  height: 1.35,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                       const Gap(separatorMd),
                       SizedBox(
                         width: double.infinity,
-                        height: kButtonHeight,
+                        height: 52,
                         child: DecoratedBox(
                           decoration: BoxDecoration(
                             gradient: colors.gradientPrimary,
                             borderRadius: kBorderRadiusAllLarge,
                           ),
                           child: ElevatedButton.icon(
-                            onPressed: () => AppNotification.info(
-                              context,
-                              'Generación de outfit disponible próximamente',
-                            ),
+                            onPressed: _saving ? null : _savePhoto,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.transparent,
                               shadowColor: Colors.transparent,
@@ -118,15 +171,24 @@ class PhotoPreviewScreen extends StatelessWidget {
                                 borderRadius: kBorderRadiusAllLarge,
                               ),
                             ),
-                            icon: Icon(
-                              Icons.auto_fix_high,
-                              color: colors.white,
-                            ),
+                            icon: _saving
+                                ? SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: colors.white,
+                                    ),
+                                  )
+                                : Icon(
+                                    Icons.save_alt_rounded,
+                                    color: colors.white,
+                                  ),
                             label: Text(
-                              'Generar outfit',
+                              'Guardar foto',
                               style: context.typography.labelLarge?.copyWith(
                                 color: colors.white,
-                                fontWeight: FontWeight.w700,
+                                fontWeight: FontWeight.w800,
                               ),
                             ),
                           ),
@@ -140,31 +202,6 @@ class PhotoPreviewScreen extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _ActionButton extends StatelessWidget {
-  const _ActionButton({required this.icon, required this.label});
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.appColors;
-
-    return Expanded(
-      child: Column(
-        children: [
-          Icon(icon, color: colors.white, size: kIconMd),
-          const Gap(separatorXSm),
-          Text(
-            label,
-            style: context.typography.labelSmall?.copyWith(color: colors.slate),
-          ),
-        ],
       ),
     );
   }

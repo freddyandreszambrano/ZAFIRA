@@ -8,19 +8,21 @@ class AppGradientButton extends StatelessWidget {
     required this.label,
     required this.onPressed,
     this.isLoading = false,
+    this.enabled = true,
     super.key,
   });
 
   final String label;
   final VoidCallback onPressed;
   final bool isLoading;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
 
     return Opacity(
-      opacity: isLoading ? 0.7 : 1,
+      opacity: !enabled ? 0.45 : (isLoading ? 0.7 : 1),
       child: Container(
         decoration: BoxDecoration(
           gradient: colors.gradientPrimary,
