@@ -35,6 +35,7 @@ class ProductModel {
     required this.imageUrls,
     required this.availability,
     required this.colorOptions,
+    this.store = '',
     this.isFavorite = false,
   });
 
@@ -53,6 +54,7 @@ class ProductModel {
   final List<String> imageUrls;
   final String availability;
   final List<ColorOptionModel> colorOptions;
+  final String store;
   final bool isFavorite;
 
   String? get firstImageUrl => imageUrls.isNotEmpty ? imageUrls.first : null;
@@ -73,6 +75,7 @@ class ProductModel {
         imageUrls: imageUrls,
         availability: availability,
         colorOptions: colorOptions,
+        store: store,
         isFavorite: isFavorite ?? this.isFavorite,
       );
 
@@ -97,6 +100,7 @@ class ProductModel {
       colorOptions: (json['color_options'] as List? ?? [])
           .map((item) => ColorOptionModel.fromJson(item as Map<String, dynamic>))
           .toList(),
+      store: json['store']?.toString() ?? '',
       isFavorite: json['is_favorite'] as bool? ?? false,
     );
   }

@@ -191,15 +191,18 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
   String? _validateDni(String? value) {
     final text = value?.trim() ?? '';
 
-    if (text.isEmpty) return 'Ingrese su cédula';
-    if (!RegExp(r'^\d+$').hasMatch(text)) {
-      return 'La cédula solo debe contener números';
-    }
-    if (text.length != 10) {
-      return 'La cédula debe tener 10 dígitos';
-    }
+    if (text.isEmpty) return 'Ingrese su cédula o pasaporte';
 
-    return null;
+    // Cédula ecuatoriana: exactamente 10 dígitos
+    if (RegExp(r'^\d{10}$').hasMatch(text)) return null;
+
+    // Extranjero residente en Ecuador: E + 6-9 dígitos (ej. E1234567)
+    if (RegExp(r'^[Ee]\d{6,9}$').hasMatch(text)) return null;
+
+    // Pasaporte extranjero: 6-12 caracteres alfanuméricos
+    if (RegExp(r'^[a-zA-Z0-9]{6,12}$').hasMatch(text)) return null;
+
+    return 'Ingrese una cédula (10 dígitos), carné de extranjero (E + dígitos) o pasaporte válido';
   }
 
   String? _validateEmail(String? value) {
@@ -341,10 +344,10 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
           const Gap(separatorLg),
           AuthTextField(
             controller: _dniController,
-            label: 'Cédula',
-            hint: 'Número de cédula',
+            label: 'Cédula / Pasaporte',
+            hint: 'Cédula, carné extranjero o pasaporte',
             prefixIcon: Icons.badge_outlined,
-            keyboardType: TextInputType.number,
+            keyboardType: TextInputType.text,
             textInputAction: TextInputAction.next,
             validator: _validateDni,
             errorText: fieldErrors['dni'],
