@@ -122,7 +122,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.menu_rounded, color: colors.white),
                     const Spacer(),
                     Text(
                       'Zafira',
@@ -181,34 +180,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ),
                     ),
                   ],
-                ),
-                const Gap(separatorLg),
-
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  decoration: BoxDecoration(
-                    color: colors.nightInput,
-                    borderRadius: kBorderRadiusAllXLarge,
-                    border: Border.all(color: colors.nightBorder),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.search_rounded, color: colors.slate, size: 20),
-                      const Gap(separatorSm),
-                      Expanded(
-                        child: Text(
-                          'Buscar prendas, estilos o colores...',
-                          style: context.typography.bodySmall?.copyWith(
-                            color: colors.slate,
-                          ),
-                        ),
-                      ),
-                      Icon(Icons.tune_rounded, color: colors.slate, size: 20),
-                    ],
-                  ),
                 ),
                 const Gap(separatorLg),
 
