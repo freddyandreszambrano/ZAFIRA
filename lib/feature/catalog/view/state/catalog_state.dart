@@ -23,11 +23,9 @@ class CatalogState {
     List<ProductModel>? products,
     String? errorMessage,
     bool clearErrorMessage = false,
-  }) =>
-      CatalogState(
-        status: status ?? this.status,
-        products: products ?? this.products,
-        errorMessage:
-        clearErrorMessage ? null : errorMessage ?? this.errorMessage,
-      );
+  }) => CatalogState(
+    status: status ?? this.status,
+    products: products ?? this.products,
+    errorMessage: clearErrorMessage ? null : errorMessage ?? this.errorMessage,
+  );
 }

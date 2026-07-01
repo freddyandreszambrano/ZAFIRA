@@ -88,18 +88,20 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
         .where((part) => part.isNotEmpty)
         .toList();
 
-    ref.read(registerControllerProvider.notifier).register(
-      RegisterRequest(
-        username: _usernameController.text.trim(),
-        email: _emailController.text.trim(),
-        dni: _dniController.text.trim(),
-        password: _passwordController.text,
-        firstName: names.isEmpty ? '' : names.first,
-        lastName: names.length > 1 ? names.sublist(1).join(' ') : '',
-        gender: _gender,
-        preferredSize: _sizeController.text.trim(),
-      ),
-    );
+    ref
+        .read(registerControllerProvider.notifier)
+        .register(
+          RegisterRequest(
+            username: _usernameController.text.trim(),
+            email: _emailController.text.trim(),
+            dni: _dniController.text.trim(),
+            password: _passwordController.text,
+            firstName: names.isEmpty ? '' : names.first,
+            lastName: names.length > 1 ? names.sublist(1).join(' ') : '',
+            gender: _gender,
+            preferredSize: _sizeController.text.trim(),
+          ),
+        );
   }
 
   void _clearFieldError(String field) {
@@ -129,15 +131,11 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
 
     if (!canValidate(text)) return;
 
-    final timer = Timer(
-      const Duration(milliseconds: 700),
-          () {
-        ref.read(registerControllerProvider.notifier).validateField(
-          field: field,
-          value: text,
-        );
-      },
-    );
+    final timer = Timer(const Duration(milliseconds: 700), () {
+      ref
+          .read(registerControllerProvider.notifier)
+          .validateField(field: field, value: text);
+    });
 
     switch (field) {
       case 'username':
@@ -159,8 +157,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
       return 'Este campo es obligatorio';
     }
 
-    final names =
-    text.split(' ').where((e) => e.isNotEmpty).toList();
+    final names = text.split(' ').where((e) => e.isNotEmpty).toList();
 
     if (names.length < 2) {
       return 'Ingrese nombre y apellido';
@@ -178,7 +175,9 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
 
     if (text.isEmpty) return 'Ingrese un usuario';
     if (text.length < 4) return 'El usuario debe tener al menos 4 caracteres';
-    if (text.length > 20) return 'El usuario no puede superar los 20 caracteres';
+    if (text.length > 20) {
+      return 'El usuario no puede superar los 20 caracteres';
+    }
 
     final valid = RegExp(r'^[a-zA-Z0-9_]+$').hasMatch(text);
     if (!valid) {
@@ -210,9 +209,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
 
     if (text.isEmpty) return 'Ingrese su correo electrónico';
 
-    final valid = RegExp(
-      r'^[\w\.-]+@([\w-]+\.)+[\w-]{2,}$',
-    ).hasMatch(text);
+    final valid = RegExp(r'^[\w\.-]+@([\w-]+\.)+[\w-]{2,}$').hasMatch(text);
 
     if (!valid) return 'Ingrese un correo válido';
 
@@ -269,7 +266,9 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
 
   String? _validateConfirm(String? value) {
     if ((value ?? '').isEmpty) return 'Confirme su contraseña';
-    if (value != _passwordController.text) return 'Las contraseñas no coinciden';
+    if (value != _passwordController.text) {
+      return 'Las contraseñas no coinciden';
+    }
     return null;
   }
 
@@ -451,7 +450,8 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
               _confirmController,
             ]),
             builder: (context, _) {
-              final allFilled = _nameController.text.trim().isNotEmpty &&
+              final allFilled =
+                  _nameController.text.trim().isNotEmpty &&
                   _usernameController.text.trim().isNotEmpty &&
                   _dniController.text.trim().isNotEmpty &&
                   _emailController.text.trim().isNotEmpty &&

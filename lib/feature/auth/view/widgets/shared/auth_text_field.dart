@@ -78,9 +78,7 @@ class AuthTextField extends StatelessWidget {
           onFieldSubmitted: onSubmitted,
           onChanged: onChanged,
           cursorColor: colors.primary,
-          style: context.typography.bodyLarge?.copyWith(
-            color: colors.white,
-          ),
+          style: context.typography.bodyLarge?.copyWith(color: colors.white),
           decoration: _decoration(context),
         ),
 
@@ -109,17 +107,11 @@ class AuthTextField extends StatelessWidget {
         ],
 
         // Mensaje verde
-        if (!isChecking &&
-            successText != null &&
-            successText!.isNotEmpty) ...[
+        if (!isChecking && successText != null && successText!.isNotEmpty) ...[
           const Gap(separatorXSm),
           Row(
             children: [
-              Icon(
-                Icons.check_circle_rounded,
-                size: 16,
-                color: colors.success,
-              ),
+              Icon(Icons.check_circle_rounded, size: 16, color: colors.success),
               const Gap(separatorSm),
               Text(
                 successText!,
@@ -141,10 +133,7 @@ class AuthTextField extends StatelessWidget {
     OutlineInputBorder border(Color color, [double width = 1]) =>
         OutlineInputBorder(
           borderRadius: kBorderRadiusAllMedium,
-          borderSide: BorderSide(
-            color: color,
-            width: width,
-          ),
+          borderSide: BorderSide(color: color, width: width),
         );
 
     return InputDecoration(
@@ -152,14 +141,8 @@ class AuthTextField extends StatelessWidget {
       filled: true,
       fillColor: colors.nightInput,
       hintText: hint,
-      hintStyle: context.typography.bodyMedium?.copyWith(
-        color: colors.slate,
-      ),
-      prefixIcon: Icon(
-        prefixIcon,
-        color: colors.slate,
-        size: 20,
-      ),
+      hintStyle: context.typography.bodyMedium?.copyWith(color: colors.slate),
+      prefixIcon: Icon(prefixIcon, color: colors.slate, size: 20),
       suffixIcon: suffixIcon,
       contentPadding: kSpaceDeviceHVMd,
       enabledBorder: border(
@@ -173,9 +156,7 @@ class AuthTextField extends StatelessWidget {
       errorBorder: border(colors.error),
       focusedErrorBorder: border(colors.error, 1.4),
       errorText: errorText,
-      errorStyle: context.typography.bodySmall?.copyWith(
-        color: colors.error,
-      ),
+      errorStyle: context.typography.bodySmall?.copyWith(color: colors.error),
     );
   }
 }

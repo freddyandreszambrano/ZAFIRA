@@ -25,10 +25,7 @@ class RegisterService {
     required String value,
   }) async {
     const url = '/api/v1/user/validate-field/';
-    final body = {
-      'field': field,
-      'value': value,
-    };
+    final body = {'field': field, 'value': value};
 
     DebugLogger(runtimeType).request(url, body);
 

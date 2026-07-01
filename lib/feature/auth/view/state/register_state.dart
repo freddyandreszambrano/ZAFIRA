@@ -28,14 +28,13 @@ class RegisterState {
     Map<String, String>? fieldErrors,
     Set<String>? validatingFields,
     Set<String>? availableFields,
-  }) =>
-      RegisterState(
-        status: status ?? this.status,
-        errorMessage: errorMessage,
-        fieldErrors: fieldErrors ?? this.fieldErrors,
-        validatingFields: validatingFields ?? this.validatingFields,
-        availableFields: availableFields ?? this.availableFields,
-      );
+  }) => RegisterState(
+    status: status ?? this.status,
+    errorMessage: errorMessage,
+    fieldErrors: fieldErrors ?? this.fieldErrors,
+    validatingFields: validatingFields ?? this.validatingFields,
+    availableFields: availableFields ?? this.availableFields,
+  );
 
   RegisterState clearErrors() => copyWith(
     errorMessage: null,

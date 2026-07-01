@@ -101,11 +101,13 @@ class _LoginFormState extends ConsumerState<LoginForm> {
     final authState = ref.watch(authControllerProvider);
     final isLoading = authState.status == ResponseStatus.loading;
 
-    final hasLoginError = authState.status == ResponseStatus.error &&
+    final hasLoginError =
+        authState.status == ResponseStatus.error &&
         (authState.errorMessage ?? '').isNotEmpty;
 
-    final isAccountDeactivated =
-        (authState.errorMessage ?? '').toLowerCase().contains('desactivada');
+    final isAccountDeactivated = (authState.errorMessage ?? '')
+        .toLowerCase()
+        .contains('desactivada');
 
     final showMessageCard = hasLoginError || _showRequiredMessage;
 
@@ -153,27 +155,28 @@ class _LoginFormState extends ConsumerState<LoginForm> {
             switchOutCurve: Curves.easeInCubic,
             child: showMessageCard
                 ? Padding(
-              key: ValueKey(
-                hasLoginError ? 'login-error-card' : 'required-card',
-              ),
-              padding: const EdgeInsets.only(top: separatorLg),
-              child: _LoginMessageCard(
-                title: hasLoginError
-                    ? (isAccountDeactivated
-                        ? 'Cuenta desactivada'
-                        : 'No pudimos iniciar sesión')
-                    : 'Campos obligatorios',
-                message: hasLoginError
-                    ? (authState.errorMessage ??
-                        'Verifica tu usuario y contraseña e inténtalo nuevamente.')
-                    : 'Ingresa tu usuario y contraseña para continuar.',
-                attempts: authState.failedLoginAttempts,
-                showRecovery: hasLoginError &&
-                    !isAccountDeactivated &&
-                    authState.failedLoginAttempts >= 3,
-                onForgotPassword: _onForgotPassword,
-              ),
-            )
+                    key: ValueKey(
+                      hasLoginError ? 'login-error-card' : 'required-card',
+                    ),
+                    padding: const EdgeInsets.only(top: separatorLg),
+                    child: _LoginMessageCard(
+                      title: hasLoginError
+                          ? (isAccountDeactivated
+                                ? 'Cuenta desactivada'
+                                : 'No pudimos iniciar sesión')
+                          : 'Campos obligatorios',
+                      message: hasLoginError
+                          ? (authState.errorMessage ??
+                                'Verifica tu usuario y contraseña e inténtalo nuevamente.')
+                          : 'Ingresa tu usuario y contraseña para continuar.',
+                      attempts: authState.failedLoginAttempts,
+                      showRecovery:
+                          hasLoginError &&
+                          !isAccountDeactivated &&
+                          authState.failedLoginAttempts >= 3,
+                      onForgotPassword: _onForgotPassword,
+                    ),
+                  )
                 : const SizedBox.shrink(),
           ),
           const Gap(separatorXLg),
@@ -212,9 +215,7 @@ class _LoginMessageCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: colors.error.withValues(alpha: 0.10),
         borderRadius: kBorderRadiusAllMedium,
-        border: Border.all(
-          color: colors.error.withValues(alpha: 0.45),
-        ),
+        border: Border.all(color: colors.error.withValues(alpha: 0.45)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,

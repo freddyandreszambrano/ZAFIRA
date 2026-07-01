@@ -5,9 +5,7 @@ Map<String, dynamic> asJsonMap(Object? value) {
   if (value == null) return {};
   if (value is Map<String, dynamic>) return value;
   if (value is Map) {
-    return value.map(
-      (key, v) => MapEntry(key.toString(), v),
-    );
+    return value.map((key, v) => MapEntry(key.toString(), v));
   }
   return {};
 }

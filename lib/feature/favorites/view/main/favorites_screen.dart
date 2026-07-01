@@ -116,11 +116,7 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.favorite_border_rounded,
-              color: colors.slate,
-              size: 48,
-            ),
+            Icon(Icons.favorite_border_rounded, color: colors.slate, size: 48),
             const Gap(separatorSm),
             Text(
               'Todavía no tienes prendas favoritas.',
@@ -223,12 +219,12 @@ class _FavoriteCard extends StatelessWidget {
                               fit: BoxFit.contain,
                               errorBuilder: (context, error, stackTrace) =>
                                   Center(
-                                child: Icon(
-                                  Icons.checkroom_rounded,
-                                  color: colors.primaryLight,
-                                  size: 54,
-                                ),
-                              ),
+                                    child: Icon(
+                                      Icons.checkroom_rounded,
+                                      color: colors.primaryLight,
+                                      size: 54,
+                                    ),
+                                  ),
                             ),
                     ),
                   ),

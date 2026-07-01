@@ -15,20 +15,20 @@ class PasswordResetUseCase with ErrorExceptionHandler {
     DebugLogger(runtimeType).methodInit(methodName);
 
     return handlerApiExceptions(
-          () async => await _repository.requestCode(email),
+      () async => await _repository.requestCode(email),
       methodName,
       runtimeType,
     );
   }
 
   Future<Either<Exception, void>> confirmReset(
-      PasswordResetConfirm data,
-      ) async {
-    const methodName = 'CONFIRM_PASSWORD_RESET';
+    PasswordResetConfirm data,
+  ) async {
+    const methodName = 'PASSWORD_RESET_CONFIRM';
     DebugLogger(runtimeType).methodInit(methodName);
 
     return handlerApiExceptions(
-          () async => await _repository.confirmReset(data),
+      () async => await _repository.confirmReset(data),
       methodName,
       runtimeType,
     );

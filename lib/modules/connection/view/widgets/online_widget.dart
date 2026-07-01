@@ -88,7 +88,8 @@ class _OnlineWidgetState extends ConsumerState<OnlineWidget>
   _BannerStyle _styleFor(BuildContext context, NetworkState state) {
     final colors = context.appColors;
     final result = state.result ?? const [];
-    final hasInterface = result.contains(ConnectivityResult.mobile) ||
+    final hasInterface =
+        result.contains(ConnectivityResult.mobile) ||
         result.contains(ConnectivityResult.wifi);
 
     if (state.newState == ConnectionStatus.connected) {

@@ -170,7 +170,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     onTap: () => context.push(ForgotPasswordScreen.routeName),
                     child: Row(
                       children: [
-                        Icon(Icons.lock_outline_rounded, color: colors.primaryLight),
+                        Icon(
+                          Icons.lock_outline_rounded,
+                          color: colors.primaryLight,
+                        ),
                         const Gap(separatorMd),
                         Expanded(
                           child: Text(

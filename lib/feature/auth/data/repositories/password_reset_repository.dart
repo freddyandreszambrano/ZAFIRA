@@ -14,7 +14,8 @@ class PasswordResetRepository implements IPasswordReset {
   final PasswordResetService _remoteDataSource;
 
   @override
-  Future<void> requestCode(String email) => _remoteDataSource.requestCode(email);
+  Future<void> requestCode(String email) =>
+      _remoteDataSource.requestCode(email);
 
   @override
   Future<void> confirmReset(PasswordResetConfirm data) =>

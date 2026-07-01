@@ -24,7 +24,6 @@ class AuthService {
       runtimeType,
     ).response(url, [response.statusCode, response.data]);
     return AuthTokenModel.fromJson(response.data);
-
   }
 
   Future<AuthTokenModel> getCurrentUser() async {

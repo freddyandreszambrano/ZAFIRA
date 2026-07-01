@@ -22,9 +22,6 @@ class RegisterRepository implements IRegister {
     required String field,
     required String value,
   }) {
-    return _remoteDataSource.validateField(
-      field: field,
-      value: value,
-    );
+    return _remoteDataSource.validateField(field: field, value: value);
   }
 }

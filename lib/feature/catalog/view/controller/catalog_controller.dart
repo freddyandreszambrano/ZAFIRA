@@ -8,20 +8,17 @@ import '../state/catalog_state.dart';
 
 final catalogControllerProvider =
     StateNotifierProvider<CatalogController, CatalogState>((ref) {
-  final catalogRepository = ref.watch(catalogRepositoryProvider);
+      final catalogRepository = ref.watch(catalogRepositoryProvider);
 
-  return CatalogController(CatalogUseCase(catalogRepository));
-});
+      return CatalogController(CatalogUseCase(catalogRepository));
+    });
 
 class CatalogController extends StateNotifier<CatalogState> {
   CatalogController(this._catalogUseCase) : super(CatalogState.initial());
 
   final CatalogUseCase _catalogUseCase;
 
-  Future<void> getProducts({
-    String? gender,
-    String? category,
-  }) async {
+  Future<void> getProducts({String? gender, String? category}) async {
     state = state.copyWith(
       status: ResponseStatus.loading,
       clearErrorMessage: true,
@@ -59,8 +56,7 @@ class CatalogController extends StateNotifier<CatalogState> {
 
     return response.fold(
       (err) => null,
-      (products) =>
-          products.isNotEmpty ? products.first.firstImageUrl : null,
+      (products) => products.isNotEmpty ? products.first.firstImageUrl : null,
     );
   }
 
@@ -73,9 +69,6 @@ class CatalogController extends StateNotifier<CatalogState> {
   Future<ProductModel?> getProductById(int id) async {
     final response = await _catalogUseCase.getProductById(id);
 
-    return response.fold(
-      (err) => null,
-      (product) => product,
-    );
+    return response.fold((err) => null, (product) => product);
   }
 }

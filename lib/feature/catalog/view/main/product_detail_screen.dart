@@ -13,7 +13,8 @@ import '../../domain/product_model.dart';
 
 Future<void> _openOfficialStore(BuildContext context, String url) async {
   final uri = Uri.tryParse(url);
-  if (uri == null || !await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+  if (uri == null ||
+      !await launchUrl(uri, mode: LaunchMode.externalApplication)) {
     if (context.mounted) {
       AppNotification.info(context, 'No se pudo abrir el enlace de la tienda.');
     }
@@ -52,11 +53,13 @@ String _formatCategory(String raw) {
   final last = unique.last.toLowerCase();
   return last
       .split(' ')
-      .map((word) => word.isEmpty
-          ? word
-          : word == 'y'
-              ? word
-              : '${word[0].toUpperCase()}${word.substring(1)}')
+      .map(
+        (word) => word.isEmpty
+            ? word
+            : word == 'y'
+            ? word
+            : '${word[0].toUpperCase()}${word.substring(1)}',
+      )
       .join(' ');
 }
 
@@ -79,9 +82,9 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(favoriteControllerProvider.notifier).syncFromProducts(
-            [widget.product],
-          );
+      ref.read(favoriteControllerProvider.notifier).syncFromProducts([
+        widget.product,
+      ]);
     });
   }
 
@@ -127,7 +130,9 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                           isFavorite
                               ? Icons.favorite_rounded
                               : Icons.favorite_border_rounded,
-                          color: isFavorite ? colors.primaryLight : colors.white,
+                          color: isFavorite
+                              ? colors.primaryLight
+                              : colors.white,
                           size: 26,
                         ),
                       ),
@@ -167,12 +172,12 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                                   fit: BoxFit.contain,
                                   errorBuilder: (context, error, stackTrace) =>
                                       Center(
-                                    child: Icon(
-                                      Icons.checkroom_rounded,
-                                      color: colors.primaryLight,
-                                      size: 96,
-                                    ),
-                                  ),
+                                        child: Icon(
+                                          Icons.checkroom_rounded,
+                                          color: colors.primaryLight,
+                                          size: 96,
+                                        ),
+                                      ),
                                 ),
                               ),
                       ),
@@ -306,22 +311,26 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                                   vertical: 8,
                                 ),
                                 decoration: BoxDecoration(
-                                  gradient:
-                                      selected ? colors.gradientPrimary : null,
+                                  gradient: selected
+                                      ? colors.gradientPrimary
+                                      : null,
                                   color: selected ? null : colors.nightCard,
                                   borderRadius: kBorderRadiusAllMedium,
                                   border: Border.all(
                                     color: selected
                                         ? Colors.transparent
-                                        : colors.primary.withValues(alpha: 0.45),
+                                        : colors.primary.withValues(
+                                            alpha: 0.45,
+                                          ),
                                   ),
                                 ),
                                 child: Text(
                                   size,
-                                  style: context.typography.labelSmall?.copyWith(
-                                    color: colors.white,
-                                    fontWeight: FontWeight.w700,
-                                  ),
+                                  style: context.typography.labelSmall
+                                      ?.copyWith(
+                                        color: colors.white,
+                                        fontWeight: FontWeight.w700,
+                                      ),
                                 ),
                               ),
                             );
@@ -349,7 +358,8 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       if (product.url.isNotEmpty) ...[
                         const Gap(separatorLg),
                         OutlinedButton.icon(
-                          onPressed: () => _openOfficialStore(context, product.url),
+                          onPressed: () =>
+                              _openOfficialStore(context, product.url),
                           style: OutlinedButton.styleFrom(
                             minimumSize: const Size.fromHeight(48),
                             side: BorderSide(

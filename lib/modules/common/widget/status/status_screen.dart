@@ -108,10 +108,7 @@ class _StatusIcon extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         gradient: RadialGradient(
-          colors: [
-            accent.withValues(alpha: 0.35),
-            accent.withValues(alpha: 0),
-          ],
+          colors: [accent.withValues(alpha: 0.35), accent.withValues(alpha: 0)],
         ),
       ),
       child: Container(

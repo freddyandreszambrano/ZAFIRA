@@ -8,11 +8,11 @@ import '../../domain/register_request.dart';
 import '../state/register_state.dart';
 
 final registerControllerProvider =
-StateNotifierProvider.autoDispose<RegisterController, RegisterState>((ref) {
-  return RegisterController(
-    RegisterUseCase(ref.watch(registerRepositoryProvider)),
-  );
-});
+    StateNotifierProvider.autoDispose<RegisterController, RegisterState>((ref) {
+      return RegisterController(
+        RegisterUseCase(ref.watch(registerRepositoryProvider)),
+      );
+    });
 
 class RegisterController extends StateNotifier<RegisterState> {
   RegisterController(this._registerUseCase) : super(RegisterState.initial());
@@ -30,7 +30,7 @@ class RegisterController extends StateNotifier<RegisterState> {
     final result = await _registerUseCase.register(request);
 
     result.fold(
-          (err) {
+      (err) {
         final fieldErrors = parseFieldErrors(err);
 
         state = state.copyWith(
@@ -40,7 +40,7 @@ class RegisterController extends StateNotifier<RegisterState> {
           availableFields: const {},
         );
       },
-          (_) => state = state.copyWith(
+      (_) => state = state.copyWith(
         status: ResponseStatus.success,
         errorMessage: null,
         fieldErrors: const {},
@@ -63,10 +63,7 @@ class RegisterController extends StateNotifier<RegisterState> {
 
     final validating = Set<String>.from(state.validatingFields)..add(field);
 
-    state = state.copyWith(
-      validatingFields: validating,
-      errorMessage: null,
-    );
+    state = state.copyWith(validatingFields: validating, errorMessage: null);
 
     final result = await _registerUseCase.validateField(
       field: field,
@@ -77,12 +74,10 @@ class RegisterController extends StateNotifier<RegisterState> {
       ..remove(field);
 
     result.fold(
-          (_) {
-        state = state.copyWith(
-          validatingFields: validatingFinished,
-        );
+      (_) {
+        state = state.copyWith(validatingFields: validatingFinished);
       },
-          (data) {
+      (data) {
         final exists = data['exists'] == true;
         final message = (data['message'] ?? '').toString();
 

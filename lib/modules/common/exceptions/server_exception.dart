@@ -18,10 +18,7 @@ class ServerException implements Exception {
   /// Creates a [ServerException] with the specified [where] the exception
   /// was thrown. Also [statusCode] error and optional
   /// [message], place to send response from server.
-  ServerException({
-    required this.statusCode,
-    this.message = '',
-  });
+  ServerException({required this.statusCode, this.message = ''});
 
   final int statusCode;
   final dynamic message;
@@ -31,7 +28,8 @@ class ServerException implements Exception {
 
   @override
   toString() {
-    final reason = 'ServerException('
+    final reason =
+        'ServerException('
         'STATUSCODE:$statusCode, '
         'MESSAGE:$message)';
     return reason;
