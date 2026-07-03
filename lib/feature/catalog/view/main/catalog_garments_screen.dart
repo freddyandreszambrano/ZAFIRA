@@ -175,6 +175,17 @@ class _GarmentCard extends ConsumerWidget {
   final String genderLabel;
   final VoidCallback onTap;
 
+  String _storeLabel(String store) {
+    switch (store.toLowerCase()) {
+      case 'modarm':
+        return 'Modarm';
+      case 'etafashion':
+        return 'Etafashion';
+      default:
+        return store;
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.appColors;
@@ -282,31 +293,32 @@ class _GarmentCard extends ConsumerWidget {
                       ),
                     ),
                   ),
-                  Positioned(
-                    bottom: 8,
-                    left: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color: colors.nightDeep.withValues(alpha: 0.6),
-                        borderRadius: kBorderRadiusAllXLarge,
-                        border: Border.all(
-                          color: colors.primary.withValues(alpha: 0.5),
+                  if (product.store.isNotEmpty)
+                    Positioned(
+                      bottom: 8,
+                      right: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
                         ),
-                      ),
-                      child: Text(
-                        genderLabel,
-                        style: context.typography.labelSmall?.copyWith(
-                          color: colors.white,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 9,
+                        decoration: BoxDecoration(
+                          color: colors.nightDeep.withValues(alpha: 0.75),
+                          borderRadius: kBorderRadiusAllXLarge,
+                          border: Border.all(
+                            color: colors.primaryLight.withValues(alpha: 0.6),
+                          ),
+                        ),
+                        child: Text(
+                          _storeLabel(product.store),
+                          style: context.typography.labelSmall?.copyWith(
+                            color: colors.primaryLight,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 9,
+                          ),
                         ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),
