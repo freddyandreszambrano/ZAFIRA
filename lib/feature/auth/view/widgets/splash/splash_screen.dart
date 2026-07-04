@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../../core/constants/app_numbers.dart';
 import '../../../../../core/helpers/context_helper.dart';
 import '../../../../home/view/main/home_screen.dart';
+import '../../../../onboarding/view/main/onboarding_screen.dart';
 import '../../controller/auth_controller.dart';
 import '../login/login_screen.dart';
 import '../shared/brand_wordmark.dart';
@@ -32,10 +33,17 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
     if (!mounted) return;
 
-    final isTokenExist = ref.read(authControllerProvider).isTokenExist;
+    final auth = ref.read(authControllerProvider);
+
+    if (auth.isTokenExist != true) {
+      context.go(LoginScreen.routeName);
+      return;
+    }
 
     context.go(
-      isTokenExist == true ? HomeScreen.routeName : LoginScreen.routeName,
+      OnboardingScreen.isRequired(auth.user)
+          ? OnboardingScreen.routeName
+          : HomeScreen.routeName,
     );
   }
 

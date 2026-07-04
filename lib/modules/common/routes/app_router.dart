@@ -20,6 +20,7 @@ import '../../../feature/catalog/view/main/catalog_garments_screen.dart';
 import '../../../feature/catalog/view/main/product_detail_screen.dart';
 import '../../../feature/catalog/domain/product_model.dart';
 import '../../../feature/favorites/view/main/favorites_screen.dart';
+import '../../../feature/onboarding/view/main/onboarding_screen.dart';
 import '../../../feature/recommend/view/main/recommend_screen.dart';
 
 CustomTransitionPage<T> _fadePage<T>(Widget child, GoRouterState state) {
@@ -73,6 +74,11 @@ final appRouter = GoRouter(
         GoRoute(
           path: HomeScreen.routeName,
           pageBuilder: (context, state) => _fadePage(const HomeScreen(), state),
+        ),
+        GoRoute(
+          path: OnboardingScreen.routeName,
+          pageBuilder: (context, state) =>
+              _fadePage(const OnboardingScreen(), state),
         ),
         GoRoute(
           path: CatalogScreen.routeName,

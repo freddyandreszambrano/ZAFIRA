@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../../core/enum/response_status.dart';
 import '../../../../../modules/common/request/permission_handler.dart';
 import '../../../../home/view/main/home_screen.dart';
+import '../../../../onboarding/view/main/onboarding_screen.dart';
 import '../../controller/auth_controller.dart';
 import '../../state/auth_state.dart';
 
@@ -21,8 +22,12 @@ mixin LoginAuthMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
   void authListener() {
     ref.listen<AuthState>(authControllerProvider, (previous, next) async {
       if (next.status == ResponseStatus.success && next.isTokenExist == true) {
+        final target = OnboardingScreen.isRequired(next.user)
+            ? OnboardingScreen.routeName
+            : HomeScreen.routeName;
+
         if (kIsWeb) {
-          if (mounted) context.go(HomeScreen.routeName);
+          if (mounted) context.go(target);
           return;
         }
 
@@ -46,7 +51,7 @@ mixin LoginAuthMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
           //   context.go(HomeScreen.routeName);
           // }
 
-          if (mounted) context.go(HomeScreen.routeName);
+          if (mounted) context.go(target);
         } finally {
           _requesting = false;
         }

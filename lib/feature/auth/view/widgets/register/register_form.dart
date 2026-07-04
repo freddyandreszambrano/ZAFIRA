@@ -13,7 +13,6 @@ import '../../controller/register_controller.dart';
 import '../../state/register_state.dart';
 import '../../../../../modules/common/widget/buttons/app_gradient_button.dart';
 import '../shared/auth_text_field.dart';
-import '../shared/gender_selector.dart';
 import '../shared/obscure_toggle_button.dart';
 import 'password_strength_indicator.dart';
 import 'register_success_screen.dart';
@@ -33,11 +32,9 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmController = TextEditingController();
-  final _sizeController = TextEditingController();
 
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
-  String _gender = '';
 
   Timer? _usernameDebounce;
   Timer? _dniDebounce;
@@ -54,7 +51,6 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
     _emailController.dispose();
     _passwordController.dispose();
     _confirmController.dispose();
-    _sizeController.dispose();
     super.dispose();
   }
 
@@ -77,11 +73,6 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
       return;
     }
 
-    if (_gender.isEmpty) {
-      AppNotification.error(context, 'Selecciona tu género');
-      return;
-    }
-
     final names = _nameController.text
         .trim()
         .split(' ')
@@ -98,8 +89,6 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
             password: _passwordController.text,
             firstName: names.isEmpty ? '' : names.first,
             lastName: names.length > 1 ? names.sublist(1).join(' ') : '',
-            gender: _gender,
-            preferredSize: _sizeController.text.trim(),
           ),
         );
   }
@@ -425,20 +414,6 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                   setState(() => _obscureConfirm = !_obscureConfirm),
             ),
           ),
-          const Gap(separatorLg),
-          GenderSelector(
-            value: _gender,
-            onChanged: (value) => setState(() => _gender = value),
-          ),
-          const Gap(separatorLg),
-          AuthTextField(
-            controller: _sizeController,
-            label: 'Talla preferida (opcional)',
-            hint: 'Ej: S, M, L, XL',
-            prefixIcon: Icons.checkroom_rounded,
-            textInputAction: TextInputAction.done,
-            onSubmitted: (_) => _submit(),
-          ),
           const Gap(separatorXLg),
           AnimatedBuilder(
             animation: Listenable.merge([
@@ -456,8 +431,7 @@ class _RegisterFormState extends ConsumerState<RegisterForm> {
                   _dniController.text.trim().isNotEmpty &&
                   _emailController.text.trim().isNotEmpty &&
                   _passwordController.text.isNotEmpty &&
-                  _confirmController.text.isNotEmpty &&
-                  _gender.isNotEmpty;
+                  _confirmController.text.isNotEmpty;
 
               return AppGradientButton(
                 label: 'Crear cuenta',

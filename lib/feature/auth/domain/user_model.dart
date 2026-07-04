@@ -1,5 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'onboarding_info.dart';
+
 part 'user_model.freezed.dart';
 part 'user_model.g.dart';
 
@@ -28,6 +30,7 @@ abstract class UserModel with _$UserModel {
     Map<String, dynamic> stylePreferences,
     @Default('es') String language,
     @JsonKey(name: 'try_on_photo') @Default('') String tryOnPhoto,
+    @Default(OnboardingInfo()) OnboardingInfo onboarding,
     @JsonKey(name: 'can_view_client_data')
     @Default(false)
     bool canViewClientData,
