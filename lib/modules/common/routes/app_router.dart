@@ -22,6 +22,18 @@ import '../../../feature/catalog/domain/product_model.dart';
 import '../../../feature/favorites/view/main/favorites_screen.dart';
 import '../../../feature/recommend/view/main/recommend_screen.dart';
 
+CustomTransitionPage<T> _fadePage<T>(Widget child, GoRouterState state) {
+  return CustomTransitionPage<T>(
+    key: state.pageKey,
+    child: child,
+    transitionDuration: const Duration(milliseconds: 150),
+    reverseTransitionDuration: const Duration(milliseconds: 100),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return FadeTransition(opacity: animation, child: child);
+    },
+  );
+}
+
 final appRouter = GoRouter(
   initialLocation: SplashScreen.routeName,
   routes: [
@@ -31,93 +43,103 @@ final appRouter = GoRouter(
       routes: [
         GoRoute(
           path: SplashScreen.routeName,
-          builder: (context, state) => const SplashScreen(),
+          pageBuilder: (context, state) => _fadePage(const SplashScreen(), state),
         ),
         GoRoute(
           path: LoginScreen.routeName,
-          builder: (context, state) => const LoginScreen(),
+          pageBuilder: (context, state) => _fadePage(const LoginScreen(), state),
         ),
         GoRoute(
           path: RegisterScreen.routeName,
-          builder: (context, state) => const RegisterScreen(),
+          pageBuilder: (context, state) => _fadePage(const RegisterScreen(), state),
         ),
         GoRoute(
           path: RegisterSuccessScreen.routeName,
-          builder: (context, state) => const RegisterSuccessScreen(),
+          pageBuilder: (context, state) =>
+              _fadePage(const RegisterSuccessScreen(), state),
         ),
         GoRoute(
           path: ForgotPasswordScreen.routeName,
-          builder: (context, state) => const ForgotPasswordScreen(),
+          pageBuilder: (context, state) =>
+              _fadePage(const ForgotPasswordScreen(), state),
         ),
         GoRoute(
           path: ResetPasswordScreen.routeName,
-          builder: (context, state) =>
-              ResetPasswordScreen(email: state.extra as String? ?? ''),
+          pageBuilder: (context, state) => _fadePage(
+            ResetPasswordScreen(email: state.extra as String? ?? ''),
+            state,
+          ),
         ),
         GoRoute(
           path: HomeScreen.routeName,
-          builder: (context, state) => const HomeScreen(),
+          pageBuilder: (context, state) => _fadePage(const HomeScreen(), state),
         ),
         GoRoute(
           path: CatalogScreen.routeName,
-          builder: (context, state) => const CatalogScreen(),
+          pageBuilder: (context, state) => _fadePage(const CatalogScreen(), state),
         ),
         GoRoute(
           path: CatalogGarmentsScreen.routeName,
-          builder: (context, state) {
+          pageBuilder: (context, state) {
             final extra = state.extra as Map<String, String>? ?? const {};
-            return CatalogGarmentsScreen(
-              gender: extra['gender'] ?? 'woman',
-              category: extra['category'] ?? '',
-              categoryLabel: extra['categoryLabel'],
+            return _fadePage(
+              CatalogGarmentsScreen(
+                gender: extra['gender'] ?? 'woman',
+                category: extra['category'] ?? '',
+                categoryLabel: extra['categoryLabel'],
+              ),
+              state,
             );
           },
         ),
         GoRoute(
           path: ProductDetailScreen.routeName,
-          builder: (context, state) =>
-              ProductDetailScreen(product: state.extra as ProductModel),
+          pageBuilder: (context, state) => _fadePage(
+            ProductDetailScreen(product: state.extra as ProductModel),
+            state,
+          ),
         ),
         GoRoute(
           path: FavoritesScreen.routeName,
-          builder: (context, state) => const FavoritesScreen(),
+          pageBuilder: (context, state) =>
+              _fadePage(const FavoritesScreen(), state),
         ),
-
         GoRoute(
           path: RecommendScreen.routeName,
-          builder: (context, state) =>
-              RecommendScreen(favoriteIds: state.extra as List<int>?),
+          pageBuilder: (context, state) => _fadePage(
+            RecommendScreen(favoriteIds: state.extra as List<int>?),
+            state,
+          ),
         ),
-
         GoRoute(
           path: ProfileScreen.routeName,
-          builder: (context, state) => const ProfileScreen(),
+          pageBuilder: (context, state) => _fadePage(const ProfileScreen(), state),
         ),
-
         GoRoute(
           path: EditProfileScreen.routeName,
-          builder: (context, state) => const EditProfileScreen(),
+          pageBuilder: (context, state) =>
+              _fadePage(const EditProfileScreen(), state),
         ),
-
         GoRoute(
           path: PreferencesScreen.routeName,
-          builder: (context, state) => const PreferencesScreen(),
+          pageBuilder: (context, state) =>
+              _fadePage(const PreferencesScreen(), state),
         ),
-
         GoRoute(
           path: SettingsScreen.routeName,
-          builder: (context, state) => const SettingsScreen(),
+          pageBuilder: (context, state) => _fadePage(const SettingsScreen(), state),
         ),
-
         GoRoute(
           path: UploadPhotoScreen.routeName,
-          builder: (context, state) => const UploadPhotoScreen(),
+          pageBuilder: (context, state) =>
+              _fadePage(const UploadPhotoScreen(), state),
         ),
-
         GoRoute(
           path: PhotoPreviewScreen.routeName,
-          builder: (context, state) =>
-              PhotoPreviewScreen(imagePath: state.extra as String? ?? ''),
+          pageBuilder: (context, state) => _fadePage(
+            PhotoPreviewScreen(imagePath: state.extra as String? ?? ''),
+            state,
+          ),
         ),
       ],
     ),

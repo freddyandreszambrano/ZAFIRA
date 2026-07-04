@@ -370,8 +370,10 @@ class _DashboardActionCard extends StatelessWidget {
       onTap: onTap,
       borderRadius: kBorderRadiusAllMedium,
       child: Container(
-        height: fullWidth ? 76 : 118,
         width: fullWidth ? double.infinity : null,
+        constraints: BoxConstraints(
+          minHeight: fullWidth ? context.cardMinHeight : context.cardMinHeightTall,
+        ),
         clipBehavior: Clip.hardEdge,
         padding: kSpaceDeviceMd,
         decoration: BoxDecoration(
@@ -391,27 +393,34 @@ class _DashboardActionCard extends StatelessWidget {
                     size: 28,
                   ),
                   const Gap(separatorMd),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        title,
-                        style: context.typography.labelLarge?.copyWith(
-                          color: colors.white,
-                          fontWeight: FontWeight.w900,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: context.typography.labelLarge?.copyWith(
+                            color: colors.white,
+                            fontWeight: FontWeight.w900,
+                          ),
                         ),
-                      ),
-                      const Gap(separatorXSm),
-                      Text(
-                        subtitle,
-                        style: context.typography.labelSmall?.copyWith(
-                          color: colors.slate,
+                        const Gap(separatorXSm),
+                        Text(
+                          subtitle,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: context.typography.labelSmall?.copyWith(
+                            color: colors.slate,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                  const Spacer(),
+                  const Gap(separatorSm),
                   Icon(
                     Icons.arrow_forward_ios_rounded,
                     color: colors.primaryLight,
@@ -421,15 +430,18 @@ class _DashboardActionCard extends StatelessWidget {
               )
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
                     icon,
                     color: highlighted ? colors.primaryLight : colors.white,
                     size: 28,
                   ),
-                  const Spacer(),
+                  const Gap(separatorSm),
                   Text(
                     title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: context.typography.labelLarge?.copyWith(
                       color: colors.white,
                       fontWeight: FontWeight.w900,
@@ -438,6 +450,8 @@ class _DashboardActionCard extends StatelessWidget {
                   const Gap(separatorXSm),
                   Text(
                     subtitle,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: context.typography.labelSmall?.copyWith(
                       color: colors.slate,
                     ),

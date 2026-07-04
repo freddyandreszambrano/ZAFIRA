@@ -8,6 +8,9 @@ import 'app_dimensions.dart';
 import 'app_typography.dart';
 import 'colors.dart';
 
+export 'adaptive_gap.dart';
+export 'breakpoints.dart';
+
 /// Atajos de uso frecuente sobre [BuildContext].
 ///
 /// Patrón espejo de `hey-support/lib/core/helpers/context_helper.dart`.

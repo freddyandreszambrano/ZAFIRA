@@ -1,5 +1,4 @@
 import '../../../core/utils/logger.dart';
-import 'server_exception.dart';
 
 class RegularException implements Exception {
   factory RegularException.fromError(
@@ -7,7 +6,10 @@ class RegularException implements Exception {
     String methodName,
     runtimeType,
   ) {
-    if (error is RegularException || error is ServerException) {
+    // Un factory de RegularException solo puede devolver una RegularException;
+    // un ServerException no es subtipo y debe preservarlo el caller (ver
+    // ErrorExceptionHandler.handlerApiExceptions), no este factory.
+    if (error is RegularException) {
       return error;
     }
 

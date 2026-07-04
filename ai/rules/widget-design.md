@@ -144,7 +144,59 @@ Nunca dejar pantalla en blanco mientras se carga.
 - [ ] `const` en todo lo posible.
 - [ ] Feedback al usuario vía `AppNotification` (cero `SnackBar` / `MySnackBar`).
 
-## 11. Notificaciones y feedback (toasts)
+## 11. Adaptividad (Material 3 breakpoints)
+
+El proyecto usa breakpoints de Material 3 sobre `MediaQuery.sizeOf(context).width`. Están en `lib/core/helpers/breakpoints.dart` y se acceden por extensión sobre `BuildContext`:
+
+| Enum | Ancho | Uso típico |
+|---|---|---|
+| `Breakpoint.compact` | `< 600` | mobile portrait |
+| `Breakpoint.medium` | `600 – 839` | tablet portrait / mobile landscape |
+| `Breakpoint.expanded` | `840 – 1199` | tablet landscape / laptop |
+| `Breakpoint.large` | `>= 1200` | desktop |
+
+API:
+
+```dart
+context.isCompact                    // bool
+context.isCompactOrMedium            // bool
+
+context.responsive<double>(
+  compact: 16,
+  medium: 24,
+  expanded: 32,
+  large: 40,
+)                                    // valor tipado por breakpoint
+
+context.gutter                       // padding horizontal de página
+context.pagePadding                  // EdgeInsets.symmetric(horizontal: gutter)
+context.cardPadding                  // padding interno de cards
+context.cardMinHeight                // altura mínima de cards estándar
+context.cardMinHeightTall            // altura mínima de cards tall
+context.gridColumns                  // columnas para GridView
+context.sectionGap                   // separación entre secciones
+```
+
+Reglas:
+- Nunca hardcodear un breakpoint (`if (width < 600)` ❌). Usar `context.responsive(...)` o `context.isCompact`.
+- Nunca escalar linealmente contra una `baseWidth` — el escalado lineal deforma en tablets grandes. Usar tramos por breakpoint.
+- Para adaptarse al ancho del **padre** (dentro de `ShellRoute`, columnas de grid, etc.), usar `LayoutBuilder` — el `MediaQuery` da el ancho global de la pantalla, no el disponible.
+
+## 12. Alturas fijas — regla anti-overflow
+
+Cuando un widget contiene texto, **prohibido** hardcodear `height:` en el `Container` o `SizedBox` padre. Motivo: cambios de `textScale` del sistema, tamaños tipográficos por breakpoint, y textos dinámicos generan overflow del `RenderFlex`.
+
+- ❌ `Container(height: 76, child: Column(children: [Text(...), Text(...)]))`
+- ✅ `Container(constraints: BoxConstraints(minHeight: 76), child: ...)` — permite crecer
+- ✅ `IntrinsicHeight` en el padre + hijos naturales — mide lo que necesita
+
+Reglas asociadas:
+- **Todo `Text` en cards, list tiles y tabs** DEBE llevar `maxLines: N` + `overflow: TextOverflow.ellipsis` explícito.
+- Alturas mínimas usar `context.cardMinHeight` / `context.cardMinHeightTall`, no números mágicos.
+- Dentro de `Row` o `Column`, si un hijo tiene texto que puede crecer, envolverlo en `Expanded` o `Flexible` — nunca dejarlo con `MainAxisSize.max` por default.
+- `Spacer()` dentro de un `Column` con altura acotada no ayuda — usar `Gap(context.sectionGap)` o `mainAxisAlignment` en su lugar.
+
+## 13. Notificaciones y feedback (toasts)
 
 El **único** mecanismo para mostrar feedback efímero (éxito / error / aviso / info) es
 `AppNotification`, en `lib/modules/common/widget/notifications/app_notification.dart`.
