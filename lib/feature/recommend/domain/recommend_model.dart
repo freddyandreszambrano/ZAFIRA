@@ -35,8 +35,7 @@ class RecommendResponseModel {
   final String store;
   final List<OutfitModel> outfits;
 
-  List<int> get allProductIds =>
-      outfits.expand((o) => o.productIds).toList();
+  List<int> get allProductIds => outfits.expand((o) => o.productIds).toList();
 
   factory RecommendResponseModel.fromJson(Map<String, dynamic> json) {
     return RecommendResponseModel(

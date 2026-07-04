@@ -22,10 +22,7 @@ class RecommendController extends StateNotifier<RecommendState> {
     List<int> excludeIds = const [],
     List<int> productIds = const [],
   }) async {
-    state = state.copyWith(
-      status: ResponseStatus.loading,
-      clearError: true,
-    );
+    state = state.copyWith(status: ResponseStatus.loading, clearError: true);
 
     try {
       final result = await _repo.getRecommendation(
@@ -35,21 +32,20 @@ class RecommendController extends StateNotifier<RecommendState> {
         excludeIds: excludeIds,
         productIds: productIds,
       );
-      state = state.copyWith(
-        status: ResponseStatus.success,
-        result: result,
-      );
+      state = state.copyWith(status: ResponseStatus.success, result: result);
     } catch (e) {
       final msg = e.toString();
-      final isRateLimit = msg.contains('429') || msg.contains('rate') || msg.contains('limit');
-      final isFavoritesIssue = msg.contains('torso') || msg.contains('favoritos');
+      final isRateLimit =
+          msg.contains('429') || msg.contains('rate') || msg.contains('limit');
+      final isFavoritesIssue =
+          msg.contains('torso') || msg.contains('favoritos');
       state = state.copyWith(
         status: ResponseStatus.error,
         errorMessage: isFavoritesIssue
             ? 'Necesitas al menos una prenda de torso y una de piernas en tus favoritos.'
             : isRateLimit
-                ? 'Demasiadas solicitudes seguidas. Espera unos segundos e intenta de nuevo.'
-                : 'No se pudo obtener la recomendación. Intenta de nuevo.',
+            ? 'Demasiadas solicitudes seguidas. Espera unos segundos e intenta de nuevo.'
+            : 'No se pudo obtener la recomendación. Intenta de nuevo.',
       );
     }
   }

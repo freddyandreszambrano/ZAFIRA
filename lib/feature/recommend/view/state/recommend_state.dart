@@ -2,15 +2,10 @@ import '../../../../core/enum/response_status.dart';
 import '../../domain/recommend_model.dart';
 
 class RecommendState {
-  RecommendState({
-    required this.status,
-    this.result,
-    this.errorMessage,
-  });
+  RecommendState({required this.status, this.result, this.errorMessage});
 
-  factory RecommendState.initial() => RecommendState(
-    status: ResponseStatus.initial,
-  );
+  factory RecommendState.initial() =>
+      RecommendState(status: ResponseStatus.initial);
 
   final ResponseStatus status;
   final RecommendResponseModel? result;

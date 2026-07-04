@@ -19,12 +19,11 @@ class RecommendRepository {
     String gender = 'hombre',
     List<int> excludeIds = const [],
     List<int> productIds = const [],
-  }) =>
-      service.getRecommendation(
-        occasion: occasion,
-        store: store,
-        gender: gender,
-        excludeIds: excludeIds,
-        productIds: productIds,
-      );
+  }) => service.getRecommendation(
+    occasion: occasion,
+    store: store,
+    gender: gender,
+    excludeIds: excludeIds,
+    productIds: productIds,
+  );
 }

@@ -85,9 +85,8 @@ final appRouter = GoRouter(
 
         GoRoute(
           path: RecommendScreen.routeName,
-          builder: (context, state) => RecommendScreen(
-            favoriteIds: state.extra as List<int>?,
-          ),
+          builder: (context, state) =>
+              RecommendScreen(favoriteIds: state.extra as List<int>?),
         ),
 
         GoRoute(

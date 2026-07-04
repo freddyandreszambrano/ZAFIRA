@@ -63,7 +63,9 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
       return;
     }
     FocusScope.of(context).unfocus();
-    ref.read(recommendControllerProvider.notifier).getRecommendation(
+    ref
+        .read(recommendControllerProvider.notifier)
+        .getRecommendation(
           occasion: occasion,
           store: _selectedStore,
           gender: _selectedGender,
@@ -106,19 +108,31 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
                   color: colors.primary.withValues(alpha: 0.12),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.person_search_rounded, size: 36, color: colors.primary),
+                child: Icon(
+                  Icons.person_search_rounded,
+                  size: 36,
+                  color: colors.primary,
+                ),
               ),
               const Gap(16),
               Text(
                 'Foto de perfil requerida',
-                style: TextStyle(color: colors.white, fontSize: 17, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  color: colors.white,
+                  fontSize: 17,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const Gap(10),
               Text(
                 'Para probarte el outfit necesitamos tu foto de cuerpo completo. '
                 'Ve a tu perfil y toma una foto para activar esta función.',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: colors.slate, fontSize: 13, height: 1.5),
+                style: TextStyle(
+                  color: colors.slate,
+                  fontSize: 13,
+                  height: 1.5,
+                ),
               ),
               const Gap(20),
               SizedBox(
@@ -128,7 +142,9 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: colors.primary,
                     foregroundColor: colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
                   child: const Text('Entendido'),
@@ -155,7 +171,11 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
           widget.favoriteIds != null
               ? 'Outfits con tus favoritos'
               : 'Recomendación de Outfit',
-          style: TextStyle(color: colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+          style: TextStyle(
+            color: colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
         ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios_new_rounded, color: colors.white),
@@ -246,7 +266,11 @@ class _SearchPanel extends StatelessWidget {
           ],
           Text(
             '¿Para qué ocasión buscas outfit?',
-            style: TextStyle(color: colors.white, fontWeight: FontWeight.w600, fontSize: 14),
+            style: TextStyle(
+              color: colors.white,
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+            ),
           ),
           const Gap(8),
           TextField(
@@ -269,47 +293,62 @@ class _SearchPanel extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(color: colors.primary, width: 1.5),
               ),
-              prefixIcon: Icon(Icons.auto_awesome_rounded, color: colors.primary),
+              prefixIcon: Icon(
+                Icons.auto_awesome_rounded,
+                color: colors.primary,
+              ),
               isDense: true,
             ),
             textInputAction: TextInputAction.done,
             onSubmitted: (_) => onRecommend(),
           ),
           if (!isFavoritesMode) ...[
-          const Gap(10),
-          Row(
-            children: [
-              Text('Tienda:', style: TextStyle(color: colors.slate, fontSize: 13)),
-              const Gap(8),
-              Expanded(
-                child: DropdownButtonFormField<String>(
-                  initialValue: selectedStore,
-                  dropdownColor: colors.nightCard,
-                  style: TextStyle(color: colors.white, fontSize: 13),
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: colors.nightInput,
-                    isDense: true,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: colors.nightBorder),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: colors.nightBorder),
-                    ),
-                  ),
-                  items: const [
-                    DropdownMenuItem(value: 'all', child: Text('Todas las tiendas')),
-                    DropdownMenuItem(value: 'modarm', child: Text('Modarm')),
-                    DropdownMenuItem(value: 'etafashion', child: Text('Etafashion')),
-                  ],
-                  onChanged: onStoreChanged,
+            const Gap(10),
+            Row(
+              children: [
+                Text(
+                  'Tienda:',
+                  style: TextStyle(color: colors.slate, fontSize: 13),
                 ),
-              ),
-            ],
-          ),
+                const Gap(8),
+                Expanded(
+                  child: DropdownButtonFormField<String>(
+                    initialValue: selectedStore,
+                    dropdownColor: colors.nightCard,
+                    style: TextStyle(color: colors.white, fontSize: 13),
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: colors.nightInput,
+                      isDense: true,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(color: colors.nightBorder),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(color: colors.nightBorder),
+                      ),
+                    ),
+                    items: const [
+                      DropdownMenuItem(
+                        value: 'all',
+                        child: Text('Todas las tiendas'),
+                      ),
+                      DropdownMenuItem(value: 'modarm', child: Text('Modarm')),
+                      DropdownMenuItem(
+                        value: 'etafashion',
+                        child: Text('Etafashion'),
+                      ),
+                    ],
+                    onChanged: onStoreChanged,
+                  ),
+                ),
+              ],
+            ),
           ],
           const Gap(12),
           SizedBox(
@@ -320,15 +359,22 @@ class _SearchPanel extends StatelessWidget {
                   ? const SizedBox(
                       width: 18,
                       height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
                     )
                   : const Icon(Icons.auto_awesome_rounded, size: 20),
-              label: Text(isLoading ? 'Generando outfits...' : 'Recomendar outfits'),
+              label: Text(
+                isLoading ? 'Generando outfits...' : 'Recomendar outfits',
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: colors.primary,
                 foregroundColor: colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 13),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
           ),
@@ -409,7 +455,11 @@ class _ResultPanel extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.checkroom_rounded, size: 72, color: colors.slate.withValues(alpha: 0.35)),
+            Icon(
+              Icons.checkroom_rounded,
+              size: 72,
+              color: colors.slate.withValues(alpha: 0.35),
+            ),
             const Gap(16),
             Text(
               'Escribe una ocasión y te\nrecomendamos hasta 3 outfits',
@@ -428,7 +478,10 @@ class _ResultPanel extends StatelessWidget {
           children: [
             CircularProgressIndicator(color: colors.primary),
             const Gap(16),
-            Text('IA generando outfits...', style: TextStyle(color: colors.slate, fontSize: 14)),
+            Text(
+              'IA generando outfits...',
+              style: TextStyle(color: colors.slate, fontSize: 14),
+            ),
           ],
         ),
       );
@@ -452,10 +505,17 @@ class _ResultPanel extends StatelessWidget {
               OutlinedButton.icon(
                 onPressed: onRefresh,
                 icon: Icon(Icons.refresh_rounded, color: colors.primary),
-                label: Text('Intentar de nuevo', style: TextStyle(color: colors.primary)),
+                label: Text(
+                  'Intentar de nuevo',
+                  style: TextStyle(color: colors.primary),
+                ),
                 style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: colors.primary.withValues(alpha: 0.5)),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  side: BorderSide(
+                    color: colors.primary.withValues(alpha: 0.5),
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
             ],
@@ -465,7 +525,8 @@ class _ResultPanel extends StatelessWidget {
     }
 
     final result = state.result as RecommendResponseModel?;
-    if (result == null || result.outfits.isEmpty) return const SizedBox.shrink();
+    if (result == null || result.outfits.isEmpty)
+      return const SizedBox.shrink();
 
     return Column(
       children: [
@@ -493,12 +554,21 @@ class _ResultPanel extends StatelessWidget {
             width: double.infinity,
             child: OutlinedButton.icon(
               onPressed: onRefresh,
-              icon: Icon(Icons.shuffle_rounded, size: 18, color: colors.primary),
-              label: Text('Generar 3 nuevos outfits', style: TextStyle(color: colors.primary, fontSize: 13)),
+              icon: Icon(
+                Icons.shuffle_rounded,
+                size: 18,
+                color: colors.primary,
+              ),
+              label: Text(
+                'Generar 3 nuevos outfits',
+                style: TextStyle(color: colors.primary, fontSize: 13),
+              ),
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 side: BorderSide(color: colors.primary.withValues(alpha: 0.5)),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
           ),
@@ -541,12 +611,18 @@ class _OutfitCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
             decoration: BoxDecoration(
               color: colors.primary.withValues(alpha: 0.08),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(16),
+              ),
               border: Border(bottom: BorderSide(color: colors.nightBorder)),
             ),
             child: Row(
               children: [
-                Icon(Icons.auto_awesome_rounded, size: 14, color: colors.primary),
+                Icon(
+                  Icons.auto_awesome_rounded,
+                  size: 14,
+                  color: colors.primary,
+                ),
                 const Gap(6),
                 Text(
                   'Outfit $number',
@@ -619,7 +695,9 @@ class _OutfitCard extends StatelessWidget {
                   backgroundColor: const Color(0xFF8E54FF),
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 11),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
               ),
             ),
@@ -702,7 +780,11 @@ class _PieceColumn extends StatelessWidget {
           ),
           child: Text(
             _storeName,
-            style: TextStyle(color: _storeColor(), fontSize: 10, fontWeight: FontWeight.w600),
+            style: TextStyle(
+              color: _storeColor(),
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
         const Gap(4),
@@ -712,7 +794,12 @@ class _PieceColumn extends StatelessWidget {
               context.push(ProductDetailScreen.routeName, extra: product),
           child: Text(
             product.name,
-            style: TextStyle(color: colors.white, fontSize: 12, fontWeight: FontWeight.w600, height: 1.3),
+            style: TextStyle(
+              color: colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              height: 1.3,
+            ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
@@ -721,7 +808,11 @@ class _PieceColumn extends StatelessWidget {
         // Price
         Text(
           '\$${product.price.toStringAsFixed(2)}',
-          style: TextStyle(color: colors.primary, fontWeight: FontWeight.bold, fontSize: 13),
+          style: TextStyle(
+            color: colors.primary,
+            fontWeight: FontWeight.bold,
+            fontSize: 13,
+          ),
         ),
         const Gap(6),
         // Buy button
@@ -733,7 +824,9 @@ class _PieceColumn extends StatelessWidget {
               foregroundColor: colors.primaryLight,
               side: BorderSide(color: colors.primary.withValues(alpha: 0.4)),
               padding: const EdgeInsets.symmetric(vertical: 6),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
               minimumSize: Size.zero,
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
@@ -743,7 +836,6 @@ class _PieceColumn extends StatelessWidget {
       ],
     );
   }
-
 }
 
 /// Imagen de producto con fallback: si una URL falla, intenta la siguiente.
@@ -789,12 +881,12 @@ class _ProductImageState extends State<_ProductImage> {
   }
 
   Widget _placeholder(dynamic colors) => Container(
-        width: double.infinity,
-        height: 160,
-        decoration: BoxDecoration(
-          color: colors.nightInput,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Icon(Icons.checkroom_rounded, color: colors.slate),
-      );
+    width: double.infinity,
+    height: 160,
+    decoration: BoxDecoration(
+      color: colors.nightInput,
+      borderRadius: BorderRadius.circular(10),
+    ),
+    child: Icon(Icons.checkroom_rounded, color: colors.slate),
+  );
 }
