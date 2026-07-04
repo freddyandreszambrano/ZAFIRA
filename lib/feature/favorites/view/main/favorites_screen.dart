@@ -8,6 +8,7 @@ import '../../../../core/enum/response_status.dart';
 import '../../../../core/helpers/context_helper.dart';
 import '../../../catalog/domain/product_model.dart';
 import '../../../catalog/view/main/product_detail_screen.dart';
+import '../../../recommend/view/main/recommend_screen.dart';
 import '../controller/favorite_controller.dart';
 import '../favorite_feedback.dart';
 import '../state/favorite_state.dart';
@@ -138,6 +139,38 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
       );
     }
 
+    return Column(
+      children: [
+        // Generar outfits combinando solo las prendas favoritas
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: () => context.push(
+              RecommendScreen.routeName,
+              extra: state.products.map((p) => p.id).toList(),
+            ),
+            icon: const Icon(Icons.auto_awesome_rounded, size: 18),
+            label: const Text(
+              'Generar outfits con mis favoritos',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: colors.primary,
+              foregroundColor: colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+        ),
+        const Gap(separatorMd),
+        Expanded(child: _buildGrid(context, state)),
+      ],
+    );
+  }
+
+  Widget _buildGrid(BuildContext context, FavoriteState state) {
     return GridView.builder(
       itemCount: state.products.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

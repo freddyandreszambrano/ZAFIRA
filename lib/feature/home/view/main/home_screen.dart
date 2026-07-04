@@ -13,6 +13,7 @@ import '../../../../feature/catalog/view/controller/catalog_controller.dart';
 import '../../../../feature/catalog/view/main/catalog_screen.dart';
 import '../../../../feature/catalog/view/main/product_detail_screen.dart';
 import '../../../../feature/favorites/view/main/favorites_screen.dart';
+import '../../../../feature/recommend/view/main/recommend_screen.dart';
 import '../../../../modules/common/widget/notifications/app_notification.dart';
 import '../widget/home_bottom_nav.dart';
 
@@ -239,6 +240,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                   ],
                 ),
+                const Gap(separatorMd),
+                _DashboardActionCard(
+                  icon: Icons.auto_awesome_rounded,
+                  title: 'Recomendación IA',
+                  subtitle: 'Outfit personalizado con IA',
+                  highlighted: true,
+                  fullWidth: true,
+                  onTap: () => context.push(RecommendScreen.routeName),
+                ),
                 const Gap(separatorXLg),
 
                 if (!_isLoadingProducts && _recentProducts.isNotEmpty) ...[
@@ -342,6 +352,7 @@ class _DashboardActionCard extends StatelessWidget {
     required this.subtitle,
     required this.onTap,
     this.highlighted = false,
+    this.fullWidth = false,
   });
 
   final IconData icon;
@@ -349,6 +360,7 @@ class _DashboardActionCard extends StatelessWidget {
   final String subtitle;
   final VoidCallback onTap;
   final bool highlighted;
+  final bool fullWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -358,7 +370,9 @@ class _DashboardActionCard extends StatelessWidget {
       onTap: onTap,
       borderRadius: kBorderRadiusAllMedium,
       child: Container(
-        height: 118,
+        height: fullWidth ? 76 : 118,
+        width: fullWidth ? double.infinity : null,
+        clipBehavior: Clip.hardEdge,
         padding: kSpaceDeviceMd,
         decoration: BoxDecoration(
           color: colors.nightCard.withValues(alpha: 0.72),
@@ -368,31 +382,68 @@ class _DashboardActionCard extends StatelessWidget {
             width: highlighted ? 1.4 : 1,
           ),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(
-              icon,
-              color: highlighted ? colors.primaryLight : colors.white,
-              size: 28,
-            ),
-            const Spacer(),
-            Text(
-              title,
-              style: context.typography.labelLarge?.copyWith(
-                color: colors.white,
-                fontWeight: FontWeight.w900,
+        child: fullWidth
+            ? Row(
+                children: [
+                  Icon(
+                    icon,
+                    color: highlighted ? colors.primaryLight : colors.white,
+                    size: 28,
+                  ),
+                  const Gap(separatorMd),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        title,
+                        style: context.typography.labelLarge?.copyWith(
+                          color: colors.white,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      const Gap(separatorXSm),
+                      Text(
+                        subtitle,
+                        style: context.typography.labelSmall?.copyWith(
+                          color: colors.slate,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Spacer(),
+                  Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    color: colors.primaryLight,
+                    size: 16,
+                  ),
+                ],
+              )
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    icon,
+                    color: highlighted ? colors.primaryLight : colors.white,
+                    size: 28,
+                  ),
+                  const Spacer(),
+                  Text(
+                    title,
+                    style: context.typography.labelLarge?.copyWith(
+                      color: colors.white,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const Gap(separatorXSm),
+                  Text(
+                    subtitle,
+                    style: context.typography.labelSmall?.copyWith(
+                      color: colors.slate,
+                    ),
+                  ),
+                ],
               ),
-            ),
-            const Gap(separatorXSm),
-            Text(
-              subtitle,
-              style: context.typography.labelSmall?.copyWith(
-                color: colors.slate,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

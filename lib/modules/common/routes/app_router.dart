@@ -20,6 +20,7 @@ import '../../../feature/catalog/view/main/catalog_garments_screen.dart';
 import '../../../feature/catalog/view/main/product_detail_screen.dart';
 import '../../../feature/catalog/domain/product_model.dart';
 import '../../../feature/favorites/view/main/favorites_screen.dart';
+import '../../../feature/recommend/view/main/recommend_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: SplashScreen.routeName,
@@ -80,6 +81,13 @@ final appRouter = GoRouter(
         GoRoute(
           path: FavoritesScreen.routeName,
           builder: (context, state) => const FavoritesScreen(),
+        ),
+
+        GoRoute(
+          path: RecommendScreen.routeName,
+          builder: (context, state) => RecommendScreen(
+            favoriteIds: state.extra as List<int>?,
+          ),
         ),
 
         GoRoute(
