@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/utils/logger.dart';
-import '../../../modules/common/drivers/http/dio_http_client.dart';
-import '../domain/recommend_model.dart';
+import '../../../../core/utils/logger.dart';
+import '../../../../modules/common/drivers/http/dio_http_client.dart';
+import '../../domain/recommend_model.dart';
 
 final recommendServiceProvider = Provider<RecommendService>((ref) {
   final http = ref.watch(dioHttpClientProvider);

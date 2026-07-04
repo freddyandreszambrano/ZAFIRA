@@ -24,4 +24,8 @@ class CatalogRepository implements ICatalog {
   @override
   Future<ProductModel> getProductById(int id) async =>
       await remoteDataSource.getProductById(id);
+
+  @override
+  Future<ProductModel> getLiveProduct(int id) async =>
+      await remoteDataSource.getLiveProduct(id);
 }

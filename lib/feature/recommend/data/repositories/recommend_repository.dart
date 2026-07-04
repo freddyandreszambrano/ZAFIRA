@@ -1,18 +1,20 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../domain/recommend_model.dart';
-import 'recommend_service.dart';
+import '../../domain/recommend_model.dart';
+import '../interfaces/recommend_interface.dart';
+import '../services/recommend_service.dart';
 
-final recommendRepositoryProvider = Provider<RecommendRepository>((ref) {
+final recommendRepositoryProvider = Provider<IRecommend>((ref) {
   final service = ref.watch(recommendServiceProvider);
   return RecommendRepository(service: service);
 });
 
-class RecommendRepository {
+class RecommendRepository implements IRecommend {
   RecommendRepository({required this.service});
 
   final RecommendService service;
 
+  @override
   Future<RecommendResponseModel> getRecommendation({
     required String occasion,
     String store = 'all',

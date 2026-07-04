@@ -71,4 +71,10 @@ class CatalogController extends StateNotifier<CatalogState> {
 
     return response.fold((err) => null, (product) => product);
   }
+
+  Future<ProductModel?> getLiveProduct(int id) async {
+    final response = await _catalogUseCase.getLiveProduct(id);
+
+    return response.fold((err) => null, (product) => product);
+  }
 }

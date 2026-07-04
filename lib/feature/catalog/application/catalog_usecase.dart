@@ -35,4 +35,15 @@ class CatalogUseCase with ErrorExceptionHandler {
       runtimeType,
     );
   }
+
+  Future<Either<Exception, ProductModel>> getLiveProduct(int id) async {
+    const String methodName = "GET_LIVE_PRODUCT";
+    DebugLogger(runtimeType).methodInit(methodName);
+
+    return await handlerApiExceptions(
+      () async => await interface.getLiveProduct(id),
+      methodName,
+      runtimeType,
+    );
+  }
 }

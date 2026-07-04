@@ -9,8 +9,8 @@ import '../../../../core/helpers/context_helper.dart';
 import '../../../../modules/common/widget/notifications/app_notification.dart';
 import '../../../favorites/view/controller/favorite_controller.dart';
 import '../../../favorites/view/favorite_feedback.dart';
-import '../../data/services/catalog_service.dart';
 import '../../domain/product_model.dart';
+import '../controller/catalog_controller.dart';
 
 Future<void> _openOfficialStore(BuildContext context, String url) async {
   final uri = Uri.tryParse(url);
@@ -95,24 +95,26 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
 
   /// Consulta la tienda oficial para traer precio y tallas en tiempo real.
   Future<void> _loadLiveData() async {
-    try {
-      final live = await ref
-          .read(catalogServiceProvider)
-          .getLiveProduct(widget.product.id);
-      if (!mounted) return;
-      setState(() {
-        _product = live;
-        _verifyingLive = false;
-        _liveOk = true;
-        // Si la talla elegida ya no existe en la tienda, deseleccionar
-        if (selectedSize != null && !live.sizes.contains(selectedSize)) {
-          selectedSize = null;
-        }
-      });
-    } catch (_) {
+    final live = await ref
+        .read(catalogControllerProvider.notifier)
+        .getLiveProduct(widget.product.id);
+    if (!mounted) return;
+
+    if (live == null) {
       // No se pudo verificar con la tienda: se mantienen los datos guardados
-      if (mounted) setState(() => _verifyingLive = false);
+      setState(() => _verifyingLive = false);
+      return;
     }
+
+    setState(() {
+      _product = live;
+      _verifyingLive = false;
+      _liveOk = true;
+      // Si la talla elegida ya no existe en la tienda, deseleccionar
+      if (selectedSize != null && !live.sizes.contains(selectedSize)) {
+        selectedSize = null;
+      }
+    });
   }
 
   @override
