@@ -10,6 +10,7 @@ import '../../../../modules/common/widget/notifications/app_notification.dart';
 import '../../../favorites/view/controller/favorite_controller.dart';
 import '../../../favorites/view/favorite_feedback.dart';
 import '../../domain/product_model.dart';
+import '../controller/catalog_controller.dart';
 
 Future<void> _openOfficialStore(BuildContext context, String url) async {
   final uri = Uri.tryParse(url);
@@ -77,6 +78,9 @@ class ProductDetailScreen extends ConsumerStatefulWidget {
 
 class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   String? selectedSize;
+  late ProductModel _product = widget.product;
+  bool _verifyingLive = true;
+  bool _liveOk = false;
 
   @override
   void initState() {
@@ -86,12 +90,37 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
         widget.product,
       ]);
     });
+    _loadLiveData();
+  }
+
+  /// Consulta la tienda oficial para traer precio y tallas en tiempo real.
+  Future<void> _loadLiveData() async {
+    final live = await ref
+        .read(catalogControllerProvider.notifier)
+        .getLiveProduct(widget.product.id);
+    if (!mounted) return;
+
+    if (live == null) {
+      // No se pudo verificar con la tienda: se mantienen los datos guardados
+      setState(() => _verifyingLive = false);
+      return;
+    }
+
+    setState(() {
+      _product = live;
+      _verifyingLive = false;
+      _liveOk = true;
+      // Si la talla elegida ya no existe en la tienda, deseleccionar
+      if (selectedSize != null && !live.sizes.contains(selectedSize)) {
+        selectedSize = null;
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final product = widget.product;
+    final product = _product;
     final genderLabel = product.gender == 'woman' ? 'Mujer' : 'Hombre';
     final hasOffer = product.priceOld != null;
     final isFavorite = ref.watch(
@@ -290,12 +319,32 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       ),
                       if (product.sizes.isNotEmpty) ...[
                         const Gap(separatorLg),
-                        Text(
-                          'Tallas disponibles',
-                          style: context.typography.titleMedium?.copyWith(
-                            color: colors.white,
-                            fontWeight: FontWeight.w800,
-                          ),
+                        Row(
+                          children: [
+                            Text(
+                              'Tallas disponibles',
+                              style: context.typography.titleMedium?.copyWith(
+                                color: colors.white,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            const Gap(8),
+                            if (_verifyingLive)
+                              SizedBox(
+                                width: 12,
+                                height: 12,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: colors.primary,
+                                ),
+                              )
+                            else if (_liveOk)
+                              Icon(
+                                Icons.verified_rounded,
+                                size: 15,
+                                color: colors.primary,
+                              ),
+                          ],
                         ),
                         const Gap(separatorSm),
                         Wrap(

@@ -1,0 +1,31 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../domain/recommend_model.dart';
+import '../interfaces/recommend_interface.dart';
+import '../services/recommend_service.dart';
+
+final recommendRepositoryProvider = Provider<IRecommend>((ref) {
+  final service = ref.watch(recommendServiceProvider);
+  return RecommendRepository(service: service);
+});
+
+class RecommendRepository implements IRecommend {
+  RecommendRepository({required this.service});
+
+  final RecommendService service;
+
+  @override
+  Future<RecommendResponseModel> getRecommendation({
+    required String occasion,
+    String store = 'all',
+    String gender = 'hombre',
+    List<int> excludeIds = const [],
+    List<int> productIds = const [],
+  }) => service.getRecommendation(
+    occasion: occasion,
+    store: store,
+    gender: gender,
+    excludeIds: excludeIds,
+    productIds: productIds,
+  );
+}

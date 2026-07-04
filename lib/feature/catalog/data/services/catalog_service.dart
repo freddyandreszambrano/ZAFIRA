@@ -47,4 +47,19 @@ class CatalogService {
 
     return ProductModel.fromJson(response.data as Map<String, dynamic>);
   }
+
+  /// Consulta la página oficial de la tienda en este momento y devuelve
+  /// el producto con precio y tallas reales.
+  Future<ProductModel> getLiveProduct(int id) async {
+    final url = '/api/v1/catalog/products/$id/live/';
+
+    DebugLogger(runtimeType).request(url);
+
+    final response = await remoteDataSource().get(url);
+
+    DebugLogger(runtimeType).response(url, [response.statusCode]);
+
+    final data = response.data as Map<String, dynamic>;
+    return ProductModel.fromJson(data['product'] as Map<String, dynamic>);
+  }
 }
