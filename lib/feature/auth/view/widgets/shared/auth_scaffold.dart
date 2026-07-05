@@ -23,9 +23,21 @@ class AuthScaffold extends StatelessWidget {
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
-              padding: kSpaceDeviceLg,
+              padding: EdgeInsets.symmetric(
+                horizontal: context.gutter,
+                vertical: context.responsive<double>(
+                  compact: separatorLg,
+                  medium: separatorXLg,
+                ),
+              ),
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: tabletSize),
+                constraints: BoxConstraints(
+                  maxWidth: context.responsive<double>(
+                    compact: tabletSize,
+                    medium: 640,
+                    expanded: 680,
+                  ),
+                ),
                 child: child,
               ),
             ),

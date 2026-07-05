@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_numbers.dart';
 import '../../../../core/enum/response_status.dart';
 import '../../../../core/helpers/context_helper.dart';
+import '../../../../modules/common/widget/layout/app_screen_shell.dart';
 import '../../../catalog/domain/product_model.dart';
 import '../../../catalog/view/main/product_detail_screen.dart';
 import '../../../recommend/view/main/recommend_screen.dart';
@@ -36,57 +37,50 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
     final colors = context.appColors;
     final state = ref.watch(favoriteControllerProvider);
 
-    return Scaffold(
-      backgroundColor: colors.nightDeep,
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: BoxDecoration(gradient: colors.authBackground),
-        child: SafeArea(
-          child: Padding(
-            padding: kSpaceDeviceHLg,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return AppDarkScaffold(
+      centerContent: true,
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(context.gutter, 12, context.gutter, 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               children: [
-                Row(
-                  children: [
-                    IconButton(
-                      onPressed: () => context.pop(),
-                      icon: Icon(Icons.arrow_back, color: colors.white),
-                    ),
-                    Expanded(
-                      child: Text(
-                        'Favoritos',
-                        textAlign: TextAlign.center,
-                        style: context.typography.titleLarge?.copyWith(
-                          color: colors.white,
-                          fontWeight: FontWeight.w900,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 48),
-                  ],
+                IconButton(
+                  onPressed: () => context.pop(),
+                  icon: Icon(Icons.arrow_back, color: colors.white),
                 ),
-                const Gap(separatorLg),
-                Text(
-                  'Tus prendas guardadas',
-                  style: context.typography.headlineSmall?.copyWith(
-                    color: colors.white,
-                    fontWeight: FontWeight.w900,
+                Expanded(
+                  child: Text(
+                    'Favoritos',
+                    textAlign: TextAlign.center,
+                    style: context.typography.titleLarge?.copyWith(
+                      color: colors.white,
+                      fontWeight: FontWeight.w900,
+                    ),
                   ),
                 ),
-                const Gap(separatorXSm),
-                Text(
-                  'Prendas que marcaste con el corazón.',
-                  style: context.typography.bodyMedium?.copyWith(
-                    color: colors.slate,
-                  ),
-                ),
-                const Gap(separatorLg),
-                Expanded(child: _buildContent(context, state)),
+                const SizedBox(width: 48),
               ],
             ),
-          ),
+            const Gap(separatorLg),
+            Text(
+              'Tus prendas guardadas',
+              style: context.typography.headlineSmall?.copyWith(
+                color: colors.white,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const Gap(separatorXSm),
+            Text(
+              'Prendas que marcaste con el corazón.',
+              style: context.typography.bodyMedium?.copyWith(
+                color: colors.slate,
+              ),
+            ),
+            const Gap(separatorLg),
+            Expanded(child: _buildContent(context, state)),
+          ],
         ),
       ),
     );
@@ -97,18 +91,22 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
 
     if (state.status == ResponseStatus.loading ||
         state.status == ResponseStatus.initial) {
-      return Center(
-        child: CircularProgressIndicator(color: colors.primaryLight),
+      return const AppStateView(
+        icon: Icons.favorite_rounded,
+        title: 'Cargando favoritos',
+        message: 'Estamos preparando tus prendas guardadas.',
+        loading: true,
       );
     }
 
     if (state.status == ResponseStatus.error) {
-      return Center(
-        child: Text(
-          state.errorMessage ?? 'No se pudieron cargar tus favoritos.',
-          textAlign: TextAlign.center,
-          style: context.typography.bodyMedium?.copyWith(color: colors.slate),
-        ),
+      return AppStateView(
+        icon: Icons.error_outline_rounded,
+        title: 'No se pudieron cargar tus favoritos',
+        message: state.errorMessage ?? 'Intenta nuevamente en unos segundos.',
+        actionLabel: 'Reintentar',
+        onAction: () =>
+            ref.read(favoriteControllerProvider.notifier).loadFavorites(),
       );
     }
 
@@ -141,27 +139,12 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
 
     return Column(
       children: [
-        // Generar outfits combinando solo las prendas favoritas
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton.icon(
-            onPressed: () => context.push(
-              RecommendScreen.routeName,
-              extra: state.products.map((p) => p.id).toList(),
-            ),
-            icon: const Icon(Icons.auto_awesome_rounded, size: 18),
-            label: const Text(
-              'Generar outfits con mis favoritos',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: colors.primary,
-              foregroundColor: colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
+        AppGradientAction(
+          label: 'Generar outfits con mis favoritos',
+          icon: Icons.auto_awesome_rounded,
+          onTap: () => context.push(
+            RecommendScreen.routeName,
+            extra: state.products.map((p) => p.id).toList(),
           ),
         ),
         const Gap(separatorMd),
@@ -173,11 +156,16 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
   Widget _buildGrid(BuildContext context, FavoriteState state) {
     return GridView.builder(
       itemCount: state.products.length,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: context.gridColumns,
         mainAxisSpacing: separatorMd,
         crossAxisSpacing: separatorMd,
-        childAspectRatio: 0.58,
+        childAspectRatio: context.responsive<double>(
+          compact: 0.58,
+          medium: 0.62,
+          expanded: 0.66,
+          large: 0.7,
+        ),
       ),
       itemBuilder: (gridItemContext, index) {
         final product = state.products[index];

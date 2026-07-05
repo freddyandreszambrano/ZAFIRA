@@ -6,6 +6,7 @@ import '../../../../core/constants/app_numbers.dart';
 import '../../../../core/helpers/context_helper.dart';
 import '../../../../feature/auth/view/controller/auth_controller.dart';
 import '../../../../feature/catalog/view/main/catalog_screen.dart';
+import '../../../../modules/common/widget/layout/app_screen_shell.dart';
 import '../../../../modules/common/widget/notifications/app_notification.dart';
 import '../../data/services/image_picker_service.dart';
 import 'photo_preview_screen.dart';
@@ -535,51 +536,12 @@ class _UploadButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.appColors;
-
-    final button = ElevatedButton.icon(
-      onPressed: loading ? null : onTap,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.transparent,
-        shadowColor: Colors.transparent,
-        side: outlined
-            ? BorderSide(color: colors.white.withValues(alpha: 0.7))
-            : null,
-        shape: const RoundedRectangleBorder(
-          borderRadius: kBorderRadiusAllLarge,
-        ),
-      ),
-      icon: loading
-          ? SizedBox(
-              width: 18,
-              height: 18,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: outlined ? colors.white : colors.nightDeep,
-              ),
-            )
-          : Icon(icon, color: outlined ? colors.white : colors.nightDeep),
-      label: Text(
-        label,
-        style: context.typography.labelLarge?.copyWith(
-          color: outlined ? colors.white : colors.nightDeep,
-          fontWeight: FontWeight.w800,
-        ),
-      ),
-    );
-
-    return SizedBox(
-      width: double.infinity,
-      height: 52,
-      child: outlined
-          ? button
-          : DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: colors.gradientPrimary,
-                borderRadius: kBorderRadiusAllLarge,
-              ),
-              child: button,
-            ),
+    return AppGradientAction(
+      label: label,
+      icon: icon,
+      loading: loading,
+      outlined: outlined,
+      onTap: onTap,
     );
   }
 }

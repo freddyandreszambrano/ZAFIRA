@@ -13,9 +13,15 @@ class AuthCard extends StatelessWidget {
     final colors = context.appColors;
 
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: separatorLg,
-        vertical: separatorXLg,
+      padding: EdgeInsets.symmetric(
+        horizontal: context.responsive<double>(
+          compact: separatorLg,
+          medium: separatorXLg,
+        ),
+        vertical: context.responsive<double>(
+          compact: separatorXLg,
+          medium: separatorXLg + separatorLg,
+        ),
       ),
       decoration: BoxDecoration(
         color: colors.nightCard.withValues(alpha: 0.6),

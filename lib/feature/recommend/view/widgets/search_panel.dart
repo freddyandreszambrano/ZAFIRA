@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
 import '../../../../core/helpers/context_helper.dart';
+import '../../../../modules/common/widget/layout/app_screen_shell.dart';
 import 'gender_chip.dart';
 
 class SearchPanel extends StatelessWidget {
@@ -152,32 +153,11 @@ class SearchPanel extends StatelessWidget {
             ),
           ],
           const Gap(12),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: isLoading ? null : onRecommend,
-              icon: isLoading
-                  ? SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: colors.white,
-                      ),
-                    )
-                  : const Icon(Icons.auto_awesome_rounded, size: 20),
-              label: Text(
-                isLoading ? 'Generando outfits...' : 'Recomendar outfits',
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: colors.primary,
-                foregroundColor: colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 13),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
+          AppGradientAction(
+            label: isLoading ? 'Generando outfits...' : 'Recomendar outfits',
+            icon: Icons.auto_awesome_rounded,
+            loading: isLoading,
+            onTap: onRecommend,
           ),
         ],
       ),

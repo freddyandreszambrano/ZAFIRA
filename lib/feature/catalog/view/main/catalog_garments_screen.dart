@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_numbers.dart';
 import '../../../../core/enum/response_status.dart';
 import '../../../../core/helpers/context_helper.dart';
+import '../../../../modules/common/widget/layout/app_screen_shell.dart';
 import '../../../favorites/view/controller/favorite_controller.dart';
 import '../../../favorites/view/favorite_feedback.dart';
 import '../../domain/product_model.dart';
@@ -54,57 +55,50 @@ class _CatalogGarmentsScreenState extends ConsumerState<CatalogGarmentsScreen> {
     final displayLabel = widget.categoryLabel ?? widget.category;
     final state = ref.watch(catalogControllerProvider);
 
-    return Scaffold(
-      backgroundColor: colors.nightDeep,
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: BoxDecoration(gradient: colors.authBackground),
-        child: SafeArea(
-          child: Padding(
-            padding: kSpaceDeviceHLg,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return AppDarkScaffold(
+      centerContent: true,
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(context.gutter, 12, context.gutter, 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               children: [
-                Row(
-                  children: [
-                    IconButton(
-                      onPressed: () => context.pop(),
-                      icon: Icon(Icons.arrow_back, color: colors.white),
-                    ),
-                    Expanded(
-                      child: Text(
-                        displayLabel,
-                        textAlign: TextAlign.center,
-                        style: context.typography.titleLarge?.copyWith(
-                          color: colors.white,
-                          fontWeight: FontWeight.w900,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 48),
-                  ],
+                IconButton(
+                  onPressed: () => context.pop(),
+                  icon: Icon(Icons.arrow_back, color: colors.white),
                 ),
-                const Gap(separatorLg),
-                Text(
-                  displayLabel,
-                  style: context.typography.headlineSmall?.copyWith(
-                    color: colors.white,
-                    fontWeight: FontWeight.w900,
+                Expanded(
+                  child: Text(
+                    displayLabel,
+                    textAlign: TextAlign.center,
+                    style: context.typography.titleLarge?.copyWith(
+                      color: colors.white,
+                      fontWeight: FontWeight.w900,
+                    ),
                   ),
                 ),
-                const Gap(separatorXSm),
-                Text(
-                  'Prendas disponibles en esta categoría.',
-                  style: context.typography.bodyMedium?.copyWith(
-                    color: colors.slate,
-                  ),
-                ),
-                const Gap(separatorLg),
-                Expanded(child: _buildContent(context, state, genderLabel)),
+                const SizedBox(width: 48),
               ],
             ),
-          ),
+            const Gap(separatorLg),
+            Text(
+              displayLabel,
+              style: context.typography.headlineSmall?.copyWith(
+                color: colors.white,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const Gap(separatorXSm),
+            Text(
+              'Prendas disponibles en esta categoría.',
+              style: context.typography.bodyMedium?.copyWith(
+                color: colors.slate,
+              ),
+            ),
+            const Gap(separatorLg),
+            Expanded(child: _buildContent(context, state, genderLabel)),
+          ],
         ),
       ),
     );
@@ -118,18 +112,19 @@ class _CatalogGarmentsScreenState extends ConsumerState<CatalogGarmentsScreen> {
     final colors = context.appColors;
 
     if (state.status == ResponseStatus.loading) {
-      return Center(
-        child: CircularProgressIndicator(color: colors.primaryLight),
+      return const AppStateView(
+        icon: Icons.checkroom_rounded,
+        title: 'Cargando prendas',
+        message: 'Estamos consultando el catalogo disponible.',
+        loading: true,
       );
     }
 
     if (state.status == ResponseStatus.error) {
-      return Center(
-        child: Text(
-          state.errorMessage ?? 'No se pudieron cargar las prendas.',
-          textAlign: TextAlign.center,
-          style: context.typography.bodyMedium?.copyWith(color: colors.slate),
-        ),
+      return AppStateView(
+        icon: Icons.error_outline_rounded,
+        title: 'No se pudieron cargar las prendas',
+        message: state.errorMessage ?? 'Intenta nuevamente en unos segundos.',
       );
     }
 
@@ -145,11 +140,16 @@ class _CatalogGarmentsScreenState extends ConsumerState<CatalogGarmentsScreen> {
 
     return GridView.builder(
       itemCount: state.products.length,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: context.gridColumns,
         mainAxisSpacing: separatorMd,
         crossAxisSpacing: separatorMd,
-        childAspectRatio: 0.58,
+        childAspectRatio: context.responsive<double>(
+          compact: 0.58,
+          medium: 0.62,
+          expanded: 0.66,
+          large: 0.7,
+        ),
       ),
       itemBuilder: (context, index) {
         final product = state.products[index];

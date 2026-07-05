@@ -3,6 +3,7 @@ import 'package:gap/gap.dart';
 
 import '../../../../core/enum/response_status.dart';
 import '../../../../core/helpers/context_helper.dart';
+import '../../../../modules/common/widget/layout/app_screen_shell.dart';
 import '../state/recommend_state.dart';
 import 'outfit_card.dart';
 
@@ -46,20 +47,11 @@ class ResultPanel extends StatelessWidget {
     }
 
     if (state.status == ResponseStatus.loading) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(color: colors.primary),
-            const Gap(16),
-            Text(
-              'IA generando outfits...',
-              style: context.typography.bodyMedium?.copyWith(
-                color: colors.slate,
-              ),
-            ),
-          ],
-        ),
+      return const AppStateView(
+        icon: Icons.auto_awesome_rounded,
+        title: 'IA generando outfits',
+        message: 'Estamos cruzando ocasion, tienda y preferencias.',
+        loading: true,
       );
     }
 

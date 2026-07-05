@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_numbers.dart';
 import '../../../../core/helpers/context_helper.dart';
+import '../../../../modules/common/widget/layout/app_screen_shell.dart';
 import '../controller/catalog_controller.dart';
 import 'catalog_garments_screen.dart';
 
@@ -77,96 +78,100 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
     final colors = context.appColors;
     final selectedSection = _genderSections[_selectedIndex];
 
-    return Scaffold(
-      backgroundColor: colors.nightDeep,
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: BoxDecoration(gradient: colors.authBackground),
-        child: SafeArea(
-          child: Padding(
-            padding: kSpaceDeviceHLg,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return AppDarkScaffold(
+      centerContent: true,
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(context.gutter, 12, context.gutter, 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               children: [
-                Row(
-                  children: [
-                    IconButton(
-                      onPressed: () => context.pop(),
-                      icon: Icon(Icons.arrow_back, color: colors.white),
-                    ),
-                    Text(
-                      'Categorías',
-                      style: context.typography.titleLarge?.copyWith(
-                        color: colors.white,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                  ],
+                IconButton(
+                  onPressed: () => context.pop(),
+                  icon: Icon(Icons.arrow_back, color: colors.white),
                 ),
-                const Gap(separatorMd),
-                Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: colors.nightCard,
-                    borderRadius: kBorderRadiusAllXLarge,
-                  ),
-                  child: Row(
-                    children: List.generate(_genderSections.length, (index) {
-                      final isSelected = index == _selectedIndex;
-                      final section = _genderSections[index];
-
-                      return Expanded(
-                        child: GestureDetector(
-                          onTap: () => setState(() => _selectedIndex = index),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            decoration: BoxDecoration(
-                              gradient: isSelected
-                                  ? colors.gradientPrimary
-                                  : null,
-                              borderRadius: kBorderRadiusAllXLarge,
-                            ),
-                            child: Text(
-                              section.label,
-                              textAlign: TextAlign.center,
-                              style: context.typography.labelMedium?.copyWith(
-                                color: isSelected ? colors.white : colors.slate,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    }),
-                  ),
-                ),
-                const Gap(separatorLg),
-                Expanded(
-                  child: ListView.separated(
-                    itemCount: selectedSection.categories.length,
-                    separatorBuilder: (_, _) => const Gap(separatorMd),
-                    itemBuilder: (context, index) {
-                      final entry = selectedSection.categories[index];
-
-                      return _CategoryRow(
-                        gender: selectedSection.gender,
-                        entry: entry,
-                        onTap: () => context.push(
-                          CatalogGarmentsScreen.routeName,
-                          extra: {
-                            'gender': selectedSection.gender,
-                            'category': entry.categoryQuery,
-                            'categoryLabel': entry.label,
-                          },
-                        ),
-                      );
-                    },
+                Text(
+                  'Categorías',
+                  style: context.typography.titleLarge?.copyWith(
+                    color: colors.white,
+                    fontWeight: FontWeight.w900,
                   ),
                 ),
               ],
             ),
-          ),
+            const Gap(separatorMd),
+            Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: colors.nightCard,
+                borderRadius: kBorderRadiusAllXLarge,
+              ),
+              child: Row(
+                children: List.generate(_genderSections.length, (index) {
+                  final isSelected = index == _selectedIndex;
+                  final section = _genderSections[index];
+
+                  return Expanded(
+                    child: GestureDetector(
+                      onTap: () => setState(() => _selectedIndex = index),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        decoration: BoxDecoration(
+                          gradient: isSelected ? colors.gradientPrimary : null,
+                          borderRadius: kBorderRadiusAllXLarge,
+                        ),
+                        child: Text(
+                          section.label,
+                          textAlign: TextAlign.center,
+                          style: context.typography.labelMedium?.copyWith(
+                            color: isSelected ? colors.white : colors.slate,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ),
+            const Gap(separatorLg),
+            Expanded(
+              child: GridView.builder(
+                itemCount: selectedSection.categories.length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: context.responsive<int>(
+                    compact: 1,
+                    medium: 2,
+                    expanded: 2,
+                  ),
+                  mainAxisSpacing: separatorMd,
+                  crossAxisSpacing: separatorMd,
+                  mainAxisExtent: context.responsive<double>(
+                    compact: 86,
+                    medium: 96,
+                    expanded: 104,
+                  ),
+                ),
+                itemBuilder: (context, index) {
+                  final entry = selectedSection.categories[index];
+
+                  return _CategoryRow(
+                    gender: selectedSection.gender,
+                    entry: entry,
+                    onTap: () => context.push(
+                      CatalogGarmentsScreen.routeName,
+                      extra: {
+                        'gender': selectedSection.gender,
+                        'category': entry.categoryQuery,
+                        'categoryLabel': entry.label,
+                      },
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );

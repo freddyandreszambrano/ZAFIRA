@@ -16,6 +16,7 @@ import '../../../../feature/auth/view/widgets/login/login_screen.dart';
 import '../../../../feature/catalog/view/main/catalog_screen.dart';
 import '../../../../feature/favorites/view/main/favorites_screen.dart';
 import '../../../../feature/home/view/widget/home_bottom_nav.dart';
+import '../../../../modules/common/widget/layout/app_screen_shell.dart';
 import '../../../../modules/common/widget/notifications/app_notification.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -171,184 +172,154 @@ class ProfileScreen extends ConsumerWidget {
         .map((e) => e.trim()[0].toUpperCase())
         .join();
 
-    return Scaffold(
-      backgroundColor: colors.nightDeep,
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: BoxDecoration(gradient: colors.authBackground),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Icon(Icons.menu_rounded, color: colors.white),
-                    const Spacer(),
-                    Text(
-                      'Zafira',
-                      style: context.typography.titleLarge?.copyWith(
-                        color: colors.white,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                    const Spacer(),
-                    Icon(Icons.notifications_none_rounded, color: colors.white),
-                  ],
-                ),
-                const Gap(separatorLg),
-                GestureDetector(
-                  onTap: () => _pickAndUploadAvatar(
-                    context,
-                    ref,
-                    displayImage.isNotEmpty,
-                  ),
-                  child: Stack(
-                    alignment: Alignment.bottomRight,
-                    children: [
-                      CircleAvatar(
-                        radius: 48,
-                        backgroundColor: colors.primary.withValues(alpha: 0.25),
-                        backgroundImage: displayImage.isNotEmpty
-                            ? NetworkImage(displayImage)
-                            : null,
-                        child: displayImage.isEmpty
-                            ? Text(
-                                initials.isNotEmpty ? initials : 'Z',
-                                style: context.typography.headlineMedium
-                                    ?.copyWith(
-                                      color: colors.primaryLight,
-                                      fontWeight: FontWeight.w900,
-                                    ),
-                              )
-                            : null,
-                      ),
-                      CircleAvatar(
-                        radius: 14,
-                        backgroundColor: colors.nightCard,
-                        child: Icon(
-                          Icons.edit_rounded,
-                          size: 14,
-                          color: colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const Gap(separatorMd),
-                Text(
-                  displayName,
-                  style: context.typography.titleMedium?.copyWith(
-                    color: colors.white,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                const Gap(separatorXSm),
-                Text(
-                  displayEmail,
-                  style: context.typography.bodySmall?.copyWith(
-                    color: colors.slate,
-                  ),
-                ),
-                const Gap(separatorSm),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: colors.primary.withValues(alpha: 0.18),
-                    borderRadius: kBorderRadiusAllLarge,
-                  ),
-                  child: Text(
-                    'Usuario Mobile',
-                    style: context.typography.labelSmall?.copyWith(
-                      color: colors.primaryLight,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-                const Gap(separatorLg),
-                _ProfileOption(
-                  icon: Icons.lock_outline,
-                  title: 'Datos personales',
-                  subtitle: 'Gestiona tu información básica',
-                  onTap: () {
-                    context.push(EditProfileScreen.routeName);
-                  },
-                ),
-                const Gap(separatorSm),
-                _ProfileOption(
-                  icon: Icons.checkroom_rounded,
-                  title: 'Preferencias',
-                  subtitle: 'Tallas, estilos y colores AI',
-                  onTap: () {
-                    context.push(PreferencesScreen.routeName);
-                  },
-                ),
-                const Gap(separatorSm),
-                _ProfileOption(
-                  icon: Icons.settings_outlined,
-                  title: 'Configuración',
-                  subtitle: 'Privacidad y notificaciones',
-                  onTap: () {
-                    context.push(SettingsScreen.routeName);
-                  },
-                ),
-                const Gap(separatorXLg),
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: OutlinedButton.icon(
-                    onPressed: () async {
-                      final confirm = await showDialog<bool>(
-                        context: context,
-                        builder: (dialogContext) => AlertDialog(
-                          title: const Text('Cerrar sesión'),
-                          content: const Text(
-                            '¿Estás seguro de que deseas cerrar sesión?',
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () =>
-                                  Navigator.pop(dialogContext, false),
-                              child: const Text('Cancelar'),
-                            ),
-                            ElevatedButton(
-                              onPressed: () =>
-                                  Navigator.pop(dialogContext, true),
-                              child: const Text('Sí'),
-                            ),
-                          ],
-                        ),
-                      );
-
-                      if (confirm == true && context.mounted) {
-                        await _logout(context, ref);
-                      }
-                    },
-                    icon: const Icon(Icons.logout_rounded),
-                    label: const Text('Cerrar sesión'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: colors.error,
-                      side: BorderSide(
-                        color: colors.error.withValues(alpha: kOpacityHalf),
-                      ),
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: kBorderRadiusAllSmall,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
+    return AppDarkScaffold(
+      centerContent: true,
       bottomNavigationBar: HomeBottomNav(
-        currentIndex: 4,
+        currentIndex: 3,
         onTap: (index) => _onNavTap(context, index),
+      ),
+      child: SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(context.gutter, 12, context.gutter, 24),
+        child: Column(
+          children: [
+            const AppBrandHeader(),
+            const Gap(separatorLg),
+            GestureDetector(
+              onTap: () =>
+                  _pickAndUploadAvatar(context, ref, displayImage.isNotEmpty),
+              child: Stack(
+                alignment: Alignment.bottomRight,
+                children: [
+                  CircleAvatar(
+                    radius: 48,
+                    backgroundColor: colors.primary.withValues(alpha: 0.25),
+                    backgroundImage: displayImage.isNotEmpty
+                        ? NetworkImage(displayImage)
+                        : null,
+                    child: displayImage.isEmpty
+                        ? Text(
+                            initials.isNotEmpty ? initials : 'Z',
+                            style: context.typography.headlineMedium?.copyWith(
+                              color: colors.primaryLight,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          )
+                        : null,
+                  ),
+                  CircleAvatar(
+                    radius: 14,
+                    backgroundColor: colors.nightCard,
+                    child: Icon(
+                      Icons.edit_rounded,
+                      size: 14,
+                      color: colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Gap(separatorMd),
+            Text(
+              displayName,
+              style: context.typography.titleMedium?.copyWith(
+                color: colors.white,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const Gap(separatorXSm),
+            Text(
+              displayEmail,
+              style: context.typography.bodySmall?.copyWith(
+                color: colors.slate,
+              ),
+            ),
+            const Gap(separatorSm),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              decoration: BoxDecoration(
+                color: colors.primary.withValues(alpha: 0.18),
+                borderRadius: kBorderRadiusAllLarge,
+              ),
+              child: Text(
+                'Usuario Mobile',
+                style: context.typography.labelSmall?.copyWith(
+                  color: colors.primaryLight,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            const Gap(separatorLg),
+            _ProfileOption(
+              icon: Icons.lock_outline,
+              title: 'Datos personales',
+              subtitle: 'Gestiona tu información básica',
+              onTap: () {
+                context.push(EditProfileScreen.routeName);
+              },
+            ),
+            const Gap(separatorSm),
+            _ProfileOption(
+              icon: Icons.checkroom_rounded,
+              title: 'Preferencias',
+              subtitle: 'Tallas, estilos y colores AI',
+              onTap: () {
+                context.push(PreferencesScreen.routeName);
+              },
+            ),
+            const Gap(separatorSm),
+            _ProfileOption(
+              icon: Icons.settings_outlined,
+              title: 'Configuración',
+              subtitle: 'Privacidad y notificaciones',
+              onTap: () {
+                context.push(SettingsScreen.routeName);
+              },
+            ),
+            const Gap(separatorXLg),
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: OutlinedButton.icon(
+                onPressed: () async {
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (dialogContext) => AlertDialog(
+                      title: const Text('Cerrar sesión'),
+                      content: const Text(
+                        '¿Estás seguro de que deseas cerrar sesión?',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(dialogContext, false),
+                          child: const Text('Cancelar'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () => Navigator.pop(dialogContext, true),
+                          child: const Text('Sí'),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  if (confirm == true && context.mounted) {
+                    await _logout(context, ref);
+                  }
+                },
+                icon: const Icon(Icons.logout_rounded),
+                label: const Text('Cerrar sesión'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: colors.error,
+                  side: BorderSide(
+                    color: colors.error.withValues(alpha: kOpacityHalf),
+                  ),
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: kBorderRadiusAllSmall,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

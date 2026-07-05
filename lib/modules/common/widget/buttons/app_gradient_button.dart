@@ -32,10 +32,15 @@ class AppGradientButton extends StatelessWidget {
         child: Material(
           color: Colors.transparent,
           child: InkWell(
-            onTap: isLoading ? null : onPressed,
+            onTap: isLoading || !enabled ? null : onPressed,
             borderRadius: kBorderRadiusAllMedium,
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: separatorMd),
+              padding: EdgeInsets.symmetric(
+                vertical: context.responsive<double>(
+                  compact: separatorMd,
+                  medium: separatorLg,
+                ),
+              ),
               child: Center(
                 child: isLoading
                     ? SizedBox(

@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/constants/app_numbers.dart';
 import '../../../../core/helpers/context_helper.dart';
+import '../../../../modules/common/widget/layout/app_screen_shell.dart';
 import '../../../../modules/common/widget/notifications/app_notification.dart';
 import '../../../auth/view/controller/auth_controller.dart';
 import '../../../favorites/view/controller/favorite_controller.dart';
@@ -180,7 +181,11 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                     children: [
                       Container(
                         width: double.infinity,
-                        height: 380,
+                        height: context.responsive<double>(
+                          compact: 380,
+                          medium: 460,
+                          expanded: 520,
+                        ),
                         decoration: BoxDecoration(
                           color: colors.white,
                           borderRadius: kBorderRadiusAllLarge,
@@ -442,48 +447,25 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
               ),
               Padding(
                 padding: kSpaceDeviceHLg,
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: colors.gradientPrimary,
-                      borderRadius: kBorderRadiusAllMedium,
-                    ),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        borderRadius: kBorderRadiusAllMedium,
-                        onTap: () {
-                          final user = ref.read(authControllerProvider).user;
-                          final hasPhoto = (user?.tryOnPhoto ?? '')
-                              .trim()
-                              .isNotEmpty;
-                          if (!hasPhoto) {
-                            AppNotification.info(
-                              context,
-                              'Primero sube tu foto para el probador virtual',
-                            );
-                            context.push(UploadPhotoScreen.routeName);
-                            return;
-                          }
-                          context.push(
-                            TryOnResultScreen.routeName,
-                            extra: product.id,
-                          );
-                        },
-                        child: Center(
-                          child: Text(
-                            'Probar con IA',
-                            style: context.typography.labelLarge?.copyWith(
-                              color: colors.white,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                child: AppGradientAction(
+                  label: 'Probar con IA',
+                  icon: Icons.auto_awesome_rounded,
+                  onTap: () {
+                    final user = ref.read(authControllerProvider).user;
+                    final hasPhoto = (user?.tryOnPhoto ?? '').trim().isNotEmpty;
+                    if (!hasPhoto) {
+                      AppNotification.info(
+                        context,
+                        'Primero sube tu foto para el probador virtual',
+                      );
+                      context.push(UploadPhotoScreen.routeName);
+                      return;
+                    }
+                    context.push(
+                      TryOnResultScreen.routeName,
+                      extra: product.id,
+                    );
+                  },
                 ),
               ),
               const Gap(separatorMd),

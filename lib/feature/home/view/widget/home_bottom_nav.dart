@@ -42,7 +42,10 @@ class HomeBottomNav extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: kSpaceDeviceVSm,
+          padding: EdgeInsets.symmetric(
+            horizontal: context.gutter / 2,
+            vertical: separatorSm,
+          ),
           child: Row(
             children: [
               for (var i = 0; i < items.length; i++)
@@ -83,7 +86,8 @@ class _NavItem extends StatelessWidget {
         duration: const Duration(milliseconds: 260),
         curve: Curves.easeOutCubic,
         margin: const EdgeInsets.symmetric(horizontal: 4),
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        constraints: const BoxConstraints(minHeight: kIconButtonSize),
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
         decoration: BoxDecoration(
           color: active
               ? colors.primary.withValues(alpha: 0.16)

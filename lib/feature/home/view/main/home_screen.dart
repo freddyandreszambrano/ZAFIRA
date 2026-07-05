@@ -14,6 +14,7 @@ import '../../../../feature/catalog/view/main/catalog_screen.dart';
 import '../../../../feature/catalog/view/main/product_detail_screen.dart';
 import '../../../../feature/favorites/view/main/favorites_screen.dart';
 import '../../../../feature/recommend/view/main/recommend_screen.dart';
+import '../../../../modules/common/widget/layout/app_screen_shell.dart';
 import '../../../../modules/common/widget/notifications/app_notification.dart';
 import '../widget/home_bottom_nav.dart';
 
@@ -113,234 +114,214 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         : 'usuario';
     final displayImage = user?.displayImage ?? '';
 
-    return Scaffold(
-      backgroundColor: colors.nightDeep,
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: BoxDecoration(gradient: colors.authBackground),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(Icons.menu_rounded, color: colors.white),
-                    const Spacer(),
-                    Text(
-                      'Zafira',
-                      style: context.typography.titleLarge?.copyWith(
-                        color: colors.white,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                    const Spacer(),
-                    Icon(Icons.notifications_none_rounded, color: colors.white),
-                  ],
-                ),
-                const Gap(separatorLg),
-
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Hola, $displayName',
-                            style: context.typography.headlineSmall?.copyWith(
-                              color: colors.white,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
-                          const Gap(separatorXSm),
-                          Text(
-                            '¿Qué look vamos a probar hoy?',
-                            style: context.typography.bodyMedium?.copyWith(
-                              color: colors.slate,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Gap(separatorMd),
-                    GestureDetector(
-                      onTap: () => context.push(ProfileScreen.routeName),
-                      child: CircleAvatar(
-                        radius: 24,
-                        backgroundColor: colors.primary.withValues(alpha: 0.25),
-                        backgroundImage: displayImage.isNotEmpty
-                            ? NetworkImage(displayImage)
-                            : null,
-                        child: displayImage.isEmpty
-                            ? Text(
-                                user?.fullInitialName ?? 'Z',
-                                style: context.typography.labelLarge?.copyWith(
-                                  color: colors.primaryLight,
-                                  fontWeight: FontWeight.w900,
-                                ),
-                              )
-                            : null,
-                      ),
-                    ),
-                  ],
-                ),
-                const Gap(separatorLg),
-
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  decoration: BoxDecoration(
-                    color: colors.nightInput,
-                    borderRadius: kBorderRadiusAllXLarge,
-                    border: Border.all(color: colors.nightBorder),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.search_rounded, color: colors.slate, size: 20),
-                      const Gap(separatorSm),
-                      Expanded(
-                        child: Text(
-                          'Buscar prendas, estilos o colores...',
-                          style: context.typography.bodySmall?.copyWith(
-                            color: colors.slate,
-                          ),
-                        ),
-                      ),
-                      Icon(Icons.tune_rounded, color: colors.slate, size: 20),
-                    ],
-                  ),
-                ),
-                const Gap(separatorLg),
-
-                Row(
-                  children: [
-                    Expanded(
-                      child: _DashboardActionCard(
-                        icon: Icons.add_a_photo_outlined,
-                        title: 'Mi foto',
-                        subtitle: 'Gestionar foto',
-                        onTap: () => _goToUpload(context),
-                      ),
-                    ),
-                    const Gap(separatorMd),
-                    Expanded(
-                      child: _DashboardActionCard(
-                        icon: Icons.grid_view_rounded,
-                        title: 'Categorías',
-                        subtitle: 'Explorar prendas',
-                        highlighted: true,
-                        onTap: () {
-                          context.push(CatalogScreen.routeName);
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                const Gap(separatorMd),
-                _DashboardActionCard(
-                  icon: Icons.auto_awesome_rounded,
-                  title: 'Recomendación IA',
-                  subtitle: 'Outfit personalizado con IA',
-                  highlighted: true,
-                  fullWidth: true,
-                  onTap: () => context.push(RecommendScreen.routeName),
-                ),
-                const Gap(separatorXLg),
-
-                if (!_isLoadingProducts && _recentProducts.isNotEmpty) ...[
-                  Text(
-                    'Nuevo en Zafira',
-                    style: context.typography.titleMedium?.copyWith(
-                      color: colors.white,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                  const Gap(separatorMd),
-                  SizedBox(
-                    height: 200,
-                    child: PageView.builder(
-                      controller: _carouselController,
-                      itemCount: _recentProducts.length,
-                      onPageChanged: (index) =>
-                          setState(() => _carouselPage = index),
-                      itemBuilder: (context, index) {
-                        final product = _recentProducts[index];
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 2),
-                          child: _HeroCarouselCard(
-                            product: product,
-                            onTap: () => _goToProduct(context, product),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  const Gap(separatorSm),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(_recentProducts.length, (index) {
-                      final isActive = index == _carouselPage;
-                      return AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        margin: const EdgeInsets.symmetric(horizontal: 3),
-                        width: isActive ? 16 : 5,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: isActive
-                              ? colors.primaryLight
-                              : colors.nightBorder,
-                          borderRadius: kBorderRadiusAllXLarge,
-                        ),
-                      );
-                    }),
-                  ),
-                  const Gap(separatorXLg),
-                ],
-
-                Text(
-                  'Destacadas para ti',
-                  style: context.typography.titleMedium?.copyWith(
-                    color: colors.white,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                const Gap(separatorMd),
-
-                if (_isLoadingProducts)
-                  const Center(child: CircularProgressIndicator())
-                else if (_featuredProducts.isEmpty)
-                  Row(
-                    children: const [
-                      Expanded(child: _GarmentCard(title: 'Vestido neón')),
-                      Gap(separatorMd),
-                      Expanded(child: _GarmentCard(title: 'Chaqueta urbana')),
-                    ],
-                  )
-                else
-                  Column(
-                    children: [
-                      for (final product in _featuredProducts) ...[
-                        _FeaturedProductRow(
-                          product: product,
-                          onTap: () => _goToProduct(context, product),
-                        ),
-                        const Gap(separatorMd),
-                      ],
-                    ],
-                  ),
-              ],
-            ),
-          ),
-        ),
-      ),
+    return AppDarkScaffold(
+      centerContent: true,
       bottomNavigationBar: HomeBottomNav(
         currentIndex: 0,
         onTap: (index) => _onNavTap(context, index),
+      ),
+      child: SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(context.gutter, 12, context.gutter, 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const AppBrandHeader(),
+            const Gap(separatorLg),
+
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Hola, $displayName',
+                        style: context.typography.headlineSmall?.copyWith(
+                          color: colors.white,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      const Gap(separatorXSm),
+                      Text(
+                        '¿Qué look vamos a probar hoy?',
+                        style: context.typography.bodyMedium?.copyWith(
+                          color: colors.slate,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Gap(separatorMd),
+                GestureDetector(
+                  onTap: () => context.push(ProfileScreen.routeName),
+                  child: CircleAvatar(
+                    radius: 24,
+                    backgroundColor: colors.primary.withValues(alpha: 0.25),
+                    backgroundImage: displayImage.isNotEmpty
+                        ? NetworkImage(displayImage)
+                        : null,
+                    child: displayImage.isEmpty
+                        ? Text(
+                            user?.fullInitialName ?? 'Z',
+                            style: context.typography.labelLarge?.copyWith(
+                              color: colors.primaryLight,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          )
+                        : null,
+                  ),
+                ),
+              ],
+            ),
+            const Gap(separatorLg),
+
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: colors.nightInput,
+                borderRadius: kBorderRadiusAllXLarge,
+                border: Border.all(color: colors.nightBorder),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.search_rounded, color: colors.slate, size: 20),
+                  const Gap(separatorSm),
+                  Expanded(
+                    child: Text(
+                      'Buscar prendas, estilos o colores...',
+                      style: context.typography.bodySmall?.copyWith(
+                        color: colors.slate,
+                      ),
+                    ),
+                  ),
+                  Icon(Icons.tune_rounded, color: colors.slate, size: 20),
+                ],
+              ),
+            ),
+            const Gap(separatorLg),
+
+            Row(
+              children: [
+                Expanded(
+                  child: _DashboardActionCard(
+                    icon: Icons.add_a_photo_outlined,
+                    title: 'Mi foto',
+                    subtitle: 'Gestionar foto',
+                    onTap: () => _goToUpload(context),
+                  ),
+                ),
+                const Gap(separatorMd),
+                Expanded(
+                  child: _DashboardActionCard(
+                    icon: Icons.grid_view_rounded,
+                    title: 'Categorías',
+                    subtitle: 'Explorar prendas',
+                    highlighted: true,
+                    onTap: () {
+                      context.push(CatalogScreen.routeName);
+                    },
+                  ),
+                ),
+              ],
+            ),
+            const Gap(separatorMd),
+            _DashboardActionCard(
+              icon: Icons.auto_awesome_rounded,
+              title: 'Recomendación IA',
+              subtitle: 'Outfit personalizado con IA',
+              highlighted: true,
+              fullWidth: true,
+              onTap: () => context.push(RecommendScreen.routeName),
+            ),
+            const Gap(separatorXLg),
+
+            if (!_isLoadingProducts && _recentProducts.isNotEmpty) ...[
+              Text(
+                'Nuevo en Zafira',
+                style: context.typography.titleMedium?.copyWith(
+                  color: colors.white,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const Gap(separatorMd),
+              SizedBox(
+                height: context.responsive<double>(
+                  compact: 210,
+                  medium: 280,
+                  expanded: 320,
+                ),
+                child: PageView.builder(
+                  controller: _carouselController,
+                  itemCount: _recentProducts.length,
+                  onPageChanged: (index) =>
+                      setState(() => _carouselPage = index),
+                  itemBuilder: (context, index) {
+                    final product = _recentProducts[index];
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 2),
+                      child: _HeroCarouselCard(
+                        product: product,
+                        onTap: () => _goToProduct(context, product),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const Gap(separatorSm),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(_recentProducts.length, (index) {
+                  final isActive = index == _carouselPage;
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    margin: const EdgeInsets.symmetric(horizontal: 3),
+                    width: isActive ? 16 : 5,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: isActive
+                          ? colors.primaryLight
+                          : colors.nightBorder,
+                      borderRadius: kBorderRadiusAllXLarge,
+                    ),
+                  );
+                }),
+              ),
+              const Gap(separatorXLg),
+            ],
+
+            Text(
+              'Destacadas para ti',
+              style: context.typography.titleMedium?.copyWith(
+                color: colors.white,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const Gap(separatorMd),
+
+            if (_isLoadingProducts)
+              const Center(child: CircularProgressIndicator())
+            else if (_featuredProducts.isEmpty)
+              Row(
+                children: const [
+                  Expanded(child: _GarmentCard(title: 'Vestido neón')),
+                  Gap(separatorMd),
+                  Expanded(child: _GarmentCard(title: 'Chaqueta urbana')),
+                ],
+              )
+            else
+              Column(
+                children: [
+                  for (final product in _featuredProducts) ...[
+                    _FeaturedProductRow(
+                      product: product,
+                      onTap: () => _goToProduct(context, product),
+                    ),
+                    const Gap(separatorMd),
+                  ],
+                ],
+              ),
+          ],
+        ),
       ),
     );
   }

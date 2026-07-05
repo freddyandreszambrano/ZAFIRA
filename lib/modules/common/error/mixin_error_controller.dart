@@ -30,6 +30,10 @@ mixin ErrorExceptionHandler {
       }
       return Left(exception);
     } catch (err, stack) {
+      if (err is RegularException || err is ServerException) {
+        return Left(err as Exception);
+      }
+
       if (!kIsWeb && err is! RegularException && err is! ServerException) {
         try {
           await FirebaseCrashlytics.instance.recordError(

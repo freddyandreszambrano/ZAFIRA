@@ -2,182 +2,173 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../flavors/flavors_config.dart';
+import '../../helpers/app_colors.dart';
 import '../../helpers/context_helper.dart';
-import '../app_dimensions.dart';
+import '../app_numbers.dart';
 
 class AppTheme {
   ThemeData getThemeData(BuildContext context) {
     final isDev = Flavor.env == Environment.dev;
+    final colors = context.appColors;
+    final textTheme = GoogleFonts.montserratTextTheme(
+      ThemeData.light().textTheme,
+    );
 
-    final onEnvironmentColor = isDev
-        ? context.appPalette.black
-        : context.appPalette.primary;
+    final onEnvironmentColor = isDev ? colors.obsidian : colors.primary;
 
     final onEnvironmentContainerColor = isDev
-        ? context.appColors.grayDark
-        : context.appPalette.primaryDark;
+        ? colors.slateDeep
+        : colors.primaryDark;
 
     final statusBarColor = onEnvironmentColor;
 
-    final statusBarIconTextColor = isDev
-        ? context.appPalette.surface
-        : context.appPalette.surface;
+    final statusBarIconTextColor = colors.surface;
 
     final tabColor = onEnvironmentColor;
 
     return ThemeData(
-      useMaterial3: false,
-      iconTheme: IconThemeData(color: context.appPalette.surface),
+      useMaterial3: true,
+      colorScheme: const AppColorScheme(),
+      iconTheme: IconThemeData(color: colors.onSurface),
       primaryIconTheme: IconThemeData(color: onEnvironmentColor),
-      focusColor: context.appColors.grayMainLight,
+      focusColor: colors.primarySoft,
       textSelectionTheme: TextSelectionThemeData(
         cursorColor: onEnvironmentColor,
         selectionHandleColor: onEnvironmentColor,
-        selectionColor: context.appColors.grayContainer3,
+        selectionColor: colors.primarySoft,
       ),
-      scaffoldBackgroundColor: context.appColors.surface,
-      hintColor: context.appColors.grayMainLight,
+      scaffoldBackgroundColor: colors.surface,
+      hintColor: colors.slate,
       primaryColor: onEnvironmentColor,
       primaryColorDark: onEnvironmentContainerColor,
       tabBarTheme: TabBarThemeData(
-        indicatorColor: context.appPalette.secondary,
+        indicatorColor: colors.secondary,
+        labelColor: colors.primary,
+        unselectedLabelColor: colors.slateDeep,
       ),
-      dividerColor: context.appColors.grayDark,
-      disabledColor: context.appColors.grayMainDark1,
+      dividerColor: colors.slateSoft,
+      disabledColor: colors.slate,
       splashColor: tabColor,
-      cardColor: context.appPalette.surface,
-      highlightColor: context.appColors.whiteTransparent,
-      canvasColor: context.appPalette.surface,
+      cardColor: colors.surface,
+      highlightColor: colors.primarySoft.withValues(alpha: 0.35),
+      canvasColor: colors.surface,
       appBarTheme: AppBarTheme(
         backgroundColor: statusBarColor,
+        centerTitle: true,
+        elevation: 0,
+        scrolledUnderElevation: 0,
         toolbarTextStyle: GoogleFonts.montserrat(
-          fontSize: AppDimensions.isTablet(context) ? 16 : 14,
+          fontSize: context.responsive<double>(compact: 14, medium: 16),
           color: statusBarIconTextColor,
+          fontWeight: FontWeight.w600,
         ),
         titleTextStyle: GoogleFonts.montserrat(
-          fontSize: AppDimensions.isTablet(context) ? 18 : 16,
+          fontSize: context.responsive<double>(compact: 16, medium: 18),
           color: statusBarIconTextColor,
+          fontWeight: FontWeight.w800,
         ),
-        iconTheme: IconThemeData(color: statusBarIconTextColor, size: 20.0),
+        iconTheme: IconThemeData(color: statusBarIconTextColor, size: kIconSm),
         shadowColor: tabColor,
       ),
       fontFamily: GoogleFonts.montserrat().fontFamily,
-      textTheme: GoogleFonts.montserratTextTheme(
-        ThemeData.light().textTheme.copyWith(
-          displayLarge: GoogleFonts.montserrat(
-            fontWeight: FontWeight.w300,
-            color: const Color(0xff606060),
-            fontSize: AppDimensions.isTablet(context) ? 40 : 40,
-          ),
-          displayMedium: GoogleFonts.montserrat(
-            fontWeight: FontWeight.w300,
-            color: const Color(0xff606060),
-            fontSize: AppDimensions.isTablet(context) ? 34 : 30,
-          ),
-          displaySmall: GoogleFonts.montserrat(
-            fontWeight: FontWeight.w400,
-            color: const Color(0xff606060),
-            fontSize: AppDimensions.isTablet(context) ? 27 : 26,
-          ),
-          headlineLarge: GoogleFonts.montserrat(
-            fontWeight: FontWeight.w300,
-            color: const Color(0xff606060),
-            fontSize: AppDimensions.isTablet(context) ? 26 : 20,
-          ),
-          headlineMedium: GoogleFonts.montserrat(
-            fontWeight: FontWeight.w300,
-            color: const Color(0xff606060),
-            fontSize: AppDimensions.isTablet(context) ? 24 : 18,
-          ),
-          headlineSmall: GoogleFonts.montserrat(
-            fontWeight: FontWeight.w300,
-            color: const Color(0xff606060),
-            fontSize: AppDimensions.isTablet(context) ? 20 : 16,
-          ),
-          titleLarge: GoogleFonts.montserrat(
-            fontWeight: FontWeight.w400,
-            color: const Color(0xff606060),
-            fontSize: AppDimensions.isTablet(context) ? 24 : 18,
-          ),
-          titleMedium: GoogleFonts.montserrat(
-            fontWeight: FontWeight.w400,
-            color: const Color(0xff606060),
-            fontSize: AppDimensions.isTablet(context) ? 20 : 16,
-          ),
-          titleSmall: GoogleFonts.montserrat(
-            fontWeight: FontWeight.w300,
-            color: const Color(0xff606060),
-            fontSize: AppDimensions.isTablet(context) ? 18 : 16,
-          ),
-          labelLarge: GoogleFonts.montserrat(
-            fontWeight: FontWeight.w400,
-            color: const Color(0xffffffff),
-            fontSize: AppDimensions.isTablet(context) ? 24 : 18,
-          ),
-          labelMedium: GoogleFonts.montserrat(
-            fontWeight: FontWeight.w400,
-            color: const Color(0xff606060),
-            fontSize: AppDimensions.isTablet(context) ? 20 : 16,
-          ),
-          labelSmall: GoogleFonts.montserrat(
-            fontSize: AppDimensions.isTablet(context) ? 18 : 14,
-            fontWeight: FontWeight.w300,
-            color: const Color(0xffB9B9B9),
-            letterSpacing: 1,
-          ),
-          bodyLarge: GoogleFonts.montserrat(
-            fontWeight: FontWeight.w600,
-            color: const Color(0xff606060),
-            fontSize: 26,
-          ),
-          bodyMedium: GoogleFonts.montserrat(
-            fontWeight: FontWeight.w300,
-            color: const Color(0xff606060),
-            fontSize: AppDimensions.isTablet(context) ? 18 : 14,
-          ),
-          bodySmall: GoogleFonts.montserrat(
-            fontWeight: FontWeight.w200,
-            color: const Color(0xff606060),
-            fontSize: AppDimensions.isTablet(context) ? 15 : 12,
-          ),
-        ),
+      textTheme: textTheme.apply(
+        bodyColor: colors.onSurface,
+        displayColor: colors.onSurface,
       ),
       inputDecorationTheme: ThemeData().inputDecorationTheme.copyWith(
         errorStyle: GoogleFonts.montserrat(
-          fontSize: 10,
-          fontWeight: FontWeight.w300,
-          color: const Color(0xffC90808),
+          fontSize: context.responsive<double>(compact: 11, medium: 12),
+          fontWeight: FontWeight.w500,
+          color: colors.error,
         ),
         labelStyle: GoogleFonts.montserrat(
-          fontSize: 14,
-          fontWeight: FontWeight.w300,
-          color: const Color(0xffB9B9B9),
+          fontSize: context.responsive<double>(compact: 14, medium: 16),
+          fontWeight: FontWeight.w500,
+          color: colors.slateDeep,
         ),
         floatingLabelStyle: GoogleFonts.montserrat(
-          fontWeight: FontWeight.w400,
-          fontSize: 16,
-          color: const Color(0xff606060),
+          fontWeight: FontWeight.w700,
+          fontSize: context.responsive<double>(compact: 14, medium: 16),
+          color: colors.primary,
         ),
         hintStyle: GoogleFonts.montserrat(
-          fontWeight: FontWeight.w300,
-          color: const Color(0xffc4c4c4),
-          fontSize: 14,
+          fontWeight: FontWeight.w400,
+          color: colors.slate,
+          fontSize: context.responsive<double>(compact: 14, medium: 16),
         ),
-        enabledBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Color(0xffc4c4c4), width: 0.5),
+        filled: true,
+        fillColor: colors.surfaceContainerLow,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
         ),
-        focusedBorder: UnderlineInputBorder(
-          borderSide: BorderSide(
-            width: 0.7,
-            color: Theme.of(context).dividerColor,
-          ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: kBorderRadiusAllMedium,
+          borderSide: BorderSide(color: colors.slateSoft),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: kBorderRadiusAllMedium,
+          borderSide: BorderSide(width: kBorderWidthMd, color: colors.primary),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: kBorderRadiusAllMedium,
+          borderSide: BorderSide(color: colors.error),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: kBorderRadiusAllMedium,
+          borderSide: BorderSide(color: colors.error, width: kBorderWidthMd),
         ),
       ),
-      colorScheme: ThemeData().colorScheme.copyWith(
-        primary: onEnvironmentColor,
-        secondary: context.appPalette.secondary,
-        shadow: context.appPalette.accentColor,
-        error: context.appPalette.error,
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: colors.primary,
+          foregroundColor: colors.white,
+          minimumSize: const Size.fromHeight(kButtonHeight),
+          shape: const RoundedRectangleBorder(
+            borderRadius: kBorderRadiusAllLarge,
+          ),
+          textStyle: GoogleFonts.montserrat(fontWeight: FontWeight.w800),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: colors.primary,
+          side: BorderSide(color: colors.primary.withValues(alpha: 0.45)),
+          minimumSize: const Size.fromHeight(kButtonHeightSm),
+          shape: const RoundedRectangleBorder(
+            borderRadius: kBorderRadiusAllLarge,
+          ),
+          textStyle: GoogleFonts.montserrat(fontWeight: FontWeight.w700),
+        ),
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: colors.surface,
+        shape: const RoundedRectangleBorder(
+          borderRadius: kBorderRadiusAllLarge,
+        ),
+        titleTextStyle: GoogleFonts.montserrat(
+          color: colors.onSurface,
+          fontWeight: FontWeight.w800,
+          fontSize: context.responsive<double>(compact: 18, medium: 20),
+        ),
+        contentTextStyle: GoogleFonts.montserrat(
+          color: colors.slateDeep,
+          fontSize: context.responsive<double>(compact: 14, medium: 16),
+        ),
+      ),
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: colors.surface,
+        modalBackgroundColor: colors.surface,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(kRadiusXLg)),
+        ),
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: colors.nightCard,
+        indicatorColor: colors.primary.withValues(alpha: 0.16),
+        labelTextStyle: WidgetStatePropertyAll(
+          GoogleFonts.montserrat(fontWeight: FontWeight.w700, fontSize: 12),
+        ),
       ),
     );
   }
