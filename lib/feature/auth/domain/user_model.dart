@@ -39,6 +39,14 @@ abstract class UserModel with _$UserModel {
   factory UserModel.fromJson(Map<String, dynamic> json) =>
       _$UserModelFromJson(json);
 
+  String get displayImage {
+    final tryOn = tryOnPhoto.trim();
+    if (tryOn.isNotEmpty) return tryOn;
+    return image.trim();
+  }
+
+  bool get hasDisplayImage => displayImage.isNotEmpty;
+
   String get fullInitialName {
     final first = firstName.trim();
     final last = lastName.trim();

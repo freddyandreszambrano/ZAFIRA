@@ -61,7 +61,9 @@ class ProfileScreen extends ConsumerWidget {
     if (action == null || !context.mounted) return;
 
     if (action == 'delete') {
-      final ok = await ref.read(authControllerProvider.notifier).deleteAvatar();
+      final ok = await ref
+          .read(authControllerProvider.notifier)
+          .deleteTryOnPhoto();
 
       if (!context.mounted) return;
 
@@ -104,7 +106,7 @@ class ProfileScreen extends ConsumerWidget {
 
     final ok = await ref
         .read(authControllerProvider.notifier)
-        .updateAvatar(cropped.path);
+        .updateTryOnPhoto(cropped.path);
 
     if (!context.mounted) return;
 
@@ -162,6 +164,7 @@ class ProfileScreen extends ConsumerWidget {
     final displayEmail = (user?.email ?? '').isNotEmpty
         ? user!.email
         : 'Correo no disponible';
+    final displayImage = user?.displayImage ?? '';
 
     final initials = [user?.firstName ?? '', user?.lastName ?? '']
         .where((e) => e.trim().isNotEmpty)
@@ -199,7 +202,7 @@ class ProfileScreen extends ConsumerWidget {
                   onTap: () => _pickAndUploadAvatar(
                     context,
                     ref,
-                    (user?.image ?? '').isNotEmpty,
+                    displayImage.isNotEmpty,
                   ),
                   child: Stack(
                     alignment: Alignment.bottomRight,
@@ -207,10 +210,10 @@ class ProfileScreen extends ConsumerWidget {
                       CircleAvatar(
                         radius: 48,
                         backgroundColor: colors.primary.withValues(alpha: 0.25),
-                        backgroundImage: (user?.image ?? '').isNotEmpty
-                            ? NetworkImage(user!.image)
+                        backgroundImage: displayImage.isNotEmpty
+                            ? NetworkImage(displayImage)
                             : null,
-                        child: (user?.image ?? '').isEmpty
+                        child: displayImage.isEmpty
                             ? Text(
                                 initials.isNotEmpty ? initials : 'Z',
                                 style: context.typography.headlineMedium

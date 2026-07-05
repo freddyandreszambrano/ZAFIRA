@@ -111,6 +111,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         : fullName.isNotEmpty
         ? fullName.split(' ').first
         : 'usuario';
+    final displayImage = user?.displayImage ?? '';
 
     return Scaffold(
       backgroundColor: colors.nightDeep,
@@ -170,10 +171,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       child: CircleAvatar(
                         radius: 24,
                         backgroundColor: colors.primary.withValues(alpha: 0.25),
-                        backgroundImage: (user?.image ?? '').isNotEmpty
-                            ? NetworkImage(user!.image)
+                        backgroundImage: displayImage.isNotEmpty
+                            ? NetworkImage(displayImage)
                             : null,
-                        child: (user?.image ?? '').isEmpty
+                        child: displayImage.isEmpty
                             ? Text(
                                 user?.fullInitialName ?? 'Z',
                                 style: context.typography.labelLarge?.copyWith(
@@ -372,7 +373,9 @@ class _DashboardActionCard extends StatelessWidget {
       child: Container(
         width: fullWidth ? double.infinity : null,
         constraints: BoxConstraints(
-          minHeight: fullWidth ? context.cardMinHeight : context.cardMinHeightTall,
+          minHeight: fullWidth
+              ? context.cardMinHeight
+              : context.cardMinHeightTall,
         ),
         clipBehavior: Clip.hardEdge,
         padding: kSpaceDeviceMd,
