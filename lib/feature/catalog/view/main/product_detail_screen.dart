@@ -7,8 +7,11 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/constants/app_numbers.dart';
 import '../../../../core/helpers/context_helper.dart';
 import '../../../../modules/common/widget/notifications/app_notification.dart';
+import '../../../auth/view/controller/auth_controller.dart';
 import '../../../favorites/view/controller/favorite_controller.dart';
 import '../../../favorites/view/favorite_feedback.dart';
+import '../../../try_on/view/main/try_on_result_screen.dart';
+import '../../../try_on/view/main/upload_photo_screen.dart';
 import '../../domain/product_model.dart';
 import '../controller/catalog_controller.dart';
 
@@ -451,10 +454,24 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       color: Colors.transparent,
                       child: InkWell(
                         borderRadius: kBorderRadiusAllMedium,
-                        onTap: () => AppNotification.info(
-                          context,
-                          'Try-On con IA disponible próximamente',
-                        ),
+                        onTap: () {
+                          final user = ref.read(authControllerProvider).user;
+                          final hasPhoto = (user?.tryOnPhoto ?? '')
+                              .trim()
+                              .isNotEmpty;
+                          if (!hasPhoto) {
+                            AppNotification.info(
+                              context,
+                              'Primero sube tu foto para el probador virtual',
+                            );
+                            context.push(UploadPhotoScreen.routeName);
+                            return;
+                          }
+                          context.push(
+                            TryOnResultScreen.routeName,
+                            extra: product.id,
+                          );
+                        },
                         child: Center(
                           child: Text(
                             'Probar con IA',

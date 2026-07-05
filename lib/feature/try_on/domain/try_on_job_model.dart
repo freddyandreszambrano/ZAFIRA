@@ -15,11 +15,10 @@ class TryOnJobModel {
   bool get isFailed => status == 'failed';
 
   factory TryOnJobModel.fromJson(Map<String, dynamic> json) {
-    final result = json['result_url'];
     return TryOnJobModel(
       id: json['id']?.toString() ?? '',
       status: json['status']?.toString() ?? 'pending',
-      resultUrl: result == null ? null : result.toString(),
+      resultUrl: json['result_url']?.toString(),
       errorMessage: json['error_message']?.toString() ?? '',
     );
   }

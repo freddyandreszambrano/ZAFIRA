@@ -9,6 +9,7 @@ import '../../../feature/auth/view/widgets/reset_password/reset_password_screen.
 import '../../../feature/auth/view/widgets/splash/splash_screen.dart';
 import '../../../feature/home/view/main/home_screen.dart';
 import '../../../feature/try_on/view/main/photo_preview_screen.dart';
+import '../../../feature/try_on/view/main/try_on_result_screen.dart';
 import '../../../feature/try_on/view/main/upload_photo_screen.dart';
 import '../../../feature/profile/view/main/profile_screen.dart';
 import '../../connection/view/widgets/online_widget.dart';
@@ -144,6 +145,13 @@ final appRouter = GoRouter(
           path: PhotoPreviewScreen.routeName,
           pageBuilder: (context, state) => _fadePage(
             PhotoPreviewScreen(imagePath: state.extra as String? ?? ''),
+            state,
+          ),
+        ),
+        GoRoute(
+          path: TryOnResultScreen.routeName,
+          pageBuilder: (context, state) => _fadePage(
+            TryOnResultScreen(productId: state.extra as int? ?? 0),
             state,
           ),
         ),
