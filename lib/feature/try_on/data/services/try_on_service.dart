@@ -14,16 +14,14 @@ class TryOnService {
 
   final DioHttpClient remoteDataSource;
 
-  Future<TryOnJobModel> createJob(int productId) async {
+  Future<TryOnJobModel> createJob(List<int> productIds) async {
     const url = '/api/v1/tryon/';
 
-    DebugLogger(runtimeType).request(url, {'product_ids': productId});
+    DebugLogger(runtimeType).request(url, {'product_ids': productIds});
 
     final response = await remoteDataSource().post(
       url,
-      data: {
-        'product_ids': [productId],
-      },
+      data: {'product_ids': productIds},
     );
 
     DebugLogger(runtimeType).response(url, [response.statusCode]);

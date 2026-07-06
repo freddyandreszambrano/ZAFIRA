@@ -151,7 +151,9 @@ final appRouter = GoRouter(
         GoRoute(
           path: TryOnResultScreen.routeName,
           pageBuilder: (context, state) => _fadePage(
-            TryOnResultScreen(productId: state.extra as int? ?? 0),
+            TryOnResultScreen(
+              productIds: (state.extra as List?)?.cast<int>() ?? const [],
+            ),
             state,
           ),
         ),

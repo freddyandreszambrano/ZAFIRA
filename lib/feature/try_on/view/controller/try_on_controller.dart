@@ -15,17 +15,19 @@ class TryOnController extends StateNotifier<TryOnState> {
   TryOnController(
     this._tryOnUseCase, {
     this.pollInterval = const Duration(milliseconds: 2500),
-    this.maxAttempts = 48,
+    // Hasta 6 min: un outfit son 2 generaciones encadenadas en el proveedor,
+    // y la primera llamada puede incluir el arranque del modelo remoto.
+    this.maxAttempts = 144,
   }) : super(TryOnState.initial());
 
   final TryOnUseCase _tryOnUseCase;
   final Duration pollInterval;
   final int maxAttempts;
 
-  Future<void> startTryOn(int productId) async {
+  Future<void> startTryOn(List<int> productIds) async {
     state = TryOnState.initial().copyWith(status: TryOnStatus.creating);
 
-    final created = await _tryOnUseCase.createJob(productId);
+    final created = await _tryOnUseCase.createJob(productIds);
 
     await created.fold(
       (err) async {

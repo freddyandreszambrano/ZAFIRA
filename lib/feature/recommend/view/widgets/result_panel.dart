@@ -4,6 +4,7 @@ import 'package:gap/gap.dart';
 import '../../../../core/enum/response_status.dart';
 import '../../../../core/helpers/context_helper.dart';
 import '../../../../modules/common/widget/layout/app_screen_shell.dart';
+import '../../domain/recommend_model.dart';
 import '../state/recommend_state.dart';
 import 'outfit_card.dart';
 
@@ -17,7 +18,7 @@ class ResultPanel extends StatelessWidget {
 
   final RecommendState state;
   final VoidCallback onRefresh;
-  final VoidCallback onTryOn;
+  final ValueChanged<OutfitModel> onTryOn;
 
   @override
   Widget build(BuildContext context) {

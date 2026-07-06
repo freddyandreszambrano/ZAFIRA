@@ -10,11 +10,12 @@ import '../controller/try_on_controller.dart';
 import '../state/try_on_state.dart';
 
 class TryOnResultScreen extends ConsumerStatefulWidget {
-  const TryOnResultScreen({super.key, required this.productId});
+  const TryOnResultScreen({super.key, required this.productIds});
 
   static const routeName = '/try-on/result';
 
-  final int productId;
+  /// 1 producto = prenda individual · 2 productos = outfit (torso + piernas)
+  final List<int> productIds;
 
   @override
   ConsumerState<TryOnResultScreen> createState() => _TryOnResultScreenState();
@@ -27,12 +28,12 @@ class _TryOnResultScreenState extends ConsumerState<TryOnResultScreen> {
     Future.microtask(
       () => ref
           .read(tryOnControllerProvider.notifier)
-          .startTryOn(widget.productId),
+          .startTryOn(widget.productIds),
     );
   }
 
   void _retry() {
-    ref.read(tryOnControllerProvider.notifier).startTryOn(widget.productId);
+    ref.read(tryOnControllerProvider.notifier).startTryOn(widget.productIds);
   }
 
   @override

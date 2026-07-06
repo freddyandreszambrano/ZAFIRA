@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/enum/response_status.dart';
 import '../../../../core/helpers/context_helper.dart';
 import '../../../../modules/common/widget/notifications/app_notification.dart';
 import '../../../auth/view/controller/auth_controller.dart';
+import '../../../try_on/view/main/try_on_result_screen.dart';
+import '../../domain/recommend_model.dart';
 import '../controller/recommend_controller.dart';
 import '../widgets/no_photo_dialog.dart';
 import '../widgets/result_panel.dart';
@@ -71,13 +74,14 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
         );
   }
 
-  void _tryOnOutfit() {
+  void _tryOnOutfit(OutfitModel outfit) {
     final user = ref.read(authControllerProvider).user;
     if (user == null || user.tryOnPhoto.isEmpty) {
       NoPhotoDialog.show(context);
       return;
     }
-    AppNotification.info(context, 'Función de prueba virtual próximamente');
+    // Vestido = 1 prenda · combinación = torso + piernas (backend encadena)
+    context.push(TryOnResultScreen.routeName, extra: outfit.productIds);
   }
 
   @override

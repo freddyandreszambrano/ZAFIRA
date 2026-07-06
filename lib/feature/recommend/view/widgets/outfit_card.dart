@@ -17,7 +17,7 @@ class OutfitCard extends StatelessWidget {
   final OutfitModel outfit;
   final int number;
   final String occasion;
-  final VoidCallback onTryOn;
+  final ValueChanged<OutfitModel> onTryOn;
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +100,7 @@ class OutfitCard extends StatelessWidget {
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed: onTryOn,
+                onPressed: () => onTryOn(outfit),
                 icon: const Icon(Icons.person_pin_rounded, size: 16),
                 label: Text(
                   'Probar este outfit',

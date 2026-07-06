@@ -10,12 +10,14 @@ class TryOnUseCase with ErrorExceptionHandler {
 
   final ITryOn interface;
 
-  Future<Either<Exception, TryOnJobModel>> createJob(int productId) async {
+  Future<Either<Exception, TryOnJobModel>> createJob(
+    List<int> productIds,
+  ) async {
     const String methodName = "CREATE_TRY_ON_JOB";
     DebugLogger(runtimeType).methodInit(methodName);
 
     return await handlerApiExceptions(
-      () async => await interface.createJob(productId),
+      () async => await interface.createJob(productIds),
       methodName,
       runtimeType,
     );

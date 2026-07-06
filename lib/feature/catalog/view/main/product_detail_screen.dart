@@ -463,7 +463,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                     }
                     context.push(
                       TryOnResultScreen.routeName,
-                      extra: product.id,
+                      extra: [product.id],
                     );
                   },
                 ),
