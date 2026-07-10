@@ -11,6 +11,7 @@ import '../../../../modules/common/widget/notifications/app_notification.dart';
 import '../../../auth/view/controller/auth_controller.dart';
 import '../../../favorites/view/controller/favorite_controller.dart';
 import '../../../favorites/view/favorite_feedback.dart';
+import '../../../try_on/domain/try_on_args.dart';
 import '../../../try_on/view/main/try_on_result_screen.dart';
 import '../../../try_on/view/main/upload_photo_screen.dart';
 import '../../domain/product_model.dart';
@@ -463,7 +464,12 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                     }
                     context.push(
                       TryOnResultScreen.routeName,
-                      extra: [product.id],
+                      // El producto habilita "Complementa tu outfit" en el
+                      // resultado (ofrece la categoría contraria)
+                      extra: TryOnRequestArgs(
+                        productIds: [product.id],
+                        sourceProduct: product,
+                      ),
                     );
                   },
                 ),

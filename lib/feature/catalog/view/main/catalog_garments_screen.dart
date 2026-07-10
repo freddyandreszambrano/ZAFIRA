@@ -9,6 +9,8 @@ import '../../../../core/helpers/context_helper.dart';
 import '../../../../modules/common/widget/layout/app_screen_shell.dart';
 import '../../../favorites/view/controller/favorite_controller.dart';
 import '../../../favorites/view/favorite_feedback.dart';
+import '../../../try_on/domain/try_on_args.dart';
+import '../../../try_on/view/main/try_on_result_screen.dart';
 import '../../domain/product_model.dart';
 import '../controller/catalog_controller.dart';
 import '../state/catalog_state.dart';
@@ -19,6 +21,8 @@ class CatalogGarmentsScreen extends ConsumerStatefulWidget {
     required this.gender,
     required this.category,
     this.categoryLabel,
+    this.complementProductId,
+    this.complementIsUpper = false,
     super.key,
   });
 
@@ -28,12 +32,33 @@ class CatalogGarmentsScreen extends ConsumerStatefulWidget {
   final String category;
   final String? categoryLabel;
 
+  /// Modo "complementa tu outfit": prenda ya probada. Al tocar una prenda de
+  /// esta lista se genera el outfit completo (par torso + pierna) directo.
+  final int? complementProductId;
+
+  /// true si la prenda ya probada es de torso (define el orden del par:
+  /// el backend viste primero el torso y luego las piernas).
+  final bool complementIsUpper;
+
   @override
   ConsumerState<CatalogGarmentsScreen> createState() =>
       _CatalogGarmentsScreenState();
 }
 
 class _CatalogGarmentsScreenState extends ConsumerState<CatalogGarmentsScreen> {
+  bool get _isComplementMode => widget.complementProductId != null;
+
+  /// Outfit editable para el probador (el backend viste primero el torso).
+  TryOnOutfitArgs _outfitArgsWith(ProductModel product) => TryOnOutfitArgs(
+    upperId: widget.complementIsUpper
+        ? widget.complementProductId!
+        : product.id,
+    lowerId: widget.complementIsUpper
+        ? product.id
+        : widget.complementProductId!,
+    catalogGender: widget.gender,
+  );
+
   @override
   void initState() {
     super.initState();
@@ -91,7 +116,10 @@ class _CatalogGarmentsScreenState extends ConsumerState<CatalogGarmentsScreen> {
             ),
             const Gap(separatorXSm),
             Text(
-              'Prendas disponibles en esta categoría.',
+              _isComplementMode
+                  ? 'Elige la prenda para completar tu outfit: se probará '
+                        'junto con la que ya tienes puesta.'
+                  : 'Prendas disponibles en esta categoría.',
               style: context.typography.bodyMedium?.copyWith(
                 color: colors.slate,
               ),
@@ -156,8 +184,15 @@ class _CatalogGarmentsScreenState extends ConsumerState<CatalogGarmentsScreen> {
         return _GarmentCard(
           product: product,
           genderLabel: genderLabel,
-          onTap: () =>
-              context.push(ProductDetailScreen.routeName, extra: product),
+          actionLabel: _isComplementMode ? 'Combinar ✨' : 'Probar con IA',
+          onTap: _isComplementMode
+              // Complemento: generar directo el outfit con ambas prendas
+              ? () => context.push(
+                  TryOnResultScreen.routeName,
+                  extra: _outfitArgsWith(product),
+                )
+              : () =>
+                    context.push(ProductDetailScreen.routeName, extra: product),
         );
       },
     );
@@ -169,11 +204,13 @@ class _GarmentCard extends ConsumerWidget {
     required this.product,
     required this.genderLabel,
     required this.onTap,
+    this.actionLabel = 'Probar con IA',
   });
 
   final ProductModel product;
   final String genderLabel;
   final VoidCallback onTap;
+  final String actionLabel;
 
   String _storeLabel(String store) {
     switch (store.toLowerCase()) {
@@ -354,7 +391,7 @@ class _GarmentCard extends ConsumerWidget {
                             onTap: onTap,
                             child: Center(
                               child: Text(
-                                'Probar con IA',
+                                actionLabel,
                                 style: context.typography.labelSmall?.copyWith(
                                   color: colors.white,
                                   fontWeight: FontWeight.w800,

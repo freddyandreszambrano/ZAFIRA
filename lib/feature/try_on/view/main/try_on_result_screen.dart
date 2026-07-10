@@ -6,16 +6,33 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_numbers.dart';
 import '../../../../core/helpers/app_colors.dart';
 import '../../../../core/helpers/context_helper.dart';
+import '../../../catalog/domain/product_model.dart';
+import '../../../catalog/view/main/catalog_garments_screen.dart';
+import '../../../home/view/main/home_screen.dart';
+import '../../domain/try_on_args.dart';
 import '../controller/try_on_controller.dart';
 import '../state/try_on_state.dart';
 
 class TryOnResultScreen extends ConsumerStatefulWidget {
-  const TryOnResultScreen({super.key, required this.productIds});
+  const TryOnResultScreen({
+    super.key,
+    required this.productIds,
+    this.sourceProduct,
+    this.outfitArgs,
+  });
 
   static const routeName = '/try-on/result';
 
   /// 1 producto = prenda individual · 2 productos = outfit (torso + piernas)
   final List<int> productIds;
+
+  /// Producto probado cuando la prueba viene del detalle (1 prenda);
+  /// habilita "Complementa tu outfit".
+  final ProductModel? sourceProduct;
+
+  /// Outfit combinado editable (viene de "complementa/combinar"); habilita
+  /// "Combinar otra prenda" para cambiar el torso o la pierna del look.
+  final TryOnOutfitArgs? outfitArgs;
 
   @override
   ConsumerState<TryOnResultScreen> createState() => _TryOnResultScreenState();
@@ -34,6 +51,282 @@ class _TryOnResultScreenState extends ConsumerState<TryOnResultScreen> {
 
   void _retry() {
     ref.read(tryOnControllerProvider.notifier).startTryOn(widget.productIds);
+  }
+
+  /// Categorías para completar el look (vacío si no aplica: outfit de 2
+  /// prendas, vestido, o prueba sin producto de origen).
+  List<ComplementCategory> get _complementCategories {
+    final product = widget.sourceProduct;
+    if (product == null || widget.productIds.length != 1) return const [];
+    return complementCategoriesFor(
+      garmentSlotFor(product),
+      catalogGenderFor(product),
+    );
+  }
+
+  Widget _primaryAction(
+    AppColors colors, {
+    required String label,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return SizedBox(
+      width: double.infinity,
+      height: 52,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: colors.gradientPrimary,
+          borderRadius: kBorderRadiusAllLarge,
+        ),
+        child: ElevatedButton.icon(
+          onPressed: onTap,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.transparent,
+            shadowColor: Colors.transparent,
+            shape: const RoundedRectangleBorder(
+              borderRadius: kBorderRadiusAllLarge,
+            ),
+          ),
+          icon: Icon(icon, color: colors.white),
+          label: Text(
+            label,
+            style: context.typography.labelLarge?.copyWith(
+              color: colors.white,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _outlineAction(
+    AppColors colors, {
+    required String label,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return SizedBox(
+      width: double.infinity,
+      height: 52,
+      child: ElevatedButton.icon(
+        onPressed: onTap,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          side: BorderSide(color: colors.white.withValues(alpha: 0.7)),
+          shape: const RoundedRectangleBorder(
+            borderRadius: kBorderRadiusAllLarge,
+          ),
+        ),
+        icon: Icon(icon, color: colors.white),
+        label: Text(
+          label,
+          style: context.typography.labelLarge?.copyWith(
+            color: colors.white,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Panel para cambiar UNA prenda del outfit combinado conservando la otra:
+  /// reutiliza el flujo de complemento con la prenda que se queda como base.
+  void _openSwapSheet() {
+    final outfit = widget.outfitArgs!;
+    final colors = context.appColors;
+    final upperCategories = complementCategoriesFor(
+      GarmentSlot.lower, // se queda la pierna → ofrecer categorías de torso
+      outfit.catalogGender,
+    );
+    final lowerCategories = complementCategoriesFor(
+      GarmentSlot.upper, // se queda el torso → ofrecer categorías de pierna
+      outfit.catalogGender,
+    );
+
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: colors.nightCard,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (sheetContext) => SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '¿Deseas combinar otra prenda?',
+                style: context.typography.titleMedium?.copyWith(
+                  color: colors.white,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const Gap(6),
+              Text(
+                'Elige qué parte del outfit quieres cambiar; la otra se queda.',
+                style: context.typography.bodySmall?.copyWith(
+                  color: colors.slate,
+                ),
+              ),
+              const Gap(16),
+              _swapSection(
+                sheetContext,
+                title: 'Cambiar la parte de arriba',
+                categories: upperCategories,
+                keepId: outfit.lowerId,
+                keepIsUpper: false,
+              ),
+              const Gap(14),
+              _swapSection(
+                sheetContext,
+                title: 'Cambiar la parte de abajo',
+                categories: lowerCategories,
+                keepId: outfit.upperId,
+                keepIsUpper: true,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _swapSection(
+    BuildContext sheetContext, {
+    required String title,
+    required List<ComplementCategory> categories,
+    required int keepId,
+    required bool keepIsUpper,
+  }) {
+    final colors = context.appColors;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: context.typography.labelMedium?.copyWith(
+            color: colors.primaryLight,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const Gap(8),
+        for (final category in categories) ...[
+          ListTile(
+            onTap: () {
+              Navigator.of(sheetContext).pop();
+              context.push(
+                CatalogGarmentsScreen.routeName,
+                extra: {
+                  'gender': widget.outfitArgs!.catalogGender,
+                  'category': category.categoryQuery,
+                  'categoryLabel': category.label,
+                  'complementProductId': keepId.toString(),
+                  'complementIsUpper': keepIsUpper.toString(),
+                },
+              );
+            },
+            shape: RoundedRectangleBorder(
+              borderRadius: kBorderRadiusAllLarge,
+              side: BorderSide(color: colors.nightBorder),
+            ),
+            tileColor: colors.nightInput,
+            leading: Icon(category.icon, color: colors.primaryLight),
+            title: Text(
+              category.label,
+              style: context.typography.labelLarge?.copyWith(
+                color: colors.white,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            trailing: Icon(Icons.chevron_right_rounded, color: colors.slate),
+          ),
+          const Gap(8),
+        ],
+      ],
+    );
+  }
+
+  void _openComplementSheet() {
+    final product = widget.sourceProduct!;
+    final slot = garmentSlotFor(product);
+    final colors = context.appColors;
+
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: colors.nightCard,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Complementa tu outfit',
+                style: context.typography.titleMedium?.copyWith(
+                  color: colors.white,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const Gap(6),
+              Text(
+                slot == GarmentSlot.upper
+                    ? 'Ya tienes la parte de arriba. Elige con qué completarla:'
+                    : 'Ya tienes la parte de abajo. Elige con qué completarla:',
+                style: context.typography.bodySmall?.copyWith(
+                  color: colors.slate,
+                ),
+              ),
+              const Gap(16),
+              for (final category in _complementCategories) ...[
+                ListTile(
+                  onTap: () {
+                    Navigator.of(sheetContext).pop();
+                    context.push(
+                      CatalogGarmentsScreen.routeName,
+                      extra: {
+                        'gender': catalogGenderFor(product),
+                        'category': category.categoryQuery,
+                        'categoryLabel': category.label,
+                        'complementProductId': product.id.toString(),
+                        'complementIsUpper':
+                            (slot == GarmentSlot.upper).toString(),
+                      },
+                    );
+                  },
+                  shape: RoundedRectangleBorder(
+                    borderRadius: kBorderRadiusAllLarge,
+                    side: BorderSide(color: colors.nightBorder),
+                  ),
+                  tileColor: colors.nightInput,
+                  leading: Icon(category.icon, color: colors.primaryLight),
+                  title: Text(
+                    category.label,
+                    style: context.typography.labelLarge?.copyWith(
+                      color: colors.white,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  trailing: Icon(
+                    Icons.chevron_right_rounded,
+                    color: colors.slate,
+                  ),
+                ),
+                const Gap(10),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -68,7 +361,12 @@ class _TryOnResultScreenState extends ConsumerState<TryOnResultScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 48),
+                    // Volver al inicio de un toque (evita retroceder pantalla
+                    // por pantalla tras encadenar combinaciones)
+                    IconButton(
+                      onPressed: () => context.go(HomeScreen.routeName),
+                      icon: Icon(Icons.home_rounded, color: colors.white),
+                    ),
                   ],
                 ),
                 const Gap(separatorLg),
@@ -137,29 +435,38 @@ class _TryOnResultScreenState extends ConsumerState<TryOnResultScreen> {
               ),
             ),
             const Gap(separatorLg),
-            SizedBox(
-              width: double.infinity,
-              height: 52,
-              child: ElevatedButton.icon(
-                onPressed: () => context.pop(),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.transparent,
-                  shadowColor: Colors.transparent,
-                  side: BorderSide(color: colors.white.withValues(alpha: 0.7)),
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: kBorderRadiusAllLarge,
-                  ),
-                ),
-                icon: Icon(Icons.checkroom_rounded, color: colors.white),
-                label: Text(
-                  'Probar otra prenda',
-                  style: context.typography.labelLarge?.copyWith(
-                    color: colors.white,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
+            if (widget.outfitArgs != null) ...[
+              // Outfit combinado: cambiar una prenda o terminar en el inicio
+              _primaryAction(
+                colors,
+                label: 'Combinar otra prenda',
+                icon: Icons.swap_horiz_rounded,
+                onTap: _openSwapSheet,
               ),
-            ),
+              const Gap(separatorSm),
+              _outlineAction(
+                colors,
+                label: 'Ir al inicio',
+                icon: Icons.home_rounded,
+                onTap: () => context.go(HomeScreen.routeName),
+              ),
+            ] else ...[
+              if (_complementCategories.isNotEmpty) ...[
+                _primaryAction(
+                  colors,
+                  label: 'Complementa tu outfit',
+                  icon: Icons.auto_awesome_rounded,
+                  onTap: _openComplementSheet,
+                ),
+                const Gap(separatorSm),
+              ],
+              _outlineAction(
+                colors,
+                label: 'Probar otra prenda',
+                icon: Icons.checkroom_rounded,
+                onTap: () => context.pop(),
+              ),
+            ],
           ],
         );
       case TryOnStatus.failure:
