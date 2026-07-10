@@ -367,14 +367,29 @@ class _GarmentCard extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      product.name,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: context.typography.labelMedium?.copyWith(
-                        color: colors.white,
-                        fontWeight: FontWeight.w800,
-                      ),
+                    // Nombre con el precio justo debajo: llena el espacio
+                    // entre el nombre y el botón de forma útil
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          product.name,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: context.typography.labelMedium?.copyWith(
+                            color: colors.white,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const Gap(3),
+                        Text(
+                          '\$${product.price.toStringAsFixed(2)}',
+                          style: context.typography.labelMedium?.copyWith(
+                            color: colors.primaryLight,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ],
                     ),
                     SizedBox(
                       width: double.infinity,

@@ -108,10 +108,24 @@ final appRouter = GoRouter(
         ),
         GoRoute(
           path: ProductDetailScreen.routeName,
-          pageBuilder: (context, state) => _fadePage(
-            ProductDetailScreen(product: state.extra as ProductModel),
-            state,
-          ),
+          pageBuilder: (context, state) {
+            final extra = state.extra;
+            // Desde favoritos llega ProductDetailArgs (sin probador: ahí la
+            // acción es comprar); desde el resto, el producto directo.
+            if (extra is ProductDetailArgs) {
+              return _fadePage(
+                ProductDetailScreen(
+                  product: extra.product,
+                  showTryOn: extra.showTryOn,
+                ),
+                state,
+              );
+            }
+            return _fadePage(
+              ProductDetailScreen(product: extra as ProductModel),
+              state,
+            );
+          },
         ),
         GoRoute(
           path: FavoritesScreen.routeName,

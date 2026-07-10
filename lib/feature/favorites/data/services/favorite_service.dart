@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/utils/logger.dart';
 import '../../../../modules/common/drivers/http/dio_http_client.dart';
 import '../../../catalog/domain/product_model.dart';
+import '../../domain/favorite_outfit_model.dart';
 
 final favoriteServiceProvider = Provider<FavoriteService>((ref) {
   final remoteDataSource = ref.watch(dioHttpClientProvider);
@@ -44,6 +45,54 @@ class FavoriteService {
 
   Future<bool> removeFavorite(int productId) async {
     final url = '/api/v1/catalog/favorites/$productId/';
+
+    DebugLogger(runtimeType).request(url);
+
+    final response = await remoteDataSource().delete(url);
+
+    DebugLogger(runtimeType).response(url, [response.statusCode]);
+
+    return response.statusCode == 200;
+  }
+
+  Future<List<FavoriteOutfitModel>> getFavoriteOutfits() async {
+    const url = '/api/v1/catalog/favorites/outfits/';
+
+    DebugLogger(runtimeType).request(url);
+
+    final response = await remoteDataSource().get(url);
+
+    DebugLogger(runtimeType).response(url, [response.statusCode]);
+
+    final data = response.data as List;
+    return data
+        .map((item) => FavoriteOutfitModel.fromJson(item as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<bool> saveFavoriteOutfit({
+    required int topId,
+    required int bottomId,
+    required String resultImageUrl,
+  }) async {
+    const url = '/api/v1/catalog/favorites/outfits/';
+    final body = {
+      'top_id': topId,
+      'bottom_id': bottomId,
+      'result_image_url': resultImageUrl,
+    };
+
+    DebugLogger(runtimeType).request(url, body);
+
+    final response = await remoteDataSource().post(url, data: body);
+
+    DebugLogger(runtimeType).response(url, [response.statusCode]);
+
+    return response.statusCode == 201;
+  }
+
+  Future<bool> removeFavoriteOutfit(int outfitId) async {
+    final url = '/api/v1/catalog/favorites/outfits/$outfitId/';
 
     DebugLogger(runtimeType).request(url);
 
