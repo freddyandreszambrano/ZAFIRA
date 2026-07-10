@@ -4,6 +4,7 @@ import 'package:gap/gap.dart';
 import '../../../../core/enum/response_status.dart';
 import '../../../../core/helpers/context_helper.dart';
 import '../../../../modules/common/widget/layout/app_screen_shell.dart';
+import '../../../catalog/domain/product_model.dart';
 import '../../domain/recommend_model.dart';
 import '../state/recommend_state.dart';
 import 'outfit_card.dart';
@@ -13,12 +14,24 @@ class ResultPanel extends StatelessWidget {
     required this.state,
     required this.onRefresh,
     required this.onTryOn,
+    this.mixTop,
+    this.mixBottom,
+    this.onSelectPiece,
+    this.onTryOnMix,
+    this.onClearMix,
     super.key,
   });
 
   final RecommendState state;
   final VoidCallback onRefresh;
   final ValueChanged<OutfitModel> onTryOn;
+
+  /// Mix & match: prendas elegidas por el usuario entre los 3 outfits.
+  final ProductModel? mixTop;
+  final ProductModel? mixBottom;
+  final void Function(ProductModel product, bool isTop)? onSelectPiece;
+  final VoidCallback? onTryOnMix;
+  final VoidCallback? onClearMix;
 
   @override
   Widget build(BuildContext context) {
@@ -102,6 +115,8 @@ class ResultPanel extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
+    final hasMix = mixTop != null || mixBottom != null;
+
     return Column(
       children: [
         Expanded(
@@ -114,42 +129,125 @@ class ResultPanel extends StatelessWidget {
               number: index + 1,
               occasion: result.occasion,
               onTryOn: onTryOn,
+              selectedTopId: mixTop?.id,
+              selectedBottomId: mixBottom?.id,
+              onSelectPiece: onSelectPiece,
             ),
           ),
         ),
-        // Bottom actions — solo "3 nuevos"
+        // Bottom actions — combinación propia (si hay) + "3 nuevos"
         Container(
           padding: const EdgeInsets.fromLTRB(16, 10, 16, 20),
           decoration: BoxDecoration(
             color: colors.nightCard,
             border: Border(top: BorderSide(color: colors.nightBorder)),
           ),
-          child: SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: onRefresh,
-              icon: Icon(
-                Icons.shuffle_rounded,
-                size: 18,
-                color: colors.primary,
-              ),
-              label: Text(
-                'Generar 3 nuevos outfits',
-                style: context.typography.labelSmall?.copyWith(
-                  color: colors.primary,
+          child: Column(
+            children: [
+              if (hasMix) ...[
+                Row(
+                  children: [
+                    Icon(
+                      Icons.checkroom_rounded,
+                      size: 16,
+                      color: colors.primaryLight,
+                    ),
+                    const Gap(6),
+                    Expanded(
+                      child: Text(
+                        _mixSummary,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: context.typography.labelSmall?.copyWith(
+                          color: colors.white,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: onClearMix,
+                      child: Icon(
+                        Icons.close_rounded,
+                        size: 18,
+                        color: colors.slate,
+                      ),
+                    ),
+                  ],
+                ),
+                const Gap(8),
+                SizedBox(
+                  width: double.infinity,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: colors.gradientPrimary,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: ElevatedButton.icon(
+                      onPressed: onTryOnMix,
+                      icon: const Icon(Icons.person_pin_rounded, size: 16),
+                      label: Text(
+                        mixTop != null && mixBottom != null
+                            ? 'Probar mi combinación'
+                            : 'Probar esta prenda',
+                        style: context.typography.labelSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: colors.white,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        foregroundColor: colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 11),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const Gap(8),
+              ],
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: onRefresh,
+                  icon: Icon(
+                    Icons.shuffle_rounded,
+                    size: 18,
+                    color: colors.primary,
+                  ),
+                  label: Text(
+                    'Generar 3 nuevos outfits',
+                    style: context.typography.labelSmall?.copyWith(
+                      color: colors.primary,
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    side: BorderSide(
+                      color: colors.primary.withValues(alpha: 0.5),
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                 ),
               ),
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                side: BorderSide(color: colors.primary.withValues(alpha: 0.5)),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
+            ],
           ),
         ),
       ],
     );
+  }
+
+  String get _mixSummary {
+    final total =
+        (mixTop?.price ?? 0) + (mixBottom?.price ?? 0);
+    final parts = [
+      if (mixTop != null) mixTop!.name,
+      if (mixBottom != null) mixBottom!.name,
+    ].join(' + ');
+    return '$parts  ·  \$${total.toStringAsFixed(2)}';
   }
 }

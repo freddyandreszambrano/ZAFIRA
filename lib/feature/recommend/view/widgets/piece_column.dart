@@ -9,10 +9,23 @@ import '../../../catalog/view/main/product_detail_screen.dart';
 import 'product_image.dart';
 
 class PieceColumn extends StatelessWidget {
-  const PieceColumn({required this.label, required this.product, super.key});
+  const PieceColumn({
+    required this.label,
+    required this.product,
+    this.selected = false,
+    this.onSelect,
+    super.key,
+  });
 
   final String label;
   final ProductModel product;
+
+  /// Mix & match: la prenda está elegida para la combinación del usuario.
+  final bool selected;
+
+  /// Si viene, la imagen muestra el círculo para elegir la prenda
+  /// (los vestidos no lo tienen: no se combinan).
+  final VoidCallback? onSelect;
 
   Color _storeColor(BuildContext context) {
     final colors = context.appColors;
@@ -61,13 +74,56 @@ class PieceColumn extends StatelessWidget {
           ),
         ),
         const Gap(6),
-        // Imagen — toca para ver el detalle de la prenda
+        // Imagen — toca para ver el detalle; el círculo elige la prenda
+        // para la combinación propia (mix & match entre outfits)
         GestureDetector(
           onTap: () =>
               context.push(ProductDetailScreen.routeName, extra: product),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: ProductImage(urls: product.imageUrls),
+          child: Stack(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: selected ? colors.primary : Colors.transparent,
+                    width: 2,
+                  ),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: ProductImage(urls: product.imageUrls),
+                ),
+              ),
+              if (onSelect != null)
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: GestureDetector(
+                    onTap: onSelect,
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 180),
+                      padding: const EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        color: selected
+                            ? colors.primary
+                            : colors.nightDeep.withValues(alpha: 0.6),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: selected ? colors.primary : colors.white,
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Icon(
+                        selected
+                            ? Icons.check_rounded
+                            : Icons.add_rounded,
+                        color: colors.white,
+                        size: 16,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           ),
         ),
         const Gap(6),

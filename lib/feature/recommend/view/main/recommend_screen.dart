@@ -6,6 +6,8 @@ import '../../../../core/enum/response_status.dart';
 import '../../../../core/helpers/context_helper.dart';
 import '../../../../modules/common/widget/notifications/app_notification.dart';
 import '../../../auth/view/controller/auth_controller.dart';
+import '../../../catalog/domain/product_model.dart';
+import '../../../try_on/domain/try_on_args.dart';
 import '../../../try_on/view/main/try_on_result_screen.dart';
 import '../../domain/recommend_model.dart';
 import '../controller/recommend_controller.dart';
@@ -35,6 +37,10 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
   OccasionGroup? _selectedOccasionGroup;
   OccasionOption? _selectedOccasionSub;
   bool _showFreeText = false;
+  // Mix & match: el usuario arma su propia combinación eligiendo un torso
+  // y una pierna de CUALQUIERA de los 3 outfits recomendados
+  ProductModel? _mixTop;
+  ProductModel? _mixBottom;
 
   @override
   void initState() {
@@ -68,6 +74,11 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
       return;
     }
     FocusScope.of(context).unfocus();
+    // Outfits nuevos = selección vieja sin sentido: limpiarla
+    setState(() {
+      _mixTop = null;
+      _mixBottom = null;
+    });
     ref
         .read(recommendControllerProvider.notifier)
         .getRecommendation(
@@ -121,13 +132,62 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
     });
   }
 
+  void _selectMixPiece(ProductModel product, bool isTop) {
+    setState(() {
+      if (isTop) {
+        // Tocar la prenda ya elegida la quita; otra distinta la reemplaza
+        _mixTop = _mixTop?.id == product.id ? null : product;
+      } else {
+        _mixBottom = _mixBottom?.id == product.id ? null : product;
+      }
+    });
+  }
+
+  void _tryOnMix() {
+    final user = ref.read(authControllerProvider).user;
+    if (user == null || user.tryOnPhoto.isEmpty) {
+      NoPhotoDialog.show(context);
+      return;
+    }
+    final top = _mixTop;
+    final bottom = _mixBottom;
+    if (top != null && bottom != null) {
+      // Par completo: outfit editable (se puede guardar y cambiar prendas)
+      context.push(
+        TryOnResultScreen.routeName,
+        extra: TryOnOutfitArgs(
+          upperId: top.id,
+          lowerId: bottom.id,
+          catalogGender: _selectedGender == 'mujer' ? 'woman' : 'man',
+        ),
+      );
+      return;
+    }
+    final single = top ?? bottom;
+    if (single != null) {
+      context.push(TryOnResultScreen.routeName, extra: [single.id]);
+    }
+  }
+
   void _tryOnOutfit(OutfitModel outfit) {
     final user = ref.read(authControllerProvider).user;
     if (user == null || user.tryOnPhoto.isEmpty) {
       NoPhotoDialog.show(context);
       return;
     }
-    // Vestido = 1 prenda · combinación = torso + piernas (backend encadena)
+    // Outfit de 2 prendas: modo editable (se puede guardar en favoritos y
+    // cambiar torso/pierna). Vestido solo: prueba simple de 1 prenda.
+    if (outfit.bottom != null) {
+      context.push(
+        TryOnResultScreen.routeName,
+        extra: TryOnOutfitArgs(
+          upperId: outfit.top.id,
+          lowerId: outfit.bottom!.id,
+          catalogGender: _selectedGender == 'mujer' ? 'woman' : 'man',
+        ),
+      );
+      return;
+    }
     context.push(TryOnResultScreen.routeName, extra: outfit.productIds);
   }
 
@@ -178,6 +238,14 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
               state: state,
               onRefresh: () => _recommend(refresh: true),
               onTryOn: _tryOnOutfit,
+              mixTop: _mixTop,
+              mixBottom: _mixBottom,
+              onSelectPiece: _selectMixPiece,
+              onTryOnMix: _tryOnMix,
+              onClearMix: () => setState(() {
+                _mixTop = null;
+                _mixBottom = null;
+              }),
             ),
           ),
         ],
