@@ -10,6 +10,7 @@ import '../../../try_on/view/main/try_on_result_screen.dart';
 import '../../domain/recommend_model.dart';
 import '../controller/recommend_controller.dart';
 import '../widgets/no_photo_dialog.dart';
+import '../widgets/occasion_filters.dart';
 import '../widgets/result_panel.dart';
 import '../widgets/search_panel.dart';
 
@@ -29,6 +30,11 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
   final _occasionController = TextEditingController();
   String _selectedStore = 'all';
   String _selectedGender = 'hombre';
+  // Filtros de ocasión: los chips escriben la frase en _occasionController,
+  // así el resto del flujo (validación + request) no cambia.
+  OccasionGroup? _selectedOccasionGroup;
+  OccasionOption? _selectedOccasionSub;
+  bool _showFreeText = false;
 
   @override
   void initState() {
@@ -58,7 +64,7 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
 
     final occasion = _occasionController.text.trim();
     if (occasion.isEmpty) {
-      AppNotification.warning(context, 'Escribe la ocasión para el outfit');
+      AppNotification.warning(context, 'Elige una ocasión o escríbela');
       return;
     }
     FocusScope.of(context).unfocus();
@@ -72,6 +78,47 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
           excludeIds: refresh ? _currentBatchIds : [],
           productIds: widget.favoriteIds ?? [],
         );
+  }
+
+  void _selectOccasionGroup(OccasionGroup group) {
+    setState(() {
+      if (_selectedOccasionGroup == group) {
+        // Segundo tap sobre el mismo chip: deseleccionar
+        _selectedOccasionGroup = null;
+        _selectedOccasionSub = null;
+        _occasionController.clear();
+      } else {
+        _selectedOccasionGroup = group;
+        _selectedOccasionSub = null;
+        _occasionController.text = group.phrase;
+        _showFreeText = false;
+      }
+    });
+  }
+
+  void _selectOccasionSub(OccasionOption sub) {
+    setState(() {
+      if (_selectedOccasionSub == sub) {
+        // Deseleccionar el sub-filtro vuelve a la ocasión general
+        _selectedOccasionSub = null;
+        _occasionController.text = _selectedOccasionGroup?.phrase ?? '';
+      } else {
+        _selectedOccasionSub = sub;
+        _occasionController.text = sub.phrase;
+      }
+    });
+  }
+
+  void _toggleFreeText() {
+    setState(() {
+      _showFreeText = !_showFreeText;
+      if (_showFreeText) {
+        // Texto libre parte limpio, sin arrastrar la frase de los chips
+        _selectedOccasionGroup = null;
+        _selectedOccasionSub = null;
+        _occasionController.clear();
+      }
+    });
   }
 
   void _tryOnOutfit(OutfitModel outfit) {
@@ -114,8 +161,14 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
             controller: _occasionController,
             selectedStore: _selectedStore,
             selectedGender: _selectedGender,
+            selectedOccasionGroup: _selectedOccasionGroup,
+            selectedOccasionSub: _selectedOccasionSub,
+            showFreeText: _showFreeText,
             onStoreChanged: (v) => setState(() => _selectedStore = v!),
             onGenderChanged: (v) => setState(() => _selectedGender = v),
+            onOccasionGroupTap: _selectOccasionGroup,
+            onOccasionSubTap: _selectOccasionSub,
+            onToggleFreeText: _toggleFreeText,
             onRecommend: () => _recommend(),
             isLoading: state.status == ResponseStatus.loading,
             isFavoritesMode: widget.favoriteIds != null,
