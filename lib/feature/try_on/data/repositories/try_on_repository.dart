@@ -15,8 +15,8 @@ class TryOnRepository implements ITryOn {
   final TryOnService remoteDataSource;
 
   @override
-  Future<TryOnJobModel> createJob(int productId) async =>
-      await remoteDataSource.createJob(productId);
+  Future<TryOnJobModel> createJob(List<int> productIds) async =>
+      await remoteDataSource.createJob(productIds);
 
   @override
   Future<TryOnJobModel> getJob(String jobId) async =>

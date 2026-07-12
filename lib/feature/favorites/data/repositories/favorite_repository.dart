@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../catalog/domain/product_model.dart';
+import '../../domain/favorite_outfit_model.dart';
 import '../interfaces/favorite_interface.dart';
 import '../services/favorite_service.dart';
 
@@ -25,4 +26,23 @@ class FavoriteRepository implements IFavorite {
   @override
   Future<bool> removeFavorite(int productId) async =>
       await remoteDataSource.removeFavorite(productId);
+
+  @override
+  Future<List<FavoriteOutfitModel>> getFavoriteOutfits() async =>
+      await remoteDataSource.getFavoriteOutfits();
+
+  @override
+  Future<bool> saveFavoriteOutfit({
+    required int topId,
+    required int bottomId,
+    required String resultImageUrl,
+  }) async => await remoteDataSource.saveFavoriteOutfit(
+    topId: topId,
+    bottomId: bottomId,
+    resultImageUrl: resultImageUrl,
+  );
+
+  @override
+  Future<bool> removeFavoriteOutfit(int outfitId) async =>
+      await remoteDataSource.removeFavoriteOutfit(outfitId);
 }

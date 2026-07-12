@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
 import '../../../../core/helpers/context_helper.dart';
+import '../../../catalog/domain/product_model.dart';
 import '../../domain/recommend_model.dart';
 import 'piece_column.dart';
 
@@ -11,13 +12,24 @@ class OutfitCard extends StatelessWidget {
     required this.number,
     required this.occasion,
     required this.onTryOn,
+    this.selectedTopId,
+    this.selectedBottomId,
+    this.onSelectPiece,
     super.key,
   });
 
   final OutfitModel outfit;
   final int number;
   final String occasion;
-  final VoidCallback onTryOn;
+  final ValueChanged<OutfitModel> onTryOn;
+
+  /// Mix & match: ids elegidos para la combinación propia del usuario
+  /// (pueden venir de cualquiera de los 3 outfits).
+  final int? selectedTopId;
+  final int? selectedBottomId;
+
+  /// Callback al tocar el círculo de una prenda (producto, esTorso).
+  final void Function(ProductModel product, bool isTop)? onSelectPiece;
 
   @override
   Widget build(BuildContext context) {
@@ -83,13 +95,24 @@ class OutfitCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
-                        child: PieceColumn(label: 'TORSO', product: outfit.top),
+                        child: PieceColumn(
+                          label: 'TORSO',
+                          product: outfit.top,
+                          selected: selectedTopId == outfit.top.id,
+                          onSelect: onSelectPiece == null
+                              ? null
+                              : () => onSelectPiece!(outfit.top, true),
+                        ),
                       ),
                       const Gap(10),
                       Expanded(
                         child: PieceColumn(
                           label: 'PIERNAS',
                           product: outfit.bottom!,
+                          selected: selectedBottomId == outfit.bottom!.id,
+                          onSelect: onSelectPiece == null
+                              ? null
+                              : () => onSelectPiece!(outfit.bottom!, false),
                         ),
                       ),
                     ],
@@ -100,7 +123,7 @@ class OutfitCard extends StatelessWidget {
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed: onTryOn,
+                onPressed: () => onTryOn(outfit),
                 icon: const Icon(Icons.person_pin_rounded, size: 16),
                 label: Text(
                   'Probar este outfit',

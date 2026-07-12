@@ -24,11 +24,7 @@ void main() {
     });
 
     test('envuelve un error genérico en RegularException', () {
-      final result = RegularException.fromError(
-        Exception('boom'),
-        'M',
-        String,
-      );
+      final result = RegularException.fromError(Exception('boom'), 'M', String);
 
       expect(result, isA<RegularException>());
       expect(result.message.toString(), contains('boom'));

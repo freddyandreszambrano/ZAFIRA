@@ -8,6 +8,7 @@ import '../../../feature/auth/view/widgets/register/register_success_screen.dart
 import '../../../feature/auth/view/widgets/reset_password/reset_password_screen.dart';
 import '../../../feature/auth/view/widgets/splash/splash_screen.dart';
 import '../../../feature/home/view/main/home_screen.dart';
+import '../../../feature/try_on/domain/try_on_args.dart';
 import '../../../feature/try_on/view/main/photo_preview_screen.dart';
 import '../../../feature/try_on/view/main/try_on_result_screen.dart';
 import '../../../feature/try_on/view/main/upload_photo_screen.dart';
@@ -45,15 +46,18 @@ final appRouter = GoRouter(
       routes: [
         GoRoute(
           path: SplashScreen.routeName,
-          pageBuilder: (context, state) => _fadePage(const SplashScreen(), state),
+          pageBuilder: (context, state) =>
+              _fadePage(const SplashScreen(), state),
         ),
         GoRoute(
           path: LoginScreen.routeName,
-          pageBuilder: (context, state) => _fadePage(const LoginScreen(), state),
+          pageBuilder: (context, state) =>
+              _fadePage(const LoginScreen(), state),
         ),
         GoRoute(
           path: RegisterScreen.routeName,
-          pageBuilder: (context, state) => _fadePage(const RegisterScreen(), state),
+          pageBuilder: (context, state) =>
+              _fadePage(const RegisterScreen(), state),
         ),
         GoRoute(
           path: RegisterSuccessScreen.routeName,
@@ -83,7 +87,8 @@ final appRouter = GoRouter(
         ),
         GoRoute(
           path: CatalogScreen.routeName,
-          pageBuilder: (context, state) => _fadePage(const CatalogScreen(), state),
+          pageBuilder: (context, state) =>
+              _fadePage(const CatalogScreen(), state),
         ),
         GoRoute(
           path: CatalogGarmentsScreen.routeName,
@@ -94,6 +99,12 @@ final appRouter = GoRouter(
                 gender: extra['gender'] ?? 'woman',
                 category: extra['category'] ?? '',
                 categoryLabel: extra['categoryLabel'],
+                // Modo "complementa tu outfit": id de la prenda ya probada y
+                // si esa prenda es torso o pierna (define el orden del par)
+                complementProductId: int.tryParse(
+                  extra['complementProductId'] ?? '',
+                ),
+                complementIsUpper: extra['complementIsUpper'] == 'true',
               ),
               state,
             );
@@ -101,10 +112,24 @@ final appRouter = GoRouter(
         ),
         GoRoute(
           path: ProductDetailScreen.routeName,
-          pageBuilder: (context, state) => _fadePage(
-            ProductDetailScreen(product: state.extra as ProductModel),
-            state,
-          ),
+          pageBuilder: (context, state) {
+            final extra = state.extra;
+            // Desde favoritos llega ProductDetailArgs (sin probador: ahí la
+            // acción es comprar); desde el resto, el producto directo.
+            if (extra is ProductDetailArgs) {
+              return _fadePage(
+                ProductDetailScreen(
+                  product: extra.product,
+                  showTryOn: extra.showTryOn,
+                ),
+                state,
+              );
+            }
+            return _fadePage(
+              ProductDetailScreen(product: extra as ProductModel),
+              state,
+            );
+          },
         ),
         GoRoute(
           path: FavoritesScreen.routeName,
@@ -120,7 +145,8 @@ final appRouter = GoRouter(
         ),
         GoRoute(
           path: ProfileScreen.routeName,
-          pageBuilder: (context, state) => _fadePage(const ProfileScreen(), state),
+          pageBuilder: (context, state) =>
+              _fadePage(const ProfileScreen(), state),
         ),
         GoRoute(
           path: EditProfileScreen.routeName,
@@ -134,7 +160,8 @@ final appRouter = GoRouter(
         ),
         GoRoute(
           path: SettingsScreen.routeName,
-          pageBuilder: (context, state) => _fadePage(const SettingsScreen(), state),
+          pageBuilder: (context, state) =>
+              _fadePage(const SettingsScreen(), state),
         ),
         GoRoute(
           path: UploadPhotoScreen.routeName,
@@ -150,10 +177,36 @@ final appRouter = GoRouter(
         ),
         GoRoute(
           path: TryOnResultScreen.routeName,
-          pageBuilder: (context, state) => _fadePage(
-            TryOnResultScreen(productId: state.extra as int? ?? 0),
-            state,
-          ),
+          pageBuilder: (context, state) {
+            final extra = state.extra;
+            // Desde el detalle llega TryOnRequestArgs (con el producto, para
+            // "complementa tu outfit"); desde "combinar" llega TryOnOutfitArgs
+            // (outfit editable); desde recomendación, la lista de ids.
+            if (extra is TryOnRequestArgs) {
+              return _fadePage(
+                TryOnResultScreen(
+                  productIds: extra.productIds,
+                  sourceProduct: extra.sourceProduct,
+                ),
+                state,
+              );
+            }
+            if (extra is TryOnOutfitArgs) {
+              return _fadePage(
+                TryOnResultScreen(
+                  productIds: [extra.upperId, extra.lowerId],
+                  outfitArgs: extra,
+                ),
+                state,
+              );
+            }
+            return _fadePage(
+              TryOnResultScreen(
+                productIds: (extra as List?)?.cast<int>() ?? const [],
+              ),
+              state,
+            );
+          },
         ),
       ],
     ),

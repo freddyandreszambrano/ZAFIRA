@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/enum/response_status.dart';
 import '../../../../core/helpers/context_helper.dart';
 import '../../../../modules/common/widget/notifications/app_notification.dart';
 import '../../../auth/view/controller/auth_controller.dart';
+import '../../../catalog/domain/product_model.dart';
+import '../../../try_on/domain/try_on_args.dart';
+import '../../../try_on/view/main/try_on_result_screen.dart';
+import '../../domain/recommend_model.dart';
 import '../controller/recommend_controller.dart';
 import '../widgets/no_photo_dialog.dart';
+import '../widgets/occasion_filters.dart';
 import '../widgets/result_panel.dart';
 import '../widgets/search_panel.dart';
 
@@ -26,6 +32,15 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
   final _occasionController = TextEditingController();
   String _selectedStore = 'all';
   String _selectedGender = 'hombre';
+  // Filtros de ocasión: los chips escriben la frase en _occasionController,
+  // así el resto del flujo (validación + request) no cambia.
+  OccasionGroup? _selectedOccasionGroup;
+  OccasionOption? _selectedOccasionSub;
+  bool _showFreeText = false;
+  // Mix & match: el usuario arma su propia combinación eligiendo un torso
+  // y una pierna de CUALQUIERA de los 3 outfits recomendados
+  ProductModel? _mixTop;
+  ProductModel? _mixBottom;
 
   @override
   void initState() {
@@ -55,10 +70,15 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
 
     final occasion = _occasionController.text.trim();
     if (occasion.isEmpty) {
-      AppNotification.warning(context, 'Escribe la ocasión para el outfit');
+      AppNotification.warning(context, 'Elige una ocasión o escríbela');
       return;
     }
     FocusScope.of(context).unfocus();
+    // Outfits nuevos = selección vieja sin sentido: limpiarla
+    setState(() {
+      _mixTop = null;
+      _mixBottom = null;
+    });
     ref
         .read(recommendControllerProvider.notifier)
         .getRecommendation(
@@ -71,13 +91,104 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
         );
   }
 
-  void _tryOnOutfit() {
+  void _selectOccasionGroup(OccasionGroup group) {
+    setState(() {
+      if (_selectedOccasionGroup == group) {
+        // Segundo tap sobre el mismo chip: deseleccionar
+        _selectedOccasionGroup = null;
+        _selectedOccasionSub = null;
+        _occasionController.clear();
+      } else {
+        _selectedOccasionGroup = group;
+        _selectedOccasionSub = null;
+        _occasionController.text = group.phrase;
+        _showFreeText = false;
+      }
+    });
+  }
+
+  void _selectOccasionSub(OccasionOption sub) {
+    setState(() {
+      if (_selectedOccasionSub == sub) {
+        // Deseleccionar el sub-filtro vuelve a la ocasión general
+        _selectedOccasionSub = null;
+        _occasionController.text = _selectedOccasionGroup?.phrase ?? '';
+      } else {
+        _selectedOccasionSub = sub;
+        _occasionController.text = sub.phrase;
+      }
+    });
+  }
+
+  void _toggleFreeText() {
+    setState(() {
+      _showFreeText = !_showFreeText;
+      if (_showFreeText) {
+        // Texto libre parte limpio, sin arrastrar la frase de los chips
+        _selectedOccasionGroup = null;
+        _selectedOccasionSub = null;
+        _occasionController.clear();
+      }
+    });
+  }
+
+  void _selectMixPiece(ProductModel product, bool isTop) {
+    setState(() {
+      if (isTop) {
+        // Tocar la prenda ya elegida la quita; otra distinta la reemplaza
+        _mixTop = _mixTop?.id == product.id ? null : product;
+      } else {
+        _mixBottom = _mixBottom?.id == product.id ? null : product;
+      }
+    });
+  }
+
+  void _tryOnMix() {
     final user = ref.read(authControllerProvider).user;
     if (user == null || user.tryOnPhoto.isEmpty) {
       NoPhotoDialog.show(context);
       return;
     }
-    AppNotification.info(context, 'Función de prueba virtual próximamente');
+    final top = _mixTop;
+    final bottom = _mixBottom;
+    if (top != null && bottom != null) {
+      // Par completo: outfit editable (se puede guardar y cambiar prendas)
+      context.push(
+        TryOnResultScreen.routeName,
+        extra: TryOnOutfitArgs(
+          upperId: top.id,
+          lowerId: bottom.id,
+          catalogGender: _selectedGender == 'mujer' ? 'woman' : 'man',
+        ),
+      );
+      return;
+    }
+    final single = top ?? bottom;
+    if (single != null) {
+      context.push(TryOnResultScreen.routeName, extra: [single.id]);
+    }
+  }
+
+  void _tryOnOutfit(OutfitModel outfit) {
+    final user = ref.read(authControllerProvider).user;
+    if (user == null || user.tryOnPhoto.isEmpty) {
+      NoPhotoDialog.show(context);
+      return;
+    }
+    // Outfit de 2 prendas: modo editable (se puede guardar en favoritos y
+    // cambiar torso/pierna). Vestido solo: prueba simple de 1 prenda.
+    if (outfit.bottom != null) {
+      context.push(
+        TryOnResultScreen.routeName,
+        extra: TryOnOutfitArgs(
+          upperId: outfit.top.id,
+          lowerId: outfit.bottom!.id,
+          catalogGender: _selectedGender == 'mujer' ? 'woman' : 'man',
+        ),
+      );
+      return;
+    }
+    context.push(TryOnResultScreen.routeName, extra: outfit.productIds);
   }
 
   @override
@@ -110,8 +221,14 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
             controller: _occasionController,
             selectedStore: _selectedStore,
             selectedGender: _selectedGender,
+            selectedOccasionGroup: _selectedOccasionGroup,
+            selectedOccasionSub: _selectedOccasionSub,
+            showFreeText: _showFreeText,
             onStoreChanged: (v) => setState(() => _selectedStore = v!),
             onGenderChanged: (v) => setState(() => _selectedGender = v),
+            onOccasionGroupTap: _selectOccasionGroup,
+            onOccasionSubTap: _selectOccasionSub,
+            onToggleFreeText: _toggleFreeText,
             onRecommend: () => _recommend(),
             isLoading: state.status == ResponseStatus.loading,
             isFavoritesMode: widget.favoriteIds != null,
@@ -121,6 +238,14 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
               state: state,
               onRefresh: () => _recommend(refresh: true),
               onTryOn: _tryOnOutfit,
+              mixTop: _mixTop,
+              mixBottom: _mixBottom,
+              onSelectPiece: _selectMixPiece,
+              onTryOnMix: _tryOnMix,
+              onClearMix: () => setState(() {
+                _mixTop = null;
+                _mixBottom = null;
+              }),
             ),
           ),
         ],

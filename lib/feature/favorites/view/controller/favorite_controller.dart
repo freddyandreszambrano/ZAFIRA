@@ -4,6 +4,7 @@ import '../../../../core/enum/response_status.dart';
 import '../../../catalog/domain/product_model.dart';
 import '../../application/favorite_usecase.dart';
 import '../../data/repositories/favorite_repository.dart';
+import '../../domain/favorite_outfit_model.dart';
 import '../state/favorite_state.dart';
 
 final favoriteControllerProvider =
@@ -39,6 +40,13 @@ class FavoriteController extends StateNotifier<FavoriteState> {
     );
 
     final response = await _favoriteUseCase.getFavorites();
+    // Si los outfits fallan no se bloquea la pantalla: las prendas se ven
+    // igual y los outfits quedan vacíos hasta el próximo refresh.
+    final outfitsResponse = await _favoriteUseCase.getFavoriteOutfits();
+    final outfits = outfitsResponse.fold(
+      (err) => state.outfits,
+      (loaded) => loaded,
+    );
 
     response.fold(
       (err) {
@@ -52,9 +60,36 @@ class FavoriteController extends StateNotifier<FavoriteState> {
           status: ResponseStatus.success,
           products: products,
           favoriteIds: products.map((product) => product.id).toSet(),
+          outfits: outfits,
         );
       },
     );
+  }
+
+  /// Guarda un outfit completo (par + imagen ya generada por el probador).
+  Future<bool> saveOutfit({
+    required int topId,
+    required int bottomId,
+    required String resultImageUrl,
+  }) async {
+    final response = await _favoriteUseCase.saveFavoriteOutfit(
+      topId: topId,
+      bottomId: bottomId,
+      resultImageUrl: resultImageUrl,
+    );
+    return response.fold((err) => false, (saved) => saved);
+  }
+
+  Future<bool> removeOutfit(FavoriteOutfitModel outfit) async {
+    final updated = List<FavoriteOutfitModel>.from(state.outfits)
+      ..removeWhere((item) => item.id == outfit.id);
+    state = state.copyWith(outfits: updated);
+
+    final response = await _favoriteUseCase.removeFavoriteOutfit(outfit.id);
+    return response.fold((err) {
+      state = state.copyWith(outfits: [outfit, ...state.outfits]);
+      return false;
+    }, (_) => true);
   }
 
   Future<bool> toggleFavorite(ProductModel product) async {

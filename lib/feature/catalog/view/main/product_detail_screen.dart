@@ -11,6 +11,7 @@ import '../../../../modules/common/widget/notifications/app_notification.dart';
 import '../../../auth/view/controller/auth_controller.dart';
 import '../../../favorites/view/controller/favorite_controller.dart';
 import '../../../favorites/view/favorite_feedback.dart';
+import '../../../try_on/domain/try_on_args.dart';
 import '../../../try_on/view/main/try_on_result_screen.dart';
 import '../../../try_on/view/main/upload_photo_screen.dart';
 import '../../domain/product_model.dart';
@@ -68,12 +69,26 @@ String _formatCategory(String raw) {
       .join(' ');
 }
 
+/// Argumentos del detalle. Desde favoritos se abre con showTryOn=false:
+/// ahí el usuario ya decidió — solo ve la prenda y el enlace de compra.
+class ProductDetailArgs {
+  const ProductDetailArgs({required this.product, this.showTryOn = true});
+
+  final ProductModel product;
+  final bool showTryOn;
+}
+
 class ProductDetailScreen extends ConsumerStatefulWidget {
-  const ProductDetailScreen({required this.product, super.key});
+  const ProductDetailScreen({
+    required this.product,
+    this.showTryOn = true,
+    super.key,
+  });
 
   static const routeName = '/catalog/product';
 
   final ProductModel product;
+  final bool showTryOn;
 
   @override
   ConsumerState<ProductDetailScreen> createState() =>
@@ -412,34 +427,6 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                           height: 1.5,
                         ),
                       ),
-                      if (product.url.isNotEmpty) ...[
-                        const Gap(separatorLg),
-                        OutlinedButton.icon(
-                          onPressed: () =>
-                              _openOfficialStore(context, product.url),
-                          style: OutlinedButton.styleFrom(
-                            minimumSize: const Size.fromHeight(48),
-                            side: BorderSide(
-                              color: colors.primary.withValues(alpha: 0.45),
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: kBorderRadiusAllMedium,
-                            ),
-                          ),
-                          icon: Icon(
-                            Icons.open_in_new_rounded,
-                            color: colors.primaryLight,
-                            size: 18,
-                          ),
-                          label: Text(
-                            'Comprar en la tienda oficial',
-                            style: context.typography.labelMedium?.copyWith(
-                              color: colors.primaryLight,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                        ),
-                      ],
                       const Gap(separatorXLg),
                     ],
                   ),
@@ -447,25 +434,74 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
               ),
               Padding(
                 padding: kSpaceDeviceHLg,
-                child: AppGradientAction(
-                  label: 'Probar con IA',
-                  icon: Icons.auto_awesome_rounded,
-                  onTap: () {
-                    final user = ref.read(authControllerProvider).user;
-                    final hasPhoto = (user?.tryOnPhoto ?? '').trim().isNotEmpty;
-                    if (!hasPhoto) {
-                      AppNotification.info(
-                        context,
-                        'Primero sube tu foto para el probador virtual',
-                      );
-                      context.push(UploadPhotoScreen.routeName);
-                      return;
-                    }
-                    context.push(
-                      TryOnResultScreen.routeName,
-                      extra: product.id,
-                    );
-                  },
+                child: Column(
+                  children: [
+                    // Desde categorías: probar con IA + comprar. Desde
+                    // favoritos: solo comprar (ahí el usuario ya decidió).
+                    if (widget.showTryOn) ...[
+                      AppGradientAction(
+                        label: 'Probar con IA',
+                        icon: Icons.auto_awesome_rounded,
+                        onTap: () {
+                          final user = ref.read(authControllerProvider).user;
+                          final hasPhoto = (user?.tryOnPhoto ?? '')
+                              .trim()
+                              .isNotEmpty;
+                          if (!hasPhoto) {
+                            AppNotification.info(
+                              context,
+                              'Primero sube tu foto para el probador virtual',
+                            );
+                            context.push(UploadPhotoScreen.routeName);
+                            return;
+                          }
+                          context.push(
+                            TryOnResultScreen.routeName,
+                            // El producto habilita "Complementa tu outfit" en
+                            // el resultado (ofrece la categoría contraria)
+                            extra: TryOnRequestArgs(
+                              productIds: [product.id],
+                              sourceProduct: product,
+                            ),
+                          );
+                        },
+                      ),
+                      const Gap(10),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: OutlinedButton.icon(
+                          onPressed: () =>
+                              _openOfficialStore(context, product.url),
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(
+                              color: colors.primary.withValues(alpha: 0.5),
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: kBorderRadiusAllLarge,
+                            ),
+                          ),
+                          icon: Icon(
+                            Icons.shopping_bag_rounded,
+                            color: colors.primaryLight,
+                            size: 18,
+                          ),
+                          label: Text(
+                            'Comprar en la tienda',
+                            style: context.typography.labelMedium?.copyWith(
+                              color: colors.primaryLight,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ] else
+                      AppGradientAction(
+                        label: 'Comprar en la tienda',
+                        icon: Icons.shopping_bag_rounded,
+                        onTap: () => _openOfficialStore(context, product.url),
+                      ),
+                  ],
                 ),
               ),
               const Gap(separatorMd),

@@ -13,7 +13,7 @@ class FakeTryOn implements ITryOn {
   int polls = 0;
 
   @override
-  Future<TryOnJobModel> createJob(int productId) async {
+  Future<TryOnJobModel> createJob(List<int> productIds) async {
     if (failCreate) throw Exception('create failed');
     return const TryOnJobModel(id: 'job-1', status: 'pending');
   }
@@ -40,7 +40,7 @@ void main() {
     final fake = FakeTryOn(statuses: ['processing', 'processing', 'completed']);
     final controller = buildController(fake);
 
-    await controller.startTryOn(7);
+    await controller.startTryOn([7]);
 
     expect(controller.state.status, TryOnStatus.success);
     expect(controller.state.job?.resultUrl, 'http://core.test/r.png');
@@ -50,17 +50,18 @@ void main() {
     final fake = FakeTryOn(statuses: ['processing', 'failed']);
     final controller = buildController(fake);
 
-    await controller.startTryOn(7);
+    await controller.startTryOn([7]);
 
     expect(controller.state.status, TryOnStatus.failure);
     expect(controller.state.errorMessage, isNotEmpty);
   });
 
   test('create error sets failure', () async {
-    final controller =
-        buildController(FakeTryOn(statuses: [], failCreate: true));
+    final controller = buildController(
+      FakeTryOn(statuses: [], failCreate: true),
+    );
 
-    await controller.startTryOn(7);
+    await controller.startTryOn([7]);
 
     expect(controller.state.status, TryOnStatus.failure);
   });
