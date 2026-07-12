@@ -66,7 +66,9 @@ class FavoriteService {
 
     final data = response.data as List;
     return data
-        .map((item) => FavoriteOutfitModel.fromJson(item as Map<String, dynamic>))
+        .map(
+          (item) => FavoriteOutfitModel.fromJson(item as Map<String, dynamic>),
+        )
         .toList();
   }
 

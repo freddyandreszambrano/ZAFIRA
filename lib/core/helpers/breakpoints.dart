@@ -23,12 +23,7 @@ extension BreakpointX on BuildContext {
 
   bool get isExpandedOrLarge => isExpanded || isLarge;
 
-  T responsive<T>({
-    required T compact,
-    T? medium,
-    T? expanded,
-    T? large,
-  }) {
+  T responsive<T>({required T compact, T? medium, T? expanded, T? large}) {
     switch (breakpoint) {
       case Breakpoint.compact:
         return compact;

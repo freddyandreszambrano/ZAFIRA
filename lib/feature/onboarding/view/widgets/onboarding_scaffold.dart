@@ -80,7 +80,10 @@ class _BackButton extends StatelessWidget {
 }
 
 class _OnboardingProgress extends StatelessWidget {
-  const _OnboardingProgress({required this.stepCount, required this.currentIndex});
+  const _OnboardingProgress({
+    required this.stepCount,
+    required this.currentIndex,
+  });
 
   final int stepCount;
   final int currentIndex;

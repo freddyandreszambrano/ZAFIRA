@@ -242,8 +242,7 @@ class ResultPanel extends StatelessWidget {
   }
 
   String get _mixSummary {
-    final total =
-        (mixTop?.price ?? 0) + (mixBottom?.price ?? 0);
+    final total = (mixTop?.price ?? 0) + (mixBottom?.price ?? 0);
     final parts = [
       if (mixTop != null) mixTop!.name,
       if (mixBottom != null) mixBottom!.name,

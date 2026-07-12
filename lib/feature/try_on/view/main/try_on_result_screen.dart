@@ -99,7 +99,10 @@ class _TryOnResultScreenState extends ConsumerState<TryOnResultScreen> {
     if (uri == null ||
         !await launchUrl(uri, mode: LaunchMode.externalApplication)) {
       if (mounted) {
-        AppNotification.info(context, 'No se pudo abrir el enlace de la tienda.');
+        AppNotification.info(
+          context,
+          'No se pudo abrir el enlace de la tienda.',
+        );
       }
     }
   }
@@ -478,8 +481,8 @@ class _TryOnResultScreenState extends ConsumerState<TryOnResultScreen> {
                         'category': category.categoryQuery,
                         'categoryLabel': category.label,
                         'complementProductId': product.id.toString(),
-                        'complementIsUpper':
-                            (slot == GarmentSlot.upper).toString(),
+                        'complementIsUpper': (slot == GarmentSlot.upper)
+                            .toString(),
                       },
                     );
                   },

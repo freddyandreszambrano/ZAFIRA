@@ -57,8 +57,9 @@ void main() {
   });
 
   test('create error sets failure', () async {
-    final controller =
-        buildController(FakeTryOn(statuses: [], failCreate: true));
+    final controller = buildController(
+      FakeTryOn(statuses: [], failCreate: true),
+    );
 
     await controller.startTryOn([7]);
 

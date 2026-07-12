@@ -46,15 +46,18 @@ final appRouter = GoRouter(
       routes: [
         GoRoute(
           path: SplashScreen.routeName,
-          pageBuilder: (context, state) => _fadePage(const SplashScreen(), state),
+          pageBuilder: (context, state) =>
+              _fadePage(const SplashScreen(), state),
         ),
         GoRoute(
           path: LoginScreen.routeName,
-          pageBuilder: (context, state) => _fadePage(const LoginScreen(), state),
+          pageBuilder: (context, state) =>
+              _fadePage(const LoginScreen(), state),
         ),
         GoRoute(
           path: RegisterScreen.routeName,
-          pageBuilder: (context, state) => _fadePage(const RegisterScreen(), state),
+          pageBuilder: (context, state) =>
+              _fadePage(const RegisterScreen(), state),
         ),
         GoRoute(
           path: RegisterSuccessScreen.routeName,
@@ -84,7 +87,8 @@ final appRouter = GoRouter(
         ),
         GoRoute(
           path: CatalogScreen.routeName,
-          pageBuilder: (context, state) => _fadePage(const CatalogScreen(), state),
+          pageBuilder: (context, state) =>
+              _fadePage(const CatalogScreen(), state),
         ),
         GoRoute(
           path: CatalogGarmentsScreen.routeName,
@@ -141,7 +145,8 @@ final appRouter = GoRouter(
         ),
         GoRoute(
           path: ProfileScreen.routeName,
-          pageBuilder: (context, state) => _fadePage(const ProfileScreen(), state),
+          pageBuilder: (context, state) =>
+              _fadePage(const ProfileScreen(), state),
         ),
         GoRoute(
           path: EditProfileScreen.routeName,
@@ -155,7 +160,8 @@ final appRouter = GoRouter(
         ),
         GoRoute(
           path: SettingsScreen.routeName,
-          pageBuilder: (context, state) => _fadePage(const SettingsScreen(), state),
+          pageBuilder: (context, state) =>
+              _fadePage(const SettingsScreen(), state),
         ),
         GoRoute(
           path: UploadPhotoScreen.routeName,

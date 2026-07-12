@@ -114,9 +114,7 @@ class PieceColumn extends StatelessWidget {
                         ),
                       ),
                       child: Icon(
-                        selected
-                            ? Icons.check_rounded
-                            : Icons.add_rounded,
+                        selected ? Icons.check_rounded : Icons.add_rounded,
                         color: colors.white,
                         size: 16,
                       ),
