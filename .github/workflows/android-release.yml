@@ -14,7 +14,7 @@ on:
       artifact:
         description: Android artifact to produce
         required: true
-        default: aab
+        default: apk
         type: choice
         options:
           - aab

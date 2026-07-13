@@ -20,7 +20,7 @@ help:
 	@echo "make run-dev"
 	@echo "make build-apk-debug flavor=dev"
 	@echo "make build-apk flavor=prod        # APK release firmado"
-	@echo "make build-aab flavor=prod        # AAB para Google Play"
+	@echo "make build-aab flavor=prod        # AAB opcional"
 	@echo "make shorebird-release-aab flavor=prod"
 	@echo "make shorebird-release-apk flavor=dev"
 	@echo "make shorebird-patch flavor=prod release_version=1.0.0+1"

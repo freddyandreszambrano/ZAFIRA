@@ -3,22 +3,28 @@
 ## What Zafira now supports
 
 - `make build-apk flavor=dev|prod`: signed release APK.
-- `make build-aab flavor=dev|prod`: signed Android App Bundle for Google Play.
-- `make shorebird-release-aab flavor=dev|prod`: Shorebird base release and AAB.
+- `make build-aab flavor=dev|prod`: optional signed Android App Bundle.
+- `make shorebird-release-aab flavor=dev|prod`: optional Shorebird base release and AAB.
 - `make shorebird-release-apk flavor=dev|prod`: Shorebird base release plus APK/AAB for side-loading.
 - `make shorebird-patch flavor=dev|prod release_version=<version>`: OTA patch for an existing base release.
 
 The ordinary APK/AAB is produced by Flutter. Shorebird wraps the release build,
 stores the base Dart artifacts, and makes later Dart-only patches available OTA.
-It does not replace Android signing or Google Play distribution.
+Zafira is distributed by signed APK, so no Google Play configuration is needed.
+Android signing remains mandatory because Android will not install an unsigned APK.
 
 ## One-time setup
 
-### 1. Configure the Android upload key
+### 1. Create the Android signing key
 
-Create an upload key according to the Android/Flutter release-signing guidance.
-Store the key locally at `android/app/upload-keystore.jks`, then create the
-gitignored `android/key.properties` file:
+Create a key owned only by Zafira and store it in a password manager or secure
+vault. This key is independent from Google Play. In PowerShell with JDK 17:
+
+```powershell
+keytool -genkeypair -v -keystore android\app\upload-keystore.jks -alias zafira -keyalg RSA -keysize 2048 -validity 10000
+```
+
+Then create the gitignored `android/key.properties` file:
 
 ```properties
 keyAlias=<alias>
@@ -27,7 +33,7 @@ storeFile=upload-keystore.jks
 storePassword=<store-password>
 ```
 
-`build-apk` and `build-aab` intentionally require this key. Use
+`build-apk`, `build-aab`, and Shorebird intentionally require this key. Use
 `make build-apk-debug flavor=dev` for a debug development build.
 
 ### 2. Initialize Shorebird for Zafira
@@ -80,17 +86,14 @@ these values in git, `shorebird.yaml`, or a workflow file.
 
 ```bash
 make build-apk-debug flavor=dev
-make build-apk flavor=prod
-make build-aab flavor=prod
-make shorebird-release-aab flavor=prod
-make shorebird-release-apk flavor=dev
+make shorebird-release-apk flavor=prod
 make shorebird-patch flavor=prod release_version=1.0.0+1
 ```
 
 Before a new base release, increment `version` in `pubspec.yaml`. A Shorebird
 patch must use the exact base release version and is only appropriate for Dart
 code changes. Native Android/iOS changes, assets, or a Flutter engine upgrade
-require a new signed store release.
+require a new signed APK base release.
 
 ## GitHub Actions
 
@@ -98,10 +101,10 @@ require a new signed store release.
 for both flavors on every pull request and push to `main`/`develop`. It never
 receives release secrets.
 
-`Android release` is manual. Choose the source ref, flavor, artifact, and
-whether to publish the Shorebird base release. It builds with credentials from
-the selected protected environment, uploads the APK/AAB and Dart symbols as a
-14-day artifact, and removes temporary credentials.
+`Android release` is manual and defaults to `apk`. Choose the source ref,
+flavor, artifact, and whether to publish the Shorebird base release. It builds
+with credentials from the selected protected environment, uploads the APK and
+Dart symbols as a 14-day artifact, and removes temporary credentials.
 
 `Shorebird patch` is manual and requires the exact base release version. Run it
 only after validating the fix against that release; production environment
