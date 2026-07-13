@@ -12,6 +12,8 @@ The ordinary APK/AAB is produced by Flutter. Shorebird wraps the release build,
 stores the base Dart artifacts, and makes later Dart-only patches available OTA.
 Zafira is distributed by signed APK, so no Google Play configuration is needed.
 Android signing remains mandatory because Android will not install an unsigned APK.
+The release command explicitly uses Flutter `3.41.9`, the version pinned by
+Zafira; do not run `shorebird release` with its default latest Flutter version.
 
 ## One-time setup
 

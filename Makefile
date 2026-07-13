@@ -6,6 +6,7 @@ flavor ?= prod
 target := lib/main/main_$(flavor).dart
 symbols_dir := build/symbols/$(flavor)
 release_version ?= latest
+shorebird_flutter_version ?= 3.41.9
 
 ifeq ($(OS),Windows_NT)
 check-shorebird:
@@ -63,10 +64,10 @@ build-aab:
 	fvm flutter build appbundle --release --target $(target) --flavor $(flavor) --obfuscate --split-debug-info=$(symbols_dir)
 
 shorebird-release-aab: check-shorebird
-	shorebird release android --artifact=aab --target $(target) --flavor $(flavor) --obfuscate --split-debug-info=$(symbols_dir)
+	shorebird release android --flutter-version $(shorebird_flutter_version) --artifact=aab --target $(target) --flavor $(flavor) --obfuscate --split-debug-info=$(symbols_dir)
 
 shorebird-release-apk: check-shorebird
-	shorebird release android --artifact=apk --target $(target) --flavor $(flavor) --obfuscate --split-debug-info=$(symbols_dir)
+	shorebird release android --flutter-version $(shorebird_flutter_version) --artifact=apk --target $(target) --flavor $(flavor) --obfuscate --split-debug-info=$(symbols_dir)
 
 shorebird-patch: check-shorebird
 	shorebird patch android --target $(target) --flavor $(flavor) --release-version $(release_version)
