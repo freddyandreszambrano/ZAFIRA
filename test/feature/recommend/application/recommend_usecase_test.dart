@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import 'package:zafira/feature/catalog/domain/product_model.dart';
+import 'package:zafira/core/models/product_model.dart';
 import 'package:zafira/feature/recommend/application/recommend_usecase.dart';
 import 'package:zafira/feature/recommend/data/interfaces/recommend_interface.dart';
 import 'package:zafira/feature/recommend/domain/recommend_model.dart';

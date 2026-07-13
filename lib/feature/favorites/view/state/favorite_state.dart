@@ -1,5 +1,5 @@
 import '../../../../core/enum/response_status.dart';
-import '../../../catalog/domain/product_model.dart';
+import '../../../../core/models/product_model.dart';
 import '../../domain/favorite_outfit_model.dart';
 
 class FavoriteState {

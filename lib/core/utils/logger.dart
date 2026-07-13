@@ -152,7 +152,7 @@ class ErrorLogger {
   ErrorLogger(this.className);
   final Type className;
 
-  void regular(dynamic message, [String? methodName]) {
+  void regular(Object? message, [String? methodName]) {
     var finalMessage = "$className => $message";
     if (methodName != null) {
       finalMessage = "$finalMessage in $methodName method";

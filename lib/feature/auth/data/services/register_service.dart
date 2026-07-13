@@ -16,11 +16,14 @@ class RegisterService {
   Future<void> createUser(RegisterRequest request) async {
     const url = '/api/v1/user/create/';
     DebugLogger(runtimeType).request(url);
-    final response = await remoteDataSource().post(url, data: request.toJson());
+    final response = await remoteDataSource().post<void>(
+      url,
+      data: request.toJson(),
+    );
     DebugLogger(runtimeType).response(url, [response.statusCode]);
   }
 
-  Future<Map<String, dynamic>> validateField({
+  Future<Map<String, Object?>> validateField({
     required String field,
     required String value,
   }) async {
@@ -29,12 +32,15 @@ class RegisterService {
 
     DebugLogger(runtimeType).request(url, body);
 
-    final response = await remoteDataSource().post(url, data: body);
+    final response = await remoteDataSource().post<Map<String, Object?>>(
+      url,
+      data: body,
+    );
 
     DebugLogger(
       runtimeType,
     ).response(url, [response.statusCode, response.data]);
 
-    return Map<String, dynamic>.from(response.data);
+    return Map<String, Object?>.from(response.data as Map);
   }
 }

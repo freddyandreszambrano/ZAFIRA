@@ -5,8 +5,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_numbers.dart';
 import '../../../../core/helpers/context_helper.dart';
-import '../../../../feature/auth/view/controller/auth_controller.dart';
-import '../../../../feature/auth/view/widgets/forgot_password/forgot_password_screen.dart';
+import '../controller/auth_controller.dart';
+import '../widgets/forgot_password/forgot_password_screen.dart';
 import '../../../../modules/common/widget/notifications/app_notification.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -35,7 +35,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Future<void> _toggleNotifications(bool value) async {
     setState(() => _notificationsEnabled = value);
 
-    final preferences = Map<String, dynamic>.from(
+    final preferences = Map<String, Object?>.from(
       ref.read(authControllerProvider).user?.stylePreferences ?? {},
     )..['notifications_enabled'] = value;
 

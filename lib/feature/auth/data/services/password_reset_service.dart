@@ -18,14 +18,20 @@ class PasswordResetService {
   Future<void> requestCode(String email) async {
     const url = '/api/v1/auth/password-reset/request/';
     DebugLogger(runtimeType).request(url);
-    final response = await remoteDataSource().post(url, data: {'email': email});
+    final response = await remoteDataSource().post<void>(
+      url,
+      data: {'email': email},
+    );
     DebugLogger(runtimeType).response(url, [response.statusCode]);
   }
 
   Future<void> confirmReset(PasswordResetConfirm data) async {
     const url = '/api/v1/auth/password-reset/confirm/';
     DebugLogger(runtimeType).request(url);
-    final response = await remoteDataSource().post(url, data: data.toJson());
+    final response = await remoteDataSource().post<void>(
+      url,
+      data: data.toJson(),
+    );
     DebugLogger(runtimeType).response(url, [response.statusCode]);
   }
 }

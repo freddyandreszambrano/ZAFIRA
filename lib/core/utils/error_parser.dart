@@ -1,6 +1,6 @@
 import '../../modules/common/exceptions/server_exception.dart';
 
-String parseErrorMessage(dynamic err) {
+String parseErrorMessage(Object err) {
   String message = 'Ocurrió un error, intente nuevamente.';
 
   if (err is ServerException) {
@@ -47,7 +47,7 @@ String parseErrorMessage(dynamic err) {
   return message;
 }
 
-Map<String, String> parseFieldErrors(dynamic err) {
+Map<String, String> parseFieldErrors(Object err) {
   if (err is! ServerException) return const {};
 
   final data = err.message;

@@ -36,62 +36,55 @@ class AuthController extends StateNotifier<AuthState> {
   final TokenUseCase _tokenUseCase;
 
   Future<void> getToken(String username, String password) async {
-    try {
-      state = state.copyWith(
-        status: ResponseStatus.loading,
-        errorMessage: null,
-      );
+    state = state.copyWith(status: ResponseStatus.loading, errorMessage: null);
 
-      final response = await _tokenUseCase.getToken(username, password);
+    final response = await _tokenUseCase.getToken(username, password);
 
-      await response.fold<Future<void>>(
-        (err) async {
-          await _tokenUseCase.removeToken();
+    await response.fold<Future<void>>(
+      (err) async {
+        await _tokenUseCase.removeToken();
 
+        state = state.copyWith(
+          status: ResponseStatus.error,
+          isTokenExist: false,
+          failedLoginAttempts: state.failedLoginAttempts + 1,
+          errorMessage: _extractLoginErrorMessage(err),
+        );
+      },
+      (model) async {
+        if (model.token.isEmpty) {
           state = state.copyWith(
             status: ResponseStatus.error,
             isTokenExist: false,
-            failedLoginAttempts: state.failedLoginAttempts + 1,
-            errorMessage: _extractLoginErrorMessage(err),
+            errorMessage: 'Token inválido',
           );
-        },
-        (model) async {
-          if (model.token.isEmpty) {
-            state = state.copyWith(
-              status: ResponseStatus.error,
-              isTokenExist: false,
-              errorMessage: 'Token inválido',
-            );
-            return;
-          }
+          return;
+        }
 
-          await _tokenUseCase.saveToken(model.token);
-
-          state = state.copyWith(
+        final saved = await _tokenUseCase.saveToken(model.token);
+        saved.fold(
+          (_) => state = state.copyWith(
+            status: ResponseStatus.error,
+            isTokenExist: false,
+            errorMessage: 'No se pudo guardar la sesión.',
+          ),
+          (_) => state = state.copyWith(
             status: ResponseStatus.success,
             isTokenExist: true,
             user: model.user,
             failedLoginAttempts: 0,
             errorMessage: null,
-          );
-        },
-      );
-    } catch (err) {
-      await _tokenUseCase.removeToken();
-
-      state = state.copyWith(
-        status: ResponseStatus.error,
-        isTokenExist: false,
-        errorMessage: 'Ocurrió un error, intente nuevamente.',
-      );
-    }
+          ),
+        );
+      },
+    );
   }
 
   String _extractLoginErrorMessage(Exception err) {
     const fallback =
         'No pudimos iniciar sesión. Verifica tu usuario y contraseña e inténtalo nuevamente.';
 
-    dynamic data;
+    Object? data;
     if (err is ServerException) {
       data = err.message;
     } else if (err is RegularException) {
@@ -106,7 +99,7 @@ class AuthController extends StateNotifier<AuthState> {
     return fallback;
   }
 
-  Future<bool> updateProfile(Map<String, dynamic> data) async {
+  Future<bool> updateProfile(Map<String, Object?> data) async {
     state = state.copyWith(
       profileState: ResponseStatus.loading,
       errorMessage: null,
@@ -268,23 +261,25 @@ class AuthController extends StateNotifier<AuthState> {
     _serverUseCase();
     await getVersion();
 
-    try {
-      final hasToken = await _tokenUseCase.checkToken();
+    final tokenCheck = await _tokenUseCase.checkToken();
+    await tokenCheck.fold<Future<void>>(
+      (_) async {
+        state = state.copyWith(
+          isTokenExist: false,
+          status: ResponseStatus.initial,
+        );
+      },
+      (hasToken) async {
+        state = state.copyWith(
+          isTokenExist: hasToken,
+          status: hasToken ? ResponseStatus.success : ResponseStatus.initial,
+        );
 
-      state = state.copyWith(
-        isTokenExist: hasToken,
-        status: hasToken ? ResponseStatus.success : ResponseStatus.initial,
-      );
-
-      if (hasToken) {
-        await _loadCurrentUser();
-      }
-    } catch (_) {
-      state = state.copyWith(
-        isTokenExist: false,
-        status: ResponseStatus.initial,
-      );
-    }
+        if (hasToken) {
+          await _loadCurrentUser();
+        }
+      },
+    );
   }
 
   Future<void> _loadCurrentUser() async {

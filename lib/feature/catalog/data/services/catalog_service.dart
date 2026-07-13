@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/utils/logger.dart';
 import '../../../../modules/common/drivers/http/dio_http_client.dart';
-import '../../domain/product_model.dart';
+import '../../../../core/models/product_model.dart';
 
 final catalogServiceProvider = Provider<CatalogService>((ref) {
   final remoteDataSource = ref.watch(dioHttpClientProvider);
@@ -23,16 +23,16 @@ class CatalogService {
 
     DebugLogger(runtimeType).request(url, queryParameters);
 
-    final response = await remoteDataSource().get(
+    final response = await remoteDataSource().get<List<Object?>>(
       url,
       queryParameters: queryParameters,
     );
 
     DebugLogger(runtimeType).response(url, [response.statusCode]);
 
-    final data = response.data as List;
+    final data = response.data as List<Object?>;
     return data
-        .map((item) => ProductModel.fromJson(item as Map<String, dynamic>))
+        .map((item) => ProductModel.fromJson(item as Map<String, Object?>))
         .toList();
   }
 
@@ -41,11 +41,11 @@ class CatalogService {
 
     DebugLogger(runtimeType).request(url);
 
-    final response = await remoteDataSource().get(url);
+    final response = await remoteDataSource().get<Map<String, Object?>>(url);
 
     DebugLogger(runtimeType).response(url, [response.statusCode]);
 
-    return ProductModel.fromJson(response.data as Map<String, dynamic>);
+    return ProductModel.fromJson(response.data as Map<String, Object?>);
   }
 
   /// Consulta la página oficial de la tienda en este momento y devuelve
@@ -55,11 +55,11 @@ class CatalogService {
 
     DebugLogger(runtimeType).request(url);
 
-    final response = await remoteDataSource().get(url);
+    final response = await remoteDataSource().get<Map<String, Object?>>(url);
 
     DebugLogger(runtimeType).response(url, [response.statusCode]);
 
-    final data = response.data as Map<String, dynamic>;
-    return ProductModel.fromJson(data['product'] as Map<String, dynamic>);
+    final data = response.data as Map<String, Object?>;
+    return ProductModel.fromJson(data['product'] as Map<String, Object?>);
   }
 }

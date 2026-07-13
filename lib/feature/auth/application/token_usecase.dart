@@ -2,7 +2,6 @@ import 'package:either_dart/either.dart';
 
 import '../../../core/utils/logger.dart';
 import '../../../modules/common/error/mixin_error_controller.dart';
-import '../../../modules/common/exceptions/regular_exception.dart';
 import '../data/interfaces/auth_interface.dart';
 import '../domain/auth_token_model.dart';
 
@@ -36,7 +35,7 @@ class TokenUseCase with ErrorExceptionHandler {
   }
 
   Future<Either<Exception, AuthTokenModel>> updateProfile(
-    Map<String, dynamic> data,
+    Map<String, Object?> data,
   ) async {
     const String methodName = "UPDATE_PROFILE";
     DebugLogger(runtimeType).methodInit(methodName);
@@ -96,27 +95,27 @@ class TokenUseCase with ErrorExceptionHandler {
     );
   }
 
-  Future<void> removeToken() async {
-    try {
-      return await interface.removeToken();
-    } catch (err) {
-      throw RegularException.fromError(err, "removeToken", runtimeType);
-    }
+  Future<Either<Exception, void>> removeToken() {
+    return handlerApiExceptions(
+      interface.removeToken,
+      'REMOVE_TOKEN',
+      runtimeType,
+    );
   }
 
-  Future<void> saveToken(String token) async {
-    try {
-      await interface.saveToken(token);
-    } catch (err) {
-      throw RegularException.fromError(err, "saveToken", runtimeType);
-    }
+  Future<Either<Exception, void>> saveToken(String token) {
+    return handlerApiExceptions(
+      () => interface.saveToken(token),
+      'SAVE_TOKEN',
+      runtimeType,
+    );
   }
 
-  Future<bool> checkToken() async {
-    try {
-      return await interface.checkToken();
-    } catch (err) {
-      throw RegularException.fromError(err, "checkToken", runtimeType);
-    }
+  Future<Either<Exception, bool>> checkToken() {
+    return handlerApiExceptions(
+      interface.checkToken,
+      'CHECK_TOKEN',
+      runtimeType,
+    );
   }
 }

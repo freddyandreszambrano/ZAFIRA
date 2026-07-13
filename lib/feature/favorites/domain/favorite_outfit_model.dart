@@ -1,4 +1,4 @@
-import '../../catalog/domain/product_model.dart';
+import '../../../core/models/product_model.dart';
 
 /// Outfit completo (torso + pierna) guardado por el usuario, con la imagen
 /// que ya generó el probador (se muestra sin volver a generar).
@@ -17,11 +17,11 @@ class FavoriteOutfitModel {
 
   double get totalPrice => top.price + bottom.price;
 
-  factory FavoriteOutfitModel.fromJson(Map<String, dynamic> json) {
+  factory FavoriteOutfitModel.fromJson(Map<String, Object?> json) {
     return FavoriteOutfitModel(
       id: json['id'] as int,
-      top: ProductModel.fromJson(json['top'] as Map<String, dynamic>),
-      bottom: ProductModel.fromJson(json['bottom'] as Map<String, dynamic>),
+      top: ProductModel.fromJson(json['top'] as Map<String, Object?>),
+      bottom: ProductModel.fromJson(json['bottom'] as Map<String, Object?>),
       resultImageUrl: json['result_image_url']?.toString() ?? '',
     );
   }

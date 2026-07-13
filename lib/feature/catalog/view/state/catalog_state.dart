@@ -1,5 +1,5 @@
 import '../../../../core/enum/response_status.dart';
-import '../../domain/product_model.dart';
+import '../../../../core/models/product_model.dart';
 
 class CatalogState {
   CatalogState({

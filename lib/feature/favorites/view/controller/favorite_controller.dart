@@ -1,14 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/enum/response_status.dart';
-import '../../../catalog/domain/product_model.dart';
+import '../../../../core/models/product_model.dart';
 import '../../application/favorite_usecase.dart';
 import '../../data/repositories/favorite_repository.dart';
 import '../../domain/favorite_outfit_model.dart';
 import '../state/favorite_state.dart';
 
 final favoriteControllerProvider =
-    StateNotifierProvider<FavoriteController, FavoriteState>((ref) {
+    StateNotifierProvider.autoDispose<FavoriteController, FavoriteState>((ref) {
       final favoriteRepository = ref.watch(favoriteRepositoryProvider);
 
       return FavoriteController(FavoriteUseCase(favoriteRepository));

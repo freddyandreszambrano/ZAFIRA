@@ -11,12 +11,12 @@ import 'settings_screen.dart';
 
 import '../../../../core/constants/app_numbers.dart';
 import '../../../../core/helpers/context_helper.dart';
-import '../../../../feature/auth/view/controller/auth_controller.dart';
-import '../../../../feature/auth/view/widgets/login/login_screen.dart';
+import '../controller/auth_controller.dart';
+import '../widgets/login/login_screen.dart';
 import '../../../../feature/catalog/view/main/catalog_screen.dart';
 import '../../../../feature/favorites/view/main/favorites_screen.dart';
-import '../../../../feature/home/view/widget/home_bottom_nav.dart';
 import '../../../../modules/common/widget/layout/app_screen_shell.dart';
+import '../../../../modules/common/widget/navigation/home_bottom_nav.dart';
 import '../../../../modules/common/widget/notifications/app_notification.dart';
 
 class ProfileScreen extends ConsumerWidget {

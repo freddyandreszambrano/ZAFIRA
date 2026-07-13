@@ -19,11 +19,14 @@ class AuthService {
     const url = "/api/v1/auth/token/";
     final body = {"username": username, "password": password};
     DebugLogger(runtimeType).request(url, body);
-    final response = await remoteDataSource().post(url, data: body);
+    final response = await remoteDataSource().post<Map<String, Object?>>(
+      url,
+      data: body,
+    );
     DebugLogger(
       runtimeType,
     ).response(url, [response.statusCode, response.data]);
-    return AuthTokenModel.fromJson(response.data);
+    return AuthTokenModel.fromJson(response.data!);
   }
 
   Future<AuthTokenModel> getCurrentUser() async {
@@ -31,27 +34,30 @@ class AuthService {
 
     DebugLogger(runtimeType).request(url);
 
-    final response = await remoteDataSource().get(url);
+    final response = await remoteDataSource().get<Map<String, Object?>>(url);
 
     DebugLogger(
       runtimeType,
     ).response(url, [response.statusCode, response.data]);
 
-    return AuthTokenModel.fromJson(response.data);
+    return AuthTokenModel.fromJson(response.data!);
   }
 
-  Future<AuthTokenModel> updateProfile(Map<String, dynamic> data) async {
+  Future<AuthTokenModel> updateProfile(Map<String, Object?> data) async {
     const url = "/api/v1/auth/profile/update/";
 
     DebugLogger(runtimeType).request(url, data);
 
-    final response = await remoteDataSource().patch(url, data: data);
+    final response = await remoteDataSource().patch<Map<String, Object?>>(
+      url,
+      data: data,
+    );
 
     DebugLogger(
       runtimeType,
     ).response(url, [response.statusCode, response.data]);
 
-    return AuthTokenModel.fromJson(response.data);
+    return AuthTokenModel.fromJson(response.data!);
   }
 
   Future<AuthTokenModel> updateAvatar(String filePath) async {
@@ -63,13 +69,16 @@ class AuthService {
 
     DebugLogger(runtimeType).request(url, {'image': filePath});
 
-    final response = await remoteDataSource().patch(url, data: formData);
+    final response = await remoteDataSource().patch<Map<String, Object?>>(
+      url,
+      data: formData,
+    );
 
     DebugLogger(
       runtimeType,
     ).response(url, [response.statusCode, response.data]);
 
-    return AuthTokenModel.fromJson(response.data);
+    return AuthTokenModel.fromJson(response.data!);
   }
 
   Future<AuthTokenModel> deleteAvatar() async {
@@ -77,13 +86,13 @@ class AuthService {
 
     DebugLogger(runtimeType).request(url);
 
-    final response = await remoteDataSource().delete(url);
+    final response = await remoteDataSource().delete<Map<String, Object?>>(url);
 
     DebugLogger(
       runtimeType,
     ).response(url, [response.statusCode, response.data]);
 
-    return AuthTokenModel.fromJson(response.data);
+    return AuthTokenModel.fromJson(response.data!);
   }
 
   Future<AuthTokenModel> updateTryOnPhoto(String filePath) async {
@@ -95,13 +104,16 @@ class AuthService {
 
     DebugLogger(runtimeType).request(url, {'image': filePath});
 
-    final response = await remoteDataSource().patch(url, data: formData);
+    final response = await remoteDataSource().patch<Map<String, Object?>>(
+      url,
+      data: formData,
+    );
 
     DebugLogger(
       runtimeType,
     ).response(url, [response.statusCode, response.data]);
 
-    return AuthTokenModel.fromJson(response.data);
+    return AuthTokenModel.fromJson(response.data!);
   }
 
   Future<AuthTokenModel> deleteTryOnPhoto() async {
@@ -109,13 +121,13 @@ class AuthService {
 
     DebugLogger(runtimeType).request(url);
 
-    final response = await remoteDataSource().delete(url);
+    final response = await remoteDataSource().delete<Map<String, Object?>>(url);
 
     DebugLogger(
       runtimeType,
     ).response(url, [response.statusCode, response.data]);
 
-    return AuthTokenModel.fromJson(response.data);
+    return AuthTokenModel.fromJson(response.data!);
   }
 
   void showServerUrl() {

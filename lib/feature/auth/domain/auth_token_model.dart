@@ -12,6 +12,6 @@ abstract class AuthTokenModel with _$AuthTokenModel {
     UserModel? user,
   }) = _AuthTokenModel;
 
-  factory AuthTokenModel.fromJson(Map<String, dynamic> json) =>
+  factory AuthTokenModel.fromJson(Map<String, Object?> json) =>
       _$AuthTokenModelFromJson(json);
 }

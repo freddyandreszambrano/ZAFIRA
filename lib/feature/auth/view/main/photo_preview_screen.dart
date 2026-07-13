@@ -7,8 +7,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_numbers.dart';
 import '../../../../core/helpers/context_helper.dart';
-import '../../../../feature/auth/view/controller/auth_controller.dart';
 import '../../../../modules/common/widget/notifications/app_notification.dart';
+import '../controller/auth_controller.dart';
 
 class PhotoPreviewScreen extends ConsumerStatefulWidget {
   const PhotoPreviewScreen({required this.imagePath, super.key});

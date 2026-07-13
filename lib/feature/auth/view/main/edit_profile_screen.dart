@@ -6,8 +6,8 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_numbers.dart';
 import '../../../../core/enum/response_status.dart';
 import '../../../../core/helpers/context_helper.dart';
-import '../../../../feature/auth/view/controller/auth_controller.dart';
-import '../../../../feature/auth/view/widgets/shared/gender_selector.dart';
+import '../controller/auth_controller.dart';
+import '../widgets/shared/gender_selector.dart';
 import '../../../../modules/common/widget/notifications/app_notification.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {

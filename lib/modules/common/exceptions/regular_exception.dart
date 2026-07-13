@@ -2,9 +2,9 @@ import '../../../core/utils/logger.dart';
 
 class RegularException implements Exception {
   factory RegularException.fromError(
-    dynamic error,
+    Object error,
     String methodName,
-    runtimeType,
+    Type runtimeType,
   ) {
     // Un factory de RegularException solo puede devolver una RegularException;
     // un ServerException no es subtipo y debe preservarlo el caller (ver
@@ -15,9 +15,7 @@ class RegularException implements Exception {
 
     ErrorLogger(runtimeType).regular(error, methodName);
 
-    final message = error is ExceptionWithResponse
-        ? error.response?.data
-        : error.toString();
+    final message = error.toString();
 
     return RegularException(message: message);
   }
@@ -25,12 +23,8 @@ class RegularException implements Exception {
   RegularException({this.statusCode = -1, this.message = ''});
 
   final int statusCode;
-  final dynamic message;
+  final Object? message;
 
   @override
   String toString() => 'RegularException(MESSAGE:$message)';
-}
-
-class ExceptionWithResponse {
-  dynamic response;
 }

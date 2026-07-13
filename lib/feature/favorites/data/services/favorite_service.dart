@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/utils/logger.dart';
 import '../../../../modules/common/drivers/http/dio_http_client.dart';
-import '../../../catalog/domain/product_model.dart';
+import '../../../../core/models/product_model.dart';
 import '../../domain/favorite_outfit_model.dart';
 
 final favoriteServiceProvider = Provider<FavoriteService>((ref) {
@@ -20,13 +20,13 @@ class FavoriteService {
 
     DebugLogger(runtimeType).request(url);
 
-    final response = await remoteDataSource().get(url);
+    final response = await remoteDataSource().get<List<Object?>>(url);
 
     DebugLogger(runtimeType).response(url, [response.statusCode]);
 
-    final data = response.data as List;
+    final data = response.data as List<Object?>;
     return data
-        .map((item) => ProductModel.fromJson(item as Map<String, dynamic>))
+        .map((item) => ProductModel.fromJson(item as Map<String, Object?>))
         .toList();
   }
 
@@ -36,7 +36,7 @@ class FavoriteService {
 
     DebugLogger(runtimeType).request(url, body);
 
-    final response = await remoteDataSource().post(url, data: body);
+    final response = await remoteDataSource().post<void>(url, data: body);
 
     DebugLogger(runtimeType).response(url, [response.statusCode]);
 
@@ -48,7 +48,7 @@ class FavoriteService {
 
     DebugLogger(runtimeType).request(url);
 
-    final response = await remoteDataSource().delete(url);
+    final response = await remoteDataSource().delete<void>(url);
 
     DebugLogger(runtimeType).response(url, [response.statusCode]);
 
@@ -60,14 +60,14 @@ class FavoriteService {
 
     DebugLogger(runtimeType).request(url);
 
-    final response = await remoteDataSource().get(url);
+    final response = await remoteDataSource().get<List<Object?>>(url);
 
     DebugLogger(runtimeType).response(url, [response.statusCode]);
 
-    final data = response.data as List;
+    final data = response.data as List<Object?>;
     return data
         .map(
-          (item) => FavoriteOutfitModel.fromJson(item as Map<String, dynamic>),
+          (item) => FavoriteOutfitModel.fromJson(item as Map<String, Object?>),
         )
         .toList();
   }
@@ -86,7 +86,7 @@ class FavoriteService {
 
     DebugLogger(runtimeType).request(url, body);
 
-    final response = await remoteDataSource().post(url, data: body);
+    final response = await remoteDataSource().post<void>(url, data: body);
 
     DebugLogger(runtimeType).response(url, [response.statusCode]);
 
@@ -98,7 +98,7 @@ class FavoriteService {
 
     DebugLogger(runtimeType).request(url);
 
-    final response = await remoteDataSource().delete(url);
+    final response = await remoteDataSource().delete<void>(url);
 
     DebugLogger(runtimeType).response(url, [response.statusCode]);
 

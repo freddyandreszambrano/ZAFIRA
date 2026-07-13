@@ -9,7 +9,7 @@ import '../../../../core/helpers/app_colors.dart';
 import '../../../../core/helpers/context_helper.dart';
 import '../../../../modules/common/widget/notifications/app_notification.dart';
 import '../../../catalog/data/repositories/catalog_repository.dart';
-import '../../../catalog/domain/product_model.dart';
+import '../../../../core/models/product_model.dart';
 import '../../../catalog/view/main/catalog_garments_screen.dart';
 import '../../../favorites/view/controller/favorite_controller.dart';
 import '../../../home/view/main/home_screen.dart';

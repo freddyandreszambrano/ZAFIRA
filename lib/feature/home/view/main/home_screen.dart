@@ -4,19 +4,21 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_numbers.dart';
+import '../../../../core/enum/response_status.dart';
 import '../../../../core/helpers/context_helper.dart';
-import '../../../../feature/try_on/view/main/upload_photo_screen.dart';
-import '../../../../feature/profile/view/main/profile_screen.dart';
-import '../../../../feature/auth/view/controller/auth_controller.dart';
-import '../../../../feature/catalog/domain/product_model.dart';
-import '../../../../feature/catalog/view/controller/catalog_controller.dart';
+import '../../../../core/models/product_model.dart';
+import '../../../../feature/auth/view/main/profile_screen.dart';
+import '../../../../feature/auth/view/main/upload_photo_screen.dart';
+import '../../../../feature/auth/view/state/auth_session_provider.dart';
 import '../../../../feature/catalog/view/main/catalog_screen.dart';
 import '../../../../feature/catalog/view/main/product_detail_screen.dart';
 import '../../../../feature/favorites/view/main/favorites_screen.dart';
 import '../../../../feature/recommend/view/main/recommend_screen.dart';
 import '../../../../modules/common/widget/layout/app_screen_shell.dart';
+import '../../../../modules/common/widget/navigation/home_bottom_nav.dart';
 import '../../../../modules/common/widget/notifications/app_notification.dart';
-import '../widget/home_bottom_nav.dart';
+import '../controller/home_controller.dart';
+import 'home_load_error.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -30,39 +32,20 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   final PageController _carouselController = PageController();
 
-  List<ProductModel> _recentProducts = [];
-  List<ProductModel> _featuredProducts = [];
-  bool _isLoadingProducts = true;
   int _carouselPage = 0;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _loadProducts());
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => ref.read(homeControllerProvider.notifier).loadDashboardProducts(),
+    );
   }
 
   @override
   void dispose() {
     _carouselController.dispose();
     super.dispose();
-  }
-
-  Future<void> _loadProducts() async {
-    final products = await ref
-        .read(catalogControllerProvider.notifier)
-        .getFeaturedProducts();
-
-    if (!mounted) return;
-
-    final onOffer = products.where((p) => p.priceOld != null).toList();
-
-    setState(() {
-      _recentProducts = products.take(6).toList();
-      _featuredProducts = (onOffer.isNotEmpty ? onOffer : products)
-          .take(4)
-          .toList();
-      _isLoadingProducts = false;
-    });
   }
 
   void _onNavTap(BuildContext context, int index) {
@@ -100,9 +83,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final user = ref.watch(
-      authControllerProvider.select((state) => state.user),
-    );
+    final homeState = ref.watch(homeControllerProvider);
+    final recentProducts = homeState.recentProducts;
+    final featuredProducts = homeState.featuredProducts;
+    final user = ref.watch(currentSessionUserProvider);
 
     final firstName = (user?.firstName ?? '').trim();
     final fullName = (user?.fullName ?? '').trim();
@@ -235,7 +219,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
             const Gap(separatorXLg),
 
-            if (!_isLoadingProducts && _recentProducts.isNotEmpty) ...[
+            if (recentProducts.isNotEmpty) ...[
               Text(
                 'Nuevo en Zafira',
                 style: context.typography.titleMedium?.copyWith(
@@ -252,11 +236,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
                 child: PageView.builder(
                   controller: _carouselController,
-                  itemCount: _recentProducts.length,
+                  itemCount: recentProducts.length,
                   onPageChanged: (index) =>
                       setState(() => _carouselPage = index),
                   itemBuilder: (context, index) {
-                    final product = _recentProducts[index];
+                    final product = recentProducts[index];
                     return Padding(
                       padding: const EdgeInsets.only(right: 2),
                       child: _HeroCarouselCard(
@@ -270,7 +254,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               const Gap(separatorSm),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(_recentProducts.length, (index) {
+                children: List.generate(recentProducts.length, (index) {
                   final isActive = index == _carouselPage;
                   return AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
@@ -298,9 +282,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
             const Gap(separatorMd),
 
-            if (_isLoadingProducts)
+            if (homeState.status == ResponseStatus.loading)
               const Center(child: CircularProgressIndicator())
-            else if (_featuredProducts.isEmpty)
+            else if (homeState.status == ResponseStatus.error)
+              HomeLoadError(
+                message: homeState.errorMessage,
+                onRetry: () => ref
+                    .read(homeControllerProvider.notifier)
+                    .loadDashboardProducts(),
+              )
+            else if (featuredProducts.isEmpty)
               Row(
                 children: const [
                   Expanded(child: _GarmentCard(title: 'Vestido neón')),
@@ -311,7 +302,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             else
               Column(
                 children: [
-                  for (final product in _featuredProducts) ...[
+                  for (final product in featuredProducts) ...[
                     _FeaturedProductRow(
                       product: product,
                       onTap: () => _goToProduct(context, product),

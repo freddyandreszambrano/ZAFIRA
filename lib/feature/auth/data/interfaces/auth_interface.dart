@@ -5,7 +5,7 @@ abstract class IAuth {
 
   Future<AuthTokenModel> getCurrentUser();
 
-  Future<AuthTokenModel> updateProfile(Map<String, dynamic> data);
+  Future<AuthTokenModel> updateProfile(Map<String, Object?> data);
 
   Future<AuthTokenModel> updateAvatar(String filePath);
 

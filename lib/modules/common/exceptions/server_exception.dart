@@ -6,7 +6,7 @@ class ServerException implements Exception {
   factory ServerException.fromError(
     DioException error,
     String methodName,
-    runtimeType,
+    Type runtimeType,
   ) {
     ErrorLogger(runtimeType).dio(error, methodName);
     return ServerException(
@@ -21,13 +21,13 @@ class ServerException implements Exception {
   ServerException({required this.statusCode, this.message = ''});
 
   final int statusCode;
-  final dynamic message;
+  final Object? message;
 
   /// ** Add reasons to avoid tracking in crashlytics
-  static const reasonsNotTracked = [];
+  static const List<String> reasonsNotTracked = [];
 
   @override
-  toString() {
+  String toString() {
     final reason =
         'ServerException('
         'STATUSCODE:$statusCode, '

@@ -26,8 +26,8 @@ abstract class UserModel with _$UserModel {
     @Default('Ecuador') String country,
     @JsonKey(name: 'preferred_size') @Default('') String preferredSize,
     @JsonKey(name: 'style_preferences')
-    @Default(<String, dynamic>{})
-    Map<String, dynamic> stylePreferences,
+    @Default(<String, Object?>{})
+    Map<String, Object?> stylePreferences,
     @Default('es') String language,
     @JsonKey(name: 'try_on_photo') @Default('') String tryOnPhoto,
     @Default(OnboardingInfo()) OnboardingInfo onboarding,
@@ -36,7 +36,7 @@ abstract class UserModel with _$UserModel {
     bool canViewClientData,
   }) = _UserModel;
 
-  factory UserModel.fromJson(Map<String, dynamic> json) =>
+  factory UserModel.fromJson(Map<String, Object?> json) =>
       _$UserModelFromJson(json);
 
   String get displayImage {

@@ -13,9 +13,9 @@ final dioHttpClientProvider = Provider<DioHttpClient>((ref) {
 });
 
 class DioHttpClient {
-  DioHttpClient(this.localDataSource);
+  DioHttpClient(this.localDataSource, {Dio? dio}) : _dio = dio;
 
-  LocalStorage localDataSource;
+  final LocalStorage localDataSource;
   Dio? _dio;
 
   /// Instancia única de [Dio] por cliente HTTP (interceptors y opciones base una sola vez).
@@ -35,15 +35,11 @@ class DioHttpClient {
           );
           options.headers['app-source'] = kIsWeb ? 'zafira-web' : 'zafira-app';
           options.headers['kIsWeb'] = kIsWeb.toString();
+          options.headers['app-version'] = Flavor.projectVersionValue;
           if (options.data is! FormData) {
             options.headers['content-type'] = 'application/json';
           }
           options.baseUrl = Flavor.server ?? '';
-          if (!kIsWeb) {
-            if (Flavor.projectVersion != null) {
-              options.headers['app-version'] = Flavor.projectVersion;
-            }
-          }
           return handler.next(options);
         },
       ),

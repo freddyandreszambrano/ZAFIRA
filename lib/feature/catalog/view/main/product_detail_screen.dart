@@ -13,8 +13,8 @@ import '../../../favorites/view/controller/favorite_controller.dart';
 import '../../../favorites/view/favorite_feedback.dart';
 import '../../../try_on/domain/try_on_args.dart';
 import '../../../try_on/view/main/try_on_result_screen.dart';
-import '../../../try_on/view/main/upload_photo_screen.dart';
-import '../../domain/product_model.dart';
+import '../../../auth/view/main/upload_photo_screen.dart';
+import '../../../../core/models/product_model.dart';
 import '../controller/catalog_controller.dart';
 
 Future<void> _openOfficialStore(BuildContext context, String url) async {

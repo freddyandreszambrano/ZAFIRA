@@ -9,7 +9,7 @@ import '../../../../core/enum/response_status.dart';
 import '../../../../core/helpers/context_helper.dart';
 import '../../../../modules/common/widget/layout/app_screen_shell.dart';
 import '../../../../modules/common/widget/notifications/app_notification.dart';
-import '../../../catalog/domain/product_model.dart';
+import '../../../../core/models/product_model.dart';
 import '../../../catalog/view/main/product_detail_screen.dart';
 import '../../domain/favorite_outfit_model.dart';
 import '../controller/favorite_controller.dart';

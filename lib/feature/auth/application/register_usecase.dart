@@ -21,7 +21,7 @@ class RegisterUseCase with ErrorExceptionHandler {
     );
   }
 
-  Future<Either<Exception, Map<String, dynamic>>> validateField({
+  Future<Either<Exception, Map<String, Object?>>> validateField({
     required String field,
     required String value,
   }) async {

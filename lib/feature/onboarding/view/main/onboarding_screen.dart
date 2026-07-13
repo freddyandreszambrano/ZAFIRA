@@ -86,16 +86,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       return;
     }
 
-    final ok = await ref.read(onboardingControllerProvider.notifier).submit();
+    await ref.read(onboardingControllerProvider.notifier).submit();
     if (!mounted) return;
 
-    if (ok) {
+    final submittedState = ref.read(onboardingControllerProvider);
+    if (submittedState.status == ResponseStatus.success) {
       context.go(HomeScreen.routeName);
     } else {
       AppNotification.error(
         context,
-        ref.read(onboardingControllerProvider).errorMessage ??
-            'No se pudo guardar tu información.',
+        submittedState.errorMessage ?? 'No se pudo guardar tu información.',
       );
     }
   }
