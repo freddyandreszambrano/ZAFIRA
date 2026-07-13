@@ -1,7 +1,7 @@
-name: Flutter Build
+name: Flutter Android build
 
 # Reusable workflow — se invoca desde ci.yml (no corre por sí solo).
-# Fase de build: valida que la app compila APK release (no se publica).
+# Fase de build: valida ambos flavors en modo debug y sin secretos de firma.
 on:
   workflow_call:
     inputs:
@@ -12,8 +12,16 @@ on:
 
 jobs:
   build:
-    name: Build APK (dry-run)
+    name: Build ${{ matrix.flavor }} APK
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - flavor: dev
+            target: lib/main/main_dev.dart
+          - flavor: prod
+            target: lib/main/main_prod.dart
 
     steps:
       - uses: actions/checkout@v6
@@ -23,6 +31,7 @@ jobs:
         with:
           distribution: temurin
           java-version: "17"
+          cache: gradle
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -37,13 +46,8 @@ jobs:
       - name: Install deps
         run: flutter pub get
 
-      - name: Build runners
+      - name: Generate sources
         run: dart run build_runner build --delete-conflicting-outputs
 
-      - name: Build APK (dev flavor)
-        if: github.ref == 'refs/heads/develop'
-        run: flutter build apk --debug -t lib/main/main_dev.dart --flavor dev
-
-      - name: Build APK (prod flavor)
-        if: github.ref == 'refs/heads/main'
-        run: flutter build apk --release -t lib/main/main_prod.dart --flavor prod
+      - name: Build debug APK
+        run: flutter build apk --debug -t ${{ matrix.target }} --flavor ${{ matrix.flavor }}

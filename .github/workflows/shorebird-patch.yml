@@ -1,0 +1,106 @@
+name: Shorebird patch
+
+on:
+  workflow_dispatch:
+    inputs:
+      flavor:
+        description: Flavor that owns the base release
+        required: true
+        default: prod
+        type: choice
+        options:
+          - dev
+          - prod
+      release_version:
+        description: Exact base release version (for example, 1.0.0+1)
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shorebird-patch-${{ inputs.flavor }}-${{ inputs.release_version }}
+  cancel-in-progress: false
+
+env:
+  FLUTTER_VERSION: "3.41.9"
+
+jobs:
+  patch:
+    name: Patch ${{ inputs.flavor }} ${{ inputs.release_version }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.flavor == 'prod' && 'production' || 'development' }}
+    env:
+      DEVELOP_ENV: ${{ secrets.ZAFIRA_DEVELOP_ENV }}
+      PRODUCTION_ENV: ${{ secrets.ZAFIRA_PRODUCTION_ENV }}
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+      SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Setup Shorebird
+        uses: shorebirdtech/setup-shorebird@v1
+        with:
+          cache: true
+
+      - name: Prepare patch configuration
+        shell: bash
+        run: |
+          test -f shorebird.yaml || {
+            echo "shorebird.yaml is missing. Run 'shorebird init --force' locally and commit the generated file." >&2
+            exit 1
+          }
+          : "${SHOREBIRD_TOKEN:?Missing SHOREBIRD_TOKEN}"
+          : "${DEVELOP_ENV:?Missing ZAFIRA_DEVELOP_ENV}"
+          : "${PRODUCTION_ENV:?Missing ZAFIRA_PRODUCTION_ENV}"
+          : "${ANDROID_KEYSTORE_BASE64:?Missing ANDROID_KEYSTORE_BASE64}"
+          : "${ANDROID_KEY_ALIAS:?Missing ANDROID_KEY_ALIAS}"
+          : "${ANDROID_KEY_PASSWORD:?Missing ANDROID_KEY_PASSWORD}"
+          : "${ANDROID_STORE_PASSWORD:?Missing ANDROID_STORE_PASSWORD}"
+          printf 'DEVELOP_ENV=%s\nPRODUCTION_ENV=%s\n' "$DEVELOP_ENV" "$PRODUCTION_ENV" > .env
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/app/upload-keystore.jks
+          {
+            printf 'keyAlias=%s\n' "$ANDROID_KEY_ALIAS"
+            printf 'keyPassword=%s\n' "$ANDROID_KEY_PASSWORD"
+            printf 'storeFile=upload-keystore.jks\n'
+            printf 'storePassword=%s\n' "$ANDROID_STORE_PASSWORD"
+          } > android/key.properties
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate sources
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Publish patch
+        uses: shorebirdtech/shorebird-patch@v1
+        with:
+          platform: android
+          release-version: ${{ inputs.release_version }}
+          args: >-
+            --target=lib/main/main_${{ inputs.flavor }}.dart
+            --flavor=${{ inputs.flavor }}
+
+      - name: Remove patch credentials
+        if: always()
+        run: rm -f .env android/key.properties android/app/upload-keystore.jks

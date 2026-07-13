@@ -22,11 +22,10 @@ jobs:
       flutter-version: "3.41.9"
 
   # ── 2. Build verificación (no se publica) ─────────────────────────────
-  # Solo en push a main/develop y SOLO si la fase de test pasó (needs).
+  # Corre en PRs y pushes después de la fase de test.
   build:
-    name: Build APK (dry-run)
+    name: Build Android flavors
     needs: test
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     uses: ./.github/workflows/flutter-build.yml
     with:
       flutter-version: "3.41.9"
