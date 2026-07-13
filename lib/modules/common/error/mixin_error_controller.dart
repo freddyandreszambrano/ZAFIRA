@@ -11,7 +11,7 @@ mixin ErrorExceptionHandler {
     Future<T> Function() apiCall,
     String methodName,
     Type runtimeType, {
-    Function()? onFinally,
+    void Function()? onFinally,
   }) async {
     try {
       return Right(await apiCall());

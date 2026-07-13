@@ -1,4 +1,4 @@
-import '../../../catalog/domain/product_model.dart';
+import '../../../../core/models/product_model.dart';
 import '../../domain/favorite_outfit_model.dart';
 
 abstract class IFavorite {

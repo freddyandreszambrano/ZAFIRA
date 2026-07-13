@@ -14,7 +14,7 @@ class TryOnJobModel {
   bool get isCompleted => status == 'completed';
   bool get isFailed => status == 'failed';
 
-  factory TryOnJobModel.fromJson(Map<String, dynamic> json) {
+  factory TryOnJobModel.fromJson(Map<String, Object?> json) {
     return TryOnJobModel(
       id: json['id']?.toString() ?? '',
       status: json['status']?.toString() ?? 'pending',

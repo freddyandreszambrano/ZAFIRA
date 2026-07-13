@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/constants/app_numbers.dart';
 import '../../../../core/helpers/context_helper.dart';
-import '../../../../feature/auth/view/controller/auth_controller.dart';
+import '../../../../core/services/image_picker_service.dart';
 import '../../../../feature/catalog/view/main/catalog_screen.dart';
 import '../../../../modules/common/widget/layout/app_screen_shell.dart';
 import '../../../../modules/common/widget/notifications/app_notification.dart';
-import '../../data/services/image_picker_service.dart';
+import '../controller/auth_controller.dart';
 import 'photo_preview_screen.dart';
 
 class UploadPhotoScreen extends ConsumerStatefulWidget {
@@ -89,14 +90,16 @@ class _UploadPhotoScreenState extends ConsumerState<UploadPhotoScreen> {
                   onPressed: () => context.pop(false),
                   child: Text(
                     'Cancelar',
-                    style: TextStyle(color: colors.slateSoft),
+                    style: context.typography.labelLarge?.copyWith(
+                      color: colors.slateSoft,
+                    ),
                   ),
                 ),
                 TextButton(
                   onPressed: () => context.pop(true),
                   child: Text(
                     'Reemplazar',
-                    style: TextStyle(
+                    style: context.typography.labelLarge?.copyWith(
                       color: colors.primaryLight,
                       fontWeight: FontWeight.w800,
                     ),
@@ -116,7 +119,7 @@ class _UploadPhotoScreenState extends ConsumerState<UploadPhotoScreen> {
   Future<void> _showChangePhotoOptions({required bool hasPhoto}) async {
     final colors = context.appColors;
 
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       backgroundColor: colors.nightCard,
       shape: const RoundedRectangleBorder(
@@ -171,7 +174,7 @@ class _UploadPhotoScreenState extends ConsumerState<UploadPhotoScreen> {
                   onPressed: () => context.pop(),
                   child: Text(
                     'Cancelar',
-                    style: TextStyle(
+                    style: context.typography.labelLarge?.copyWith(
                       color: colors.slateSoft,
                       fontWeight: FontWeight.w700,
                     ),
@@ -223,7 +226,7 @@ class _UploadPhotoScreenState extends ConsumerState<UploadPhotoScreen> {
               onPressed: () => context.pop(false),
               child: Text(
                 'Cancelar',
-                style: TextStyle(
+                style: context.typography.labelLarge?.copyWith(
                   color: colors.slateSoft,
                   fontWeight: FontWeight.w700,
                 ),
@@ -233,7 +236,7 @@ class _UploadPhotoScreenState extends ConsumerState<UploadPhotoScreen> {
               onPressed: () => context.pop(true),
               child: Text(
                 'Eliminar',
-                style: TextStyle(
+                style: context.typography.labelLarge?.copyWith(
                   color: colors.error,
                   fontWeight: FontWeight.w900,
                 ),

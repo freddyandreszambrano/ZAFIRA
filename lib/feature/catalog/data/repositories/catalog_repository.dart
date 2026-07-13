@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../domain/product_model.dart';
+import '../../../../core/models/product_model.dart';
 import '../interfaces/catalog_interface.dart';
 import '../services/catalog_service.dart';
 

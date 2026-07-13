@@ -3,11 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/enum/response_status.dart';
 import '../../application/catalog_usecase.dart';
 import '../../data/repositories/catalog_repository.dart';
-import '../../domain/product_model.dart';
+import '../../../../core/models/product_model.dart';
 import '../state/catalog_state.dart';
 
 final catalogControllerProvider =
-    StateNotifierProvider<CatalogController, CatalogState>((ref) {
+    StateNotifierProvider.autoDispose<CatalogController, CatalogState>((ref) {
       final catalogRepository = ref.watch(catalogRepositoryProvider);
 
       return CatalogController(CatalogUseCase(catalogRepository));

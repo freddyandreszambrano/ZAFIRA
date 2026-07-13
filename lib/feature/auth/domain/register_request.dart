@@ -15,7 +15,7 @@ class RegisterRequest {
   final String firstName;
   final String lastName;
 
-  Map<String, dynamic> toJson() => {
+  Map<String, String> toJson() => {
     'username': username,
     'email': email,
     'dni': dni,

@@ -13,6 +13,6 @@ abstract class OnboardingInfo with _$OnboardingInfo {
     List<String> pendingSteps,
   }) = _OnboardingInfo;
 
-  factory OnboardingInfo.fromJson(Map<String, dynamic> json) =>
+  factory OnboardingInfo.fromJson(Map<String, Object?> json) =>
       _$OnboardingInfoFromJson(json);
 }

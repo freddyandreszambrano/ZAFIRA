@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../modules/common/widget/notifications/app_notification.dart';
-import '../../catalog/domain/product_model.dart';
+import '../../../core/models/product_model.dart';
 import 'controller/favorite_controller.dart';
 
 Future<void> toggleFavoriteWithFeedback(

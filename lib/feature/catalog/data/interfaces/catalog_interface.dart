@@ -1,4 +1,4 @@
-import '../../domain/product_model.dart';
+import '../../../../core/models/product_model.dart';
 
 abstract class ICatalog {
   Future<List<ProductModel>> getProducts({String? gender, String? category});

@@ -2,7 +2,7 @@ import 'package:either_dart/either.dart';
 
 import '../../../core/utils/logger.dart';
 import '../../../modules/common/error/mixin_error_controller.dart';
-import '../../catalog/domain/product_model.dart';
+import '../../../core/models/product_model.dart';
 import '../data/interfaces/favorite_interface.dart';
 import '../domain/favorite_outfit_model.dart';
 

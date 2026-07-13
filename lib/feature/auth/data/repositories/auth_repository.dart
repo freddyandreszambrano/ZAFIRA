@@ -52,7 +52,7 @@ class AuthRepository implements IAuth {
       await remoteDataSource.getCurrentUser();
 
   @override
-  Future<AuthTokenModel> updateProfile(Map<String, dynamic> data) async =>
+  Future<AuthTokenModel> updateProfile(Map<String, Object?> data) async =>
       await remoteDataSource.updateProfile(data);
 
   @override

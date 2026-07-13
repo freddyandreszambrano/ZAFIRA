@@ -1,5 +1,12 @@
 # Handoff — Zafira Mobile
 
+## 0. Auditoría vigente
+
+La auditoría de reglas y las decisiones de arquitectura más recientes están en
+[`AUDIT_2026-07-13.md`](./AUDIT_2026-07-13.md). Si este handoff entra en conflicto con ese documento,
+prevalece la auditoría: deja constancia del contraste con la guía compartida de `hey-support`, las
+correcciones aplicadas y la deuda priorizada.
+
 > Documento de traspaso. Léelo entero antes de tocar código si recién entrás al proyecto (o si abrís una nueva sesión con un agente IA).
 >
 > Última actualización: 2026-06-14

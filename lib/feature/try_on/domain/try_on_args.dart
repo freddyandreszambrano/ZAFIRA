@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../catalog/domain/product_model.dart';
+import '../../../core/models/product_model.dart';
 
 /// Argumentos para abrir el probador virtual.
 ///

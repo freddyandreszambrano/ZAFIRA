@@ -4,7 +4,7 @@ import 'package:mocktail/mocktail.dart';
 
 import 'package:zafira/feature/catalog/data/interfaces/catalog_interface.dart';
 import 'package:zafira/feature/catalog/data/repositories/catalog_repository.dart';
-import 'package:zafira/feature/catalog/domain/product_model.dart';
+import 'package:zafira/core/models/product_model.dart';
 import 'package:zafira/feature/catalog/view/controller/catalog_controller.dart';
 
 class _MockCatalogRepo extends Mock implements ICatalog {}

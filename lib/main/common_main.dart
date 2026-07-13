@@ -28,13 +28,15 @@ class ZafiraApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const colorScheme = AppColorScheme();
+
     return MaterialApp.router(
       title: 'Zafira${Flavor.env?.suffix ?? ''}',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
-        colorScheme: const AppColorScheme(),
-        scaffoldBackgroundColor: const Color(0xFFF8FAFC),
+        colorScheme: colorScheme,
+        scaffoldBackgroundColor: colorScheme.surfaceContainerLow,
         pageTransitionsTheme: const PageTransitionsTheme(
           builders: {
             TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),

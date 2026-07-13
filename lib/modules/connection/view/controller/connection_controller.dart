@@ -60,7 +60,8 @@ class ConnectionController extends StateNotifier<NetworkState> {
       newState: ConnectionStatus.disconnected,
       message: 'Esperando...',
     );
-    Connectivity().checkConnectivity().then(_checkConnectivity);
+    final result = await Connectivity().checkConnectivity();
+    await _checkConnectivity(result);
   }
 
   Future<void> _checkConnectivity(List<ConnectivityResult> result) async {

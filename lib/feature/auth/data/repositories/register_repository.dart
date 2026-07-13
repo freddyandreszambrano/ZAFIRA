@@ -18,7 +18,7 @@ class RegisterRepository implements IRegister {
       _remoteDataSource.createUser(request);
 
   @override
-  Future<Map<String, dynamic>> validateField({
+  Future<Map<String, Object?>> validateField({
     required String field,
     required String value,
   }) {

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
 import '../../../../core/helpers/context_helper.dart';
-import '../../../catalog/domain/product_model.dart';
+import '../../../../core/models/product_model.dart';
 import '../../domain/recommend_model.dart';
 import 'piece_column.dart';
 

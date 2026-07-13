@@ -3,7 +3,7 @@ import 'package:either_dart/either.dart';
 import '../../../core/utils/logger.dart';
 import '../../../modules/common/error/mixin_error_controller.dart';
 import '../data/interfaces/catalog_interface.dart';
-import '../domain/product_model.dart';
+import '../../../core/models/product_model.dart';
 
 class CatalogUseCase with ErrorExceptionHandler {
   CatalogUseCase(this.interface);

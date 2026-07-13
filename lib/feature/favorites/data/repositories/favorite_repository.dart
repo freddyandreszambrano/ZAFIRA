@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../catalog/domain/product_model.dart';
+import '../../../../core/models/product_model.dart';
 import '../../domain/favorite_outfit_model.dart';
 import '../interfaces/favorite_interface.dart';
 import '../services/favorite_service.dart';

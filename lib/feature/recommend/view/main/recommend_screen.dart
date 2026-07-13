@@ -6,7 +6,7 @@ import '../../../../core/enum/response_status.dart';
 import '../../../../core/helpers/context_helper.dart';
 import '../../../../modules/common/widget/notifications/app_notification.dart';
 import '../../../auth/view/controller/auth_controller.dart';
-import '../../../catalog/domain/product_model.dart';
+import '../../../../core/models/product_model.dart';
 import '../../../try_on/domain/try_on_args.dart';
 import '../../../try_on/view/main/try_on_result_screen.dart';
 import '../../domain/recommend_model.dart';

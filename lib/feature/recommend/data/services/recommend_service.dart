@@ -33,7 +33,7 @@ class RecommendService {
     };
 
     DebugLogger(runtimeType).request(url, body);
-    final response = await http().post(
+    final response = await http().post<Map<String, Object?>>(
       url,
       data: body,
       options: Options(
@@ -44,7 +44,7 @@ class RecommendService {
     DebugLogger(runtimeType).response(url, [response.statusCode]);
 
     return RecommendResponseModel.fromJson(
-      response.data as Map<String, dynamic>,
+      response.data as Map<String, Object?>,
     );
   }
 }

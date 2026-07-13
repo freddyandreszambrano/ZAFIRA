@@ -19,15 +19,15 @@ class TryOnService {
 
     DebugLogger(runtimeType).request(url, {'product_ids': productIds});
 
-    final response = await remoteDataSource().post(
+    final response = await remoteDataSource().post<Map<String, Object?>>(
       url,
       data: {'product_ids': productIds},
     );
 
     DebugLogger(runtimeType).response(url, [response.statusCode]);
 
-    final data = response.data as Map<String, dynamic>;
-    return TryOnJobModel.fromJson(data['job'] as Map<String, dynamic>);
+    final data = response.data as Map<String, Object?>;
+    return TryOnJobModel.fromJson(data['job'] as Map<String, Object?>);
   }
 
   Future<TryOnJobModel> getJob(String jobId) async {
@@ -35,11 +35,11 @@ class TryOnService {
 
     DebugLogger(runtimeType).request(url);
 
-    final response = await remoteDataSource().get(url);
+    final response = await remoteDataSource().get<Map<String, Object?>>(url);
 
     DebugLogger(runtimeType).response(url, [response.statusCode]);
 
-    final data = response.data as Map<String, dynamic>;
-    return TryOnJobModel.fromJson(data['job'] as Map<String, dynamic>);
+    final data = response.data as Map<String, Object?>;
+    return TryOnJobModel.fromJson(data['job'] as Map<String, Object?>);
   }
 }

@@ -1,4 +1,4 @@
-import '../../catalog/domain/product_model.dart';
+import '../../../core/models/product_model.dart';
 
 class OutfitModel {
   const OutfitModel({required this.top, this.bottom});
@@ -10,11 +10,11 @@ class OutfitModel {
 
   double get totalPrice => top.price + (bottom?.price ?? 0);
 
-  factory OutfitModel.fromJson(Map<String, dynamic> json) {
+  factory OutfitModel.fromJson(Map<String, Object?> json) {
     return OutfitModel(
-      top: ProductModel.fromJson(json['top'] as Map<String, dynamic>),
+      top: ProductModel.fromJson(json['top'] as Map<String, Object?>),
       bottom: json['bottom'] != null
-          ? ProductModel.fromJson(json['bottom'] as Map<String, dynamic>)
+          ? ProductModel.fromJson(json['bottom'] as Map<String, Object?>)
           : null,
     );
   }
@@ -37,13 +37,13 @@ class RecommendResponseModel {
 
   List<int> get allProductIds => outfits.expand((o) => o.productIds).toList();
 
-  factory RecommendResponseModel.fromJson(Map<String, dynamic> json) {
+  factory RecommendResponseModel.fromJson(Map<String, Object?> json) {
     return RecommendResponseModel(
       occasion: json['occasion']?.toString() ?? '',
       gender: json['gender']?.toString() ?? 'hombre',
       store: json['store']?.toString() ?? 'all',
       outfits: (json['outfits'] as List? ?? [])
-          .map((o) => OutfitModel.fromJson(o as Map<String, dynamic>))
+          .map((o) => OutfitModel.fromJson(o as Map<String, Object?>))
           .toList(),
     );
   }

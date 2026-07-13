@@ -7,7 +7,9 @@ import '../../data/repositories/recommend_repository.dart';
 import '../state/recommend_state.dart';
 
 final recommendControllerProvider =
-    StateNotifierProvider<RecommendController, RecommendState>((ref) {
+    StateNotifierProvider.autoDispose<RecommendController, RecommendState>((
+      ref,
+    ) {
       final repo = ref.watch(recommendRepositoryProvider);
       return RecommendController(RecommendUseCase(repo));
     });

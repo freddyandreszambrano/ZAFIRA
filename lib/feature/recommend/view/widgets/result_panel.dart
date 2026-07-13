@@ -4,7 +4,7 @@ import 'package:gap/gap.dart';
 import '../../../../core/enum/response_status.dart';
 import '../../../../core/helpers/context_helper.dart';
 import '../../../../modules/common/widget/layout/app_screen_shell.dart';
-import '../../../catalog/domain/product_model.dart';
+import '../../../../core/models/product_model.dart';
 import '../../domain/recommend_model.dart';
 import '../state/recommend_state.dart';
 import 'outfit_card.dart';
