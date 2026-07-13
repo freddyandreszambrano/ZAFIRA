@@ -1,0 +1,148 @@
+name: Android release
+
+on:
+  workflow_dispatch:
+    inputs:
+      flavor:
+        description: Flavor to distribute
+        required: true
+        default: prod
+        type: choice
+        options:
+          - dev
+          - prod
+      artifact:
+        description: Android artifact to produce
+        required: true
+        default: apk
+        type: choice
+        options:
+          - aab
+          - apk
+      use_shorebird:
+        description: Publish a Shorebird base release as well
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-release-${{ inputs.flavor }}
+  cancel-in-progress: false
+
+env:
+  FLUTTER_VERSION: "3.41.9"
+
+jobs:
+  release:
+    name: Release ${{ inputs.flavor }} (${{ inputs.artifact }})
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.flavor == 'prod' && 'production' || 'development' }}
+    env:
+      DEVELOP_ENV: ${{ secrets.ZAFIRA_DEVELOP_ENV }}
+      PRODUCTION_ENV: ${{ secrets.ZAFIRA_PRODUCTION_ENV }}
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+      SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Prepare signed release configuration
+        shell: bash
+        run: |
+          : "${DEVELOP_ENV:?Missing ZAFIRA_DEVELOP_ENV}"
+          : "${PRODUCTION_ENV:?Missing ZAFIRA_PRODUCTION_ENV}"
+          : "${ANDROID_KEYSTORE_BASE64:?Missing ANDROID_KEYSTORE_BASE64}"
+          : "${ANDROID_KEY_ALIAS:?Missing ANDROID_KEY_ALIAS}"
+          : "${ANDROID_KEY_PASSWORD:?Missing ANDROID_KEY_PASSWORD}"
+          : "${ANDROID_STORE_PASSWORD:?Missing ANDROID_STORE_PASSWORD}"
+          printf 'DEVELOP_ENV=%s\nPRODUCTION_ENV=%s\n' "$DEVELOP_ENV" "$PRODUCTION_ENV" > .env
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/app/upload-keystore.jks
+          {
+            printf 'keyAlias=%s\n' "$ANDROID_KEY_ALIAS"
+            printf 'keyPassword=%s\n' "$ANDROID_KEY_PASSWORD"
+            printf 'storeFile=upload-keystore.jks\n'
+            printf 'storePassword=%s\n' "$ANDROID_STORE_PASSWORD"
+          } > android/key.properties
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate sources
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Validate Shorebird configuration
+        if: inputs.use_shorebird
+        shell: bash
+        run: |
+          test -f shorebird.yaml || {
+            echo "shorebird.yaml is missing. Run 'shorebird init --force' locally and commit the generated file." >&2
+            exit 1
+          }
+          : "${SHOREBIRD_TOKEN:?Missing SHOREBIRD_TOKEN}"
+
+      - name: Build signed artifact
+        if: ${{ !inputs.use_shorebird }}
+        shell: bash
+        run: |
+          if [ "${{ inputs.artifact }}" = "apk" ]; then
+            flutter build apk --release \
+              --target=lib/main/main_${{ inputs.flavor }}.dart \
+              --flavor=${{ inputs.flavor }} \
+              --obfuscate \
+              --split-debug-info=build/symbols/${{ inputs.flavor }}
+          else
+            flutter build appbundle --release \
+              --target=lib/main/main_${{ inputs.flavor }}.dart \
+              --flavor=${{ inputs.flavor }} \
+              --obfuscate \
+              --split-debug-info=build/symbols/${{ inputs.flavor }}
+          fi
+
+      - name: Publish Shorebird base release
+        if: inputs.use_shorebird
+        uses: shorebirdtech/shorebird-release@v1
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          platform: android
+          args: >-
+            --artifact=${{ inputs.artifact }}
+            --target=lib/main/main_${{ inputs.flavor }}.dart
+            --flavor=${{ inputs.flavor }}
+            --obfuscate
+            --split-debug-info=build/symbols/${{ inputs.flavor }}
+
+      - name: Upload signed artifacts and symbols
+        uses: actions/upload-artifact@v4
+        with:
+          name: zafira-${{ inputs.flavor }}-${{ inputs.artifact }}-${{ github.run_number }}
+          path: |
+            build/app/outputs/**/*.apk
+            build/app/outputs/**/*.aab
+            build/symbols/**
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Remove release credentials
+        if: always()
+        run: rm -f .env android/key.properties android/app/upload-keystore.jks

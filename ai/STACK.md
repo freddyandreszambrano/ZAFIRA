@@ -128,13 +128,11 @@ Flutter (multiplatform) — version managed via FVM (pin in `.fvmrc` when added)
 | `mocktail`     | Mock generation without codegen |
 | `fake_async`   | Deterministic async testing     |
 
-## CI/CD Toolchain (planned)
+## CI/CD Toolchain
 
 | Tool               | Role                                      |
 |--------------------|-------------------------------------------|
-| GitLab CI          | Pipeline orchestration                    |
-| Docker Hub         | Image registry                            |
-| GCP Secret Manager | Secrets injection at build time           |
-| Fastlane           | Mobile store distribution (Android + iOS) |
+| GitHub Actions     | CI, signed Android builds, OTA workflows  |
+| GitHub Environments| Approval gates and release secrets        |
 | Shorebird          | OTA patch delivery                        |
 | FVM                | Flutter version pinning                   |

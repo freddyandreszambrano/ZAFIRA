@@ -47,6 +47,11 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
+# Android release signing (local / CI-generated only)
+/android/key.properties
+/android/app/*.jks
+/android/app/*.keystore
+
 # FVM Version Cache
 .fvm/
 
