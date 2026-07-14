@@ -8,13 +8,8 @@ symbols_dir := build/symbols/$(flavor)
 release_version ?= latest
 shorebird_flutter_version ?= 3.41.9
 
-ifeq ($(OS),Windows_NT)
-check-shorebird:
-	@if not exist shorebird.yaml (echo Falta shorebird.yaml. Ejecuta: shorebird init --force & exit /b 1)
-else
 check-shorebird:
 	@test -f shorebird.yaml || (echo "Falta shorebird.yaml. Ejecuta: shorebird init --force" >&2; exit 1)
-endif
 
 help:
 	@echo "make analyze | test | ci-local"
