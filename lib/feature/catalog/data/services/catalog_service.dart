@@ -17,9 +17,16 @@ class CatalogService {
   Future<List<ProductModel>> getProducts({
     String? gender,
     String? category,
+    int? limit,
+    int? offset,
   }) async {
     const url = '/api/v1/catalog/products/';
-    final queryParameters = {'gender': ?gender, 'category': ?category};
+    final queryParameters = {
+      'gender': ?gender,
+      'category': ?category,
+      if (limit != null) 'limit': '$limit',
+      if (offset != null) 'offset': '$offset',
+    };
 
     DebugLogger(runtimeType).request(url, queryParameters);
 

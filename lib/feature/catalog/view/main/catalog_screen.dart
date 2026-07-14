@@ -27,11 +27,10 @@ class _GenderSection {
 
 const _genderSections = [
   _GenderSection('Mujer', 'woman', [
-    _CategoryEntry(
-      'Vestidos y faldas',
-      Icons.checkroom_rounded,
-      'FALDAS Y VESTIDOS',
-    ),
+    // El scraper separa la categoría mixta de la tienda en VESTIDOS y
+    // FALDAS según el nombre del producto (manage.py curate_images)
+    _CategoryEntry('Vestidos', Icons.checkroom_rounded, 'VESTIDOS'),
+    _CategoryEntry('Faldas', Icons.change_history_rounded, 'FALDAS'),
     _CategoryEntry('Blusas', Icons.dry_cleaning_rounded, 'BLUSAS'),
     _CategoryEntry(
       'Pantalones',

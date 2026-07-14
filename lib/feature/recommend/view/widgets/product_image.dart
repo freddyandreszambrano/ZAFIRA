@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/helpers/app_colors.dart';
@@ -24,16 +25,18 @@ class _ProductImageState extends State<ProductImage> {
       return _placeholder(colors);
     }
 
-    return Image.network(
-      widget.urls[_urlIndex],
+    // Con caché en disco: regenerar outfits reutiliza las imágenes ya vistas
+    return CachedNetworkImage(
+      imageUrl: widget.urls[_urlIndex],
       width: double.infinity,
       height: 160,
       fit: BoxFit.cover,
-      headers: const {
+      fadeInDuration: const Duration(milliseconds: 150),
+      httpHeaders: const {
         'User-Agent':
             'Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 Chrome/120 Safari/537.36',
       },
-      errorBuilder: (_, _, _) {
+      errorWidget: (_, _, _) {
         // Intentar la siguiente URL en el próximo frame
         if (_urlIndex < widget.urls.length - 1) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
