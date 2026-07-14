@@ -59,10 +59,10 @@ build-aab:
 	fvm flutter build appbundle --release --target $(target) --flavor $(flavor) --obfuscate --split-debug-info=$(symbols_dir)
 
 shorebird-release-aab: check-shorebird
-	shorebird release android --flutter-version $(shorebird_flutter_version) --artifact=aab --target $(target) --flavor $(flavor) --obfuscate --split-debug-info=$(symbols_dir)
+	sh scripts/shorebird_release.sh aab $(flavor) $(shorebird_flutter_version)
 
 shorebird-release-apk: check-shorebird
-	shorebird release android --flutter-version $(shorebird_flutter_version) --artifact=apk --target $(target) --flavor $(flavor) --obfuscate --split-debug-info=$(symbols_dir)
+	sh scripts/shorebird_release.sh apk $(flavor) $(shorebird_flutter_version)
 
 shorebird-patch: check-shorebird
-	shorebird patch android --target $(target) --flavor $(flavor) --release-version $(release_version)
+	sh scripts/shorebird_patch.sh $(flavor) $(release_version)
