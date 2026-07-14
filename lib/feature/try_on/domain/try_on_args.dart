@@ -79,6 +79,25 @@ String catalogGenderFor(ProductModel product) {
   return 'man';
 }
 
+/// Género del catálogo según el PERFIL del usuario.
+/// Devuelve null si el perfil no tiene género registrado.
+String? catalogGenderFromUser(String? userGender) {
+  final gender = (userGender ?? '').trim().toLowerCase();
+  if (gender.isEmpty) return null;
+  if (gender.startsWith('f') || gender.contains('mujer')) return 'woman';
+  if (gender.startsWith('m') || gender.contains('hombre')) return 'man';
+  return null;
+}
+
+/// Género efectivo para el probador: manda el detectado por IA en la FOTO
+/// subida (photo_gender); si no hay detección, el género del perfil. Así el
+/// sistema responde a QUIÉN aparece en la imagen, no a lo que diga la cuenta.
+String? preferredCatalogGender(String? photoGender, String? profileGender) {
+  final photo = (photoGender ?? '').trim().toLowerCase();
+  if (photo == 'woman' || photo == 'man') return photo;
+  return catalogGenderFromUser(profileGender);
+}
+
 /// Categorías complementarias: si se probó torso ofrece piernas y viceversa.
 /// Vestidos no se complementan (ya son el outfit completo) → lista vacía.
 /// Las categorías son las mismas del catálogo (catalog_screen).
@@ -95,7 +114,13 @@ List<ComplementCategory> complementCategoriesFor(
           Icons.shopping_bag_rounded,
           'JEANS Y PANTALONES',
         ),
-        if (!isWoman)
+        if (isWoman)
+          const ComplementCategory(
+            'Faldas',
+            Icons.change_history_rounded,
+            'FALDAS',
+          )
+        else
           const ComplementCategory(
             'Shorts',
             Icons.accessibility_new_rounded,

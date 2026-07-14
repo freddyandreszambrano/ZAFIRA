@@ -30,6 +30,9 @@ abstract class UserModel with _$UserModel {
     Map<String, Object?> stylePreferences,
     @Default('es') String language,
     @JsonKey(name: 'try_on_photo') @Default('') String tryOnPhoto,
+    // Género de la persona EN LA FOTO, detectado con IA al subirla.
+    // Manda sobre 'gender' para categorías y validación de prendas.
+    @JsonKey(name: 'photo_gender') @Default('') String photoGender,
     @Default(OnboardingInfo()) OnboardingInfo onboarding,
     @JsonKey(name: 'can_view_client_data')
     @Default(false)

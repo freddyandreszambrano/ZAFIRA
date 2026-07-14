@@ -45,12 +45,11 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
   @override
   void initState() {
     super.initState();
+    // Chip de género precargado: manda el género detectado en la FOTO
+    // subida; si no hay detección, el del perfil
     final user = ref.read(authControllerProvider).user;
-    if (user != null && user.gender.isNotEmpty) {
-      final g = user.gender.toLowerCase();
-      if (g.contains('f') || g.contains('mujer') || g == 'female') {
-        _selectedGender = 'mujer';
-      }
+    if (preferredCatalogGender(user?.photoGender, user?.gender) == 'woman') {
+      _selectedGender = 'mujer';
     }
   }
 
@@ -63,12 +62,25 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
   List<int> get _currentBatchIds =>
       ref.read(recommendControllerProvider).result?.allProductIds ?? [];
 
+  /// Ocasión final: el chip solo ya basta; el texto libre es OPCIONAL y se
+  /// suma como detalle (ej. chip "Cita" + "en la playa" → "cita en la playa").
+  /// Groq lee la frase completa, así que la combinación se interpreta bien.
+  String get _occasionPhrase {
+    final chipPhrase =
+        _selectedOccasionSub?.phrase ?? _selectedOccasionGroup?.phrase ?? '';
+    final freeText = _occasionController.text.trim();
+    return [
+      chipPhrase,
+      freeText,
+    ].where((part) => part.isNotEmpty).join(' ').trim();
+  }
+
   void _recommend({bool refresh = false}) {
     // Evitar doble tap mientras carga
     final state = ref.read(recommendControllerProvider);
     if (state.status == ResponseStatus.loading) return;
 
-    final occasion = _occasionController.text.trim();
+    final occasion = _occasionPhrase;
     if (occasion.isEmpty) {
       AppNotification.warning(context, 'Elige una ocasión o escríbela');
       return;
@@ -97,39 +109,23 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
         // Segundo tap sobre el mismo chip: deseleccionar
         _selectedOccasionGroup = null;
         _selectedOccasionSub = null;
-        _occasionController.clear();
       } else {
         _selectedOccasionGroup = group;
         _selectedOccasionSub = null;
-        _occasionController.text = group.phrase;
-        _showFreeText = false;
       }
     });
   }
 
   void _selectOccasionSub(OccasionOption sub) {
     setState(() {
-      if (_selectedOccasionSub == sub) {
-        // Deseleccionar el sub-filtro vuelve a la ocasión general
-        _selectedOccasionSub = null;
-        _occasionController.text = _selectedOccasionGroup?.phrase ?? '';
-      } else {
-        _selectedOccasionSub = sub;
-        _occasionController.text = sub.phrase;
-      }
+      // Deseleccionar el sub-filtro vuelve a la ocasión general
+      _selectedOccasionSub = _selectedOccasionSub == sub ? null : sub;
     });
   }
 
   void _toggleFreeText() {
-    setState(() {
-      _showFreeText = !_showFreeText;
-      if (_showFreeText) {
-        // Texto libre parte limpio, sin arrastrar la frase de los chips
-        _selectedOccasionGroup = null;
-        _selectedOccasionSub = null;
-        _occasionController.clear();
-      }
-    });
+    // Chips y texto libre CONVIVEN: el texto agrega detalles a la ocasión
+    setState(() => _showFreeText = !_showFreeText);
   }
 
   void _selectMixPiece(ProductModel product, bool isTop) {

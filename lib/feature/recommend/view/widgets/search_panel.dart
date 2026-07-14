@@ -104,7 +104,11 @@ class SearchPanel extends StatelessWidget {
                 color: colors.slate,
               ),
               label: Text(
-                showFreeText ? 'Usar los filtros' : '¿Otra ocasión? Escríbela',
+                showFreeText
+                    ? 'Ocultar el texto'
+                    : selectedOccasionGroup != null
+                    ? 'Agregar detalles (opcional)'
+                    : '¿Otra ocasión? Escríbela',
                 style: context.typography.labelSmall?.copyWith(
                   color: colors.slate,
                   decoration: TextDecoration.underline,
@@ -122,7 +126,9 @@ class SearchPanel extends StatelessWidget {
                 color: colors.white,
               ),
               decoration: InputDecoration(
-                hintText: 'Ej: fiesta, boda, cita romántica...',
+                hintText: selectedOccasionGroup != null
+                    ? 'Ej: en la playa, de noche, con jean...'
+                    : 'Ej: fiesta, boda, cita romántica...',
                 hintStyle: context.typography.bodyMedium?.copyWith(
                   color: colors.slate,
                 ),
