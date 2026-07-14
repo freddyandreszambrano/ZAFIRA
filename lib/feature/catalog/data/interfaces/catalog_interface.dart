@@ -1,7 +1,12 @@
 import '../../../../core/models/product_model.dart';
 
 abstract class ICatalog {
-  Future<List<ProductModel>> getProducts({String? gender, String? category});
+  Future<List<ProductModel>> getProducts({
+    String? gender,
+    String? category,
+    int? limit,
+    int? offset,
+  });
 
   Future<ProductModel> getProductById(int id);
 

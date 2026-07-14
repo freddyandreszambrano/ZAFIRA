@@ -13,13 +13,19 @@ class CatalogUseCase with ErrorExceptionHandler {
   Future<Either<Exception, List<ProductModel>>> getProducts({
     String? gender,
     String? category,
+    int? limit,
+    int? offset,
   }) async {
     const String methodName = "GET_PRODUCTS";
     DebugLogger(runtimeType).methodInit(methodName);
 
     return await handlerApiExceptions(
-      () async =>
-          await interface.getProducts(gender: gender, category: category),
+      () async => await interface.getProducts(
+        gender: gender,
+        category: category,
+        limit: limit,
+        offset: offset,
+      ),
       methodName,
       runtimeType,
     );

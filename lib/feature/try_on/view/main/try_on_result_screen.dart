@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
@@ -8,6 +10,7 @@ import '../../../../core/constants/app_numbers.dart';
 import '../../../../core/helpers/app_colors.dart';
 import '../../../../core/helpers/context_helper.dart';
 import '../../../../modules/common/widget/notifications/app_notification.dart';
+import '../../../auth/view/controller/auth_controller.dart';
 import '../../../catalog/data/repositories/catalog_repository.dart';
 import '../../../../core/models/product_model.dart';
 import '../../../catalog/view/main/catalog_garments_screen.dart';
@@ -46,9 +49,21 @@ class _TryOnResultScreenState extends ConsumerState<TryOnResultScreen> {
   // El corazón del header guarda el outfit UNA vez por imagen generada
   bool _outfitSaved = false;
 
+  // Mensajes por etapas mientras genera: una espera con progreso visible se
+  // percibe mucho más corta que un texto estático
+  static const _loadingStages = [
+    'Analizando tu foto…',
+    'Extrayendo la prenda…',
+    'Vistiendo a tu modelo…',
+    'Afinando los detalles…',
+  ];
+  int _stageIndex = 0;
+  Timer? _stageTimer;
+
   @override
   void initState() {
     super.initState();
+    _startLoadingStages();
     Future.microtask(
       () => ref
           .read(tryOnControllerProvider.notifier)
@@ -56,9 +71,28 @@ class _TryOnResultScreenState extends ConsumerState<TryOnResultScreen> {
     );
   }
 
+  @override
+  void dispose() {
+    _stageTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startLoadingStages() {
+    _stageTimer?.cancel();
+    _stageIndex = 0;
+    _stageTimer = Timer.periodic(const Duration(seconds: 6), (timer) {
+      if (!mounted || _stageIndex >= _loadingStages.length - 1) {
+        timer.cancel();
+        return;
+      }
+      setState(() => _stageIndex++);
+    });
+  }
+
   void _retry() {
     // Nueva generación = nueva imagen: se puede volver a guardar
     setState(() => _outfitSaved = false);
+    _startLoadingStages();
     ref.read(tryOnControllerProvider.notifier).startTryOn(widget.productIds);
   }
 
@@ -83,15 +117,25 @@ class _TryOnResultScreenState extends ConsumerState<TryOnResultScreen> {
     }
   }
 
+  /// Género del catálogo para complementar/combinar: manda el DETECTADO EN
+  /// LA FOTO por la IA (photo_gender); luego el perfil; y solo sin datos, el
+  /// género de la prenda probada. Así el sistema viste a quien aparece en la
+  /// imagen, sin importar lo que diga la cuenta.
+  String get _catalogGender {
+    final user = ref.read(authControllerProvider).user;
+    final userGender = preferredCatalogGender(user?.photoGender, user?.gender);
+    if (userGender != null) return userGender;
+    final product = widget.sourceProduct;
+    if (product != null) return catalogGenderFor(product);
+    return widget.outfitArgs?.catalogGender ?? 'man';
+  }
+
   /// Categorías para completar el look (vacío si no aplica: outfit de 2
   /// prendas, vestido, o prueba sin producto de origen).
   List<ComplementCategory> get _complementCategories {
     final product = widget.sourceProduct;
     if (product == null || widget.productIds.length != 1) return const [];
-    return complementCategoriesFor(
-      garmentSlotFor(product),
-      catalogGenderFor(product),
-    );
+    return complementCategoriesFor(garmentSlotFor(product), _catalogGender);
   }
 
   Future<void> _openStore(String url) async {
@@ -320,13 +364,14 @@ class _TryOnResultScreenState extends ConsumerState<TryOnResultScreen> {
   void _openSwapSheet() {
     final outfit = widget.outfitArgs!;
     final colors = context.appColors;
+    final catalogGender = _catalogGender;
     final upperCategories = complementCategoriesFor(
       GarmentSlot.lower, // se queda la pierna → ofrecer categorías de torso
-      outfit.catalogGender,
+      catalogGender,
     );
     final lowerCategories = complementCategoriesFor(
       GarmentSlot.upper, // se queda el torso → ofrecer categorías de pierna
-      outfit.catalogGender,
+      catalogGender,
     );
 
     showModalBottomSheet<void>(
@@ -406,7 +451,7 @@ class _TryOnResultScreenState extends ConsumerState<TryOnResultScreen> {
               context.push(
                 CatalogGarmentsScreen.routeName,
                 extra: {
-                  'gender': widget.outfitArgs!.catalogGender,
+                  'gender': _catalogGender,
                   'category': category.categoryQuery,
                   'categoryLabel': category.label,
                   'complementProductId': keepId.toString(),
@@ -477,7 +522,7 @@ class _TryOnResultScreenState extends ConsumerState<TryOnResultScreen> {
                     context.push(
                       CatalogGarmentsScreen.routeName,
                       extra: {
-                        'gender': catalogGenderFor(product),
+                        'gender': _catalogGender,
                         'category': category.categoryQuery,
                         'categoryLabel': category.label,
                         'complementProductId': product.id.toString(),
@@ -589,16 +634,22 @@ class _TryOnResultScreenState extends ConsumerState<TryOnResultScreen> {
           children: [
             CircularProgressIndicator(color: colors.primaryLight),
             const Gap(separatorLg),
-            Text(
-              'Probando tu prenda…',
-              style: context.typography.titleMedium?.copyWith(
-                color: colors.white,
-                fontWeight: FontWeight.w800,
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 350),
+              child: Text(
+                _loadingStages[_stageIndex],
+                key: ValueKey(_stageIndex),
+                style: context.typography.titleMedium?.copyWith(
+                  color: colors.white,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ),
             const Gap(separatorXSm),
             Text(
-              'La IA está generando tu imagen. Esto puede tardar unos segundos.',
+              widget.productIds.length == 2
+                  ? 'Estamos combinando las 2 prendas de tu outfit.'
+                  : 'La IA está generando tu imagen. Esto puede tardar unos segundos.',
               textAlign: TextAlign.center,
               style: context.typography.bodySmall?.copyWith(
                 color: colors.slate,

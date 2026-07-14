@@ -18,7 +18,17 @@ class CatalogController extends StateNotifier<CatalogState> {
 
   final CatalogUseCase _catalogUseCase;
 
+  /// Tamaño de página: la primera respuesta llega liviana y al instante;
+  /// el resto se trae con scroll infinito (loadMoreProducts).
+  static const pageSize = 24;
+
+  // Filtros de la categoría en pantalla (los usa loadMoreProducts)
+  String? _gender;
+  String? _category;
+
   Future<void> getProducts({String? gender, String? category}) async {
+    _gender = gender;
+    _category = category;
     state = state.copyWith(
       status: ResponseStatus.loading,
       clearErrorMessage: true,
@@ -27,6 +37,7 @@ class CatalogController extends StateNotifier<CatalogState> {
     final response = await _catalogUseCase.getProducts(
       gender: gender,
       category: category,
+      limit: pageSize,
     );
 
     response.fold(
@@ -40,6 +51,35 @@ class CatalogController extends StateNotifier<CatalogState> {
         state = state.copyWith(
           status: ResponseStatus.success,
           products: products,
+          hasMore: products.length == pageSize,
+          loadingMore: false,
+        );
+      },
+    );
+  }
+
+  /// Página siguiente de la categoría actual (scroll infinito).
+  Future<void> loadMoreProducts() async {
+    if (!state.hasMore || state.loadingMore) return;
+    state = state.copyWith(loadingMore: true);
+
+    final response = await _catalogUseCase.getProducts(
+      gender: _gender,
+      category: _category,
+      limit: pageSize,
+      offset: state.products.length,
+    );
+
+    response.fold(
+      (err) {
+        // Falló la página extra: no romper lo ya mostrado, permitir reintento
+        state = state.copyWith(loadingMore: false);
+      },
+      (products) {
+        state = state.copyWith(
+          products: [...state.products, ...products],
+          hasMore: products.length == pageSize,
+          loadingMore: false,
         );
       },
     );
@@ -49,9 +89,11 @@ class CatalogController extends StateNotifier<CatalogState> {
     required String gender,
     required String category,
   }) async {
+    // Solo se necesita la primera imagen: pedir 1 producto, no toda la lista
     final response = await _catalogUseCase.getProducts(
       gender: gender,
       category: category,
+      limit: 1,
     );
 
     return response.fold(
@@ -61,7 +103,8 @@ class CatalogController extends StateNotifier<CatalogState> {
   }
 
   Future<List<ProductModel>> getFeaturedProducts() async {
-    final response = await _catalogUseCase.getProducts();
+    // El home muestra unos pocos destacados: no descargar el catálogo entero
+    final response = await _catalogUseCase.getProducts(limit: 12);
 
     return response.fold((err) => [], (products) => products);
   }

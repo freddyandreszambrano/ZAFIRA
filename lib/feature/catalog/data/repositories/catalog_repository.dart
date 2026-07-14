@@ -18,8 +18,14 @@ class CatalogRepository implements ICatalog {
   Future<List<ProductModel>> getProducts({
     String? gender,
     String? category,
-  }) async =>
-      await remoteDataSource.getProducts(gender: gender, category: category);
+    int? limit,
+    int? offset,
+  }) async => await remoteDataSource.getProducts(
+    gender: gender,
+    category: category,
+    limit: limit,
+    offset: offset,
+  );
 
   @override
   Future<ProductModel> getProductById(int id) async =>

@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_numbers.dart';
 import '../../../../core/enum/response_status.dart';
 import '../../../../core/helpers/context_helper.dart';
+import '../../../../modules/common/widget/images/app_cached_image.dart';
 import '../../../../modules/common/widget/layout/app_screen_shell.dart';
 import '../../../favorites/view/controller/favorite_controller.dart';
 import '../../../favorites/view/favorite_feedback.dart';
@@ -47,6 +48,18 @@ class CatalogGarmentsScreen extends ConsumerStatefulWidget {
 
 class _CatalogGarmentsScreenState extends ConsumerState<CatalogGarmentsScreen> {
   bool get _isComplementMode => widget.complementProductId != null;
+
+  /// Scroll infinito: trae la página siguiente y sincroniza los corazones
+  /// de las prendas nuevas.
+  Future<void> _loadMore() async {
+    final before = ref.read(catalogControllerProvider).products.length;
+    await ref.read(catalogControllerProvider.notifier).loadMoreProducts();
+    if (!mounted) return;
+    final products = ref.read(catalogControllerProvider).products;
+    if (products.length > before) {
+      ref.read(favoriteControllerProvider.notifier).syncFromProducts(products);
+    }
+  }
 
   /// Outfit editable para el probador (el backend viste primero el torso).
   TryOnOutfitArgs _outfitArgsWith(ProductModel product) => TryOnOutfitArgs(
@@ -166,35 +179,48 @@ class _CatalogGarmentsScreenState extends ConsumerState<CatalogGarmentsScreen> {
       );
     }
 
-    return GridView.builder(
-      itemCount: state.products.length,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: context.gridColumns,
-        mainAxisSpacing: separatorMd,
-        crossAxisSpacing: separatorMd,
-        childAspectRatio: context.responsive<double>(
-          compact: 0.58,
-          medium: 0.62,
-          expanded: 0.66,
-          large: 0.7,
-        ),
-      ),
-      itemBuilder: (context, index) {
-        final product = state.products[index];
-        return _GarmentCard(
-          product: product,
-          genderLabel: genderLabel,
-          actionLabel: _isComplementMode ? 'Combinar ✨' : 'Probar con IA',
-          onTap: _isComplementMode
-              // Complemento: generar directo el outfit con ambas prendas
-              ? () => context.push(
-                  TryOnResultScreen.routeName,
-                  extra: _outfitArgsWith(product),
-                )
-              : () =>
-                    context.push(ProductDetailScreen.routeName, extra: product),
-        );
+    return NotificationListener<ScrollNotification>(
+      onNotification: (notification) {
+        // Cerca del final: pedir la página siguiente (scroll infinito)
+        if (state.hasMore &&
+            notification.metrics.pixels >=
+                notification.metrics.maxScrollExtent - 400) {
+          _loadMore();
+        }
+        return false;
       },
+      child: GridView.builder(
+        itemCount: state.products.length,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: context.gridColumns,
+          mainAxisSpacing: separatorMd,
+          crossAxisSpacing: separatorMd,
+          childAspectRatio: context.responsive<double>(
+            compact: 0.58,
+            medium: 0.62,
+            expanded: 0.66,
+            large: 0.7,
+          ),
+        ),
+        itemBuilder: (context, index) {
+          final product = state.products[index];
+          return _GarmentCard(
+            product: product,
+            genderLabel: genderLabel,
+            actionLabel: _isComplementMode ? 'Combinar ✨' : 'Probar con IA',
+            onTap: _isComplementMode
+                // Complemento: generar directo el outfit con ambas prendas
+                ? () => context.push(
+                    TryOnResultScreen.routeName,
+                    extra: _outfitArgsWith(product),
+                  )
+                : () => context.push(
+                    ProductDetailScreen.routeName,
+                    extra: product,
+                  ),
+          );
+        },
+      ),
     );
   }
 }
@@ -264,17 +290,9 @@ class _GarmentCard extends ConsumerWidget {
                                 size: 54,
                               ),
                             )
-                          : Image.network(
-                              product.firstImageUrl!,
-                              fit: BoxFit.contain,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  Center(
-                                    child: Icon(
-                                      Icons.checkroom_rounded,
-                                      color: colors.primaryLight,
-                                      size: 54,
-                                    ),
-                                  ),
+                          : AppCachedImage(
+                              url: product.firstImageUrl!,
+                              width: double.infinity,
                             ),
                     ),
                   ),

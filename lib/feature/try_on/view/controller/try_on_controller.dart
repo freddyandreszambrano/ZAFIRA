@@ -14,10 +14,12 @@ final tryOnControllerProvider =
 class TryOnController extends StateNotifier<TryOnState> {
   TryOnController(
     this._tryOnUseCase, {
-    this.pollInterval = const Duration(milliseconds: 2500),
+    // 1.5s: el resultado aparece hasta ~2s antes que con 2.5s; el costo de
+    // preguntar más seguido es despreciable (consulta a BD local)
+    this.pollInterval = const Duration(milliseconds: 1500),
     // Hasta 6 min: un outfit son 2 generaciones encadenadas en el proveedor,
     // y la primera llamada puede incluir el arranque del modelo remoto.
-    this.maxAttempts = 144,
+    this.maxAttempts = 240,
   }) : super(TryOnState.initial());
 
   final TryOnUseCase _tryOnUseCase;

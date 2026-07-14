@@ -139,9 +139,12 @@ class AppBrandHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors;
 
+    // Los iconos solo aparecen si tienen acción real: sin menú ni
+    // notificaciones implementados, la marca va sola y centrada
     return Row(
       children: [
-        _HeaderIconButton(icon: Icons.menu_rounded, onTap: onMenu),
+        if (onMenu != null)
+          _HeaderIconButton(icon: Icons.menu_rounded, onTap: onMenu),
         const Spacer(),
         Text(
           'Zafira',
@@ -151,11 +154,13 @@ class AppBrandHeader extends StatelessWidget {
           ),
         ),
         const Spacer(),
-        trailing ??
-            _HeaderIconButton(
-              icon: Icons.notifications_none_rounded,
-              onTap: onNotifications,
-            ),
+        if (trailing != null)
+          trailing!
+        else if (onNotifications != null)
+          _HeaderIconButton(
+            icon: Icons.notifications_none_rounded,
+            onTap: onNotifications,
+          ),
       ],
     );
   }

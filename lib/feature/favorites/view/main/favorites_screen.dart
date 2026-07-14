@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/constants/app_numbers.dart';
 import '../../../../core/enum/response_status.dart';
 import '../../../../core/helpers/context_helper.dart';
+import '../../../../modules/common/widget/images/app_cached_image.dart';
 import '../../../../modules/common/widget/layout/app_screen_shell.dart';
 import '../../../../modules/common/widget/notifications/app_notification.dart';
 import '../../../../core/models/product_model.dart';
@@ -241,12 +242,7 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
                     borderRadius: kBorderRadiusAllLarge,
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxHeight: 340),
-                      child: Image.network(
-                        outfit.resultImageUrl,
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) =>
-                            const SizedBox.shrink(),
-                      ),
+                      child: AppCachedImage(url: outfit.resultImageUrl),
                     ),
                   ),
                 ),
@@ -477,18 +473,10 @@ class _OutfitCard extends StatelessWidget {
                                 size: 54,
                               ),
                             )
-                          : Image.network(
-                              outfit.resultImageUrl,
+                          : AppCachedImage(
+                              url: outfit.resultImageUrl,
                               fit: BoxFit.cover,
                               width: double.infinity,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  Center(
-                                    child: Icon(
-                                      Icons.checkroom_rounded,
-                                      color: colors.primaryLight,
-                                      size: 54,
-                                    ),
-                                  ),
                             ),
                     ),
                   ),
@@ -639,18 +627,7 @@ class _FavoriteCard extends StatelessWidget {
                                 size: 54,
                               ),
                             )
-                          : Image.network(
-                              product.firstImageUrl!,
-                              fit: BoxFit.contain,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  Center(
-                                    child: Icon(
-                                      Icons.checkroom_rounded,
-                                      color: colors.primaryLight,
-                                      size: 54,
-                                    ),
-                                  ),
-                            ),
+                          : AppCachedImage(url: product.firstImageUrl!),
                     ),
                   ),
                   if (hasOffer)

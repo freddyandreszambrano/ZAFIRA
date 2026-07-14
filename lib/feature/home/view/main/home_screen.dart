@@ -159,54 +159,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
             const Gap(separatorLg),
 
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: colors.nightInput,
-                borderRadius: kBorderRadiusAllXLarge,
-                border: Border.all(color: colors.nightBorder),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.search_rounded, color: colors.slate, size: 20),
-                  const Gap(separatorSm),
-                  Expanded(
-                    child: Text(
-                      'Buscar prendas, estilos o colores...',
-                      style: context.typography.bodySmall?.copyWith(
-                        color: colors.slate,
-                      ),
-                    ),
-                  ),
-                  Icon(Icons.tune_rounded, color: colors.slate, size: 20),
-                ],
-              ),
-            ),
-            const Gap(separatorLg),
-
-            Row(
-              children: [
-                Expanded(
-                  child: _DashboardActionCard(
-                    icon: Icons.add_a_photo_outlined,
-                    title: 'Mi foto',
-                    subtitle: 'Gestionar foto',
-                    onTap: () => _goToUpload(context),
-                  ),
-                ),
-                const Gap(separatorMd),
-                Expanded(
-                  child: _DashboardActionCard(
-                    icon: Icons.grid_view_rounded,
-                    title: 'Categorías',
-                    subtitle: 'Explorar prendas',
-                    highlighted: true,
-                    onTap: () {
-                      context.push(CatalogScreen.routeName);
-                    },
-                  ),
-                ),
-              ],
+            // Home minimalista: explorar prendas vive en la pestaña Catálogo
+            // de abajo; aquí solo las dos acciones principales, centradas
+            _DashboardActionCard(
+              icon: Icons.add_a_photo_outlined,
+              title: 'Mi foto',
+              subtitle: 'Gestionar foto',
+              fullWidth: true,
+              onTap: () => _goToUpload(context),
             ),
             const Gap(separatorMd),
             _DashboardActionCard(

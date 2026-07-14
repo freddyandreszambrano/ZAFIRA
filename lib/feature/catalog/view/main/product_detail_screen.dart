@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/constants/app_numbers.dart';
 import '../../../../core/helpers/context_helper.dart';
+import '../../../../modules/common/widget/images/app_cached_image.dart';
 import '../../../../modules/common/widget/layout/app_screen_shell.dart';
 import '../../../../modules/common/widget/notifications/app_notification.dart';
 import '../../../auth/view/controller/auth_controller.dart';
@@ -14,6 +15,7 @@ import '../../../favorites/view/favorite_feedback.dart';
 import '../../../try_on/domain/try_on_args.dart';
 import '../../../try_on/view/main/try_on_result_screen.dart';
 import '../../../auth/view/main/upload_photo_screen.dart';
+import '../../../try_on/view/widgets/gender_mismatch_dialog.dart';
 import '../../../../core/models/product_model.dart';
 import '../controller/catalog_controller.dart';
 
@@ -219,17 +221,11 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                               )
                             : ClipRRect(
                                 borderRadius: kBorderRadiusAllLarge,
-                                child: Image.network(
-                                  product.firstImageUrl!,
-                                  fit: BoxFit.contain,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      Center(
-                                        child: Icon(
-                                          Icons.checkroom_rounded,
-                                          color: colors.primaryLight,
-                                          size: 96,
-                                        ),
-                                      ),
+                                // Ya está en caché desde el listado: aparece
+                                // al instante al abrir el detalle
+                                child: AppCachedImage(
+                                  url: product.firstImageUrl!,
+                                  fallbackIconSize: 96,
                                 ),
                               ),
                       ),
@@ -442,7 +438,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       AppGradientAction(
                         label: 'Probar con IA',
                         icon: Icons.auto_awesome_rounded,
-                        onTap: () {
+                        onTap: () async {
                           final user = ref.read(authControllerProvider).user;
                           final hasPhoto = (user?.tryOnPhoto ?? '')
                               .trim()
@@ -453,6 +449,23 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                               'Primero sube tu foto para el probador virtual',
                             );
                             context.push(UploadPhotoScreen.routeName);
+                            return;
+                          }
+                          // Prenda de un género con foto del otro: bloquear
+                          // (y de paso no se gasta una generación en vano).
+                          // Manda el género DETECTADO EN LA FOTO por la IA.
+                          final photoGender = preferredCatalogGender(
+                            user?.photoGender,
+                            user?.gender,
+                          );
+                          final garmentGender = catalogGenderFor(product);
+                          if (photoGender != null &&
+                              photoGender != garmentGender) {
+                            await GenderMismatchDialog.show(
+                              context,
+                              garmentGender: garmentGender,
+                              photoGender: photoGender,
+                            );
                             return;
                           }
                           context.push(
