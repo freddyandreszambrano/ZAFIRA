@@ -14,6 +14,8 @@ import '../../../../feature/catalog/view/main/catalog_screen.dart';
 import '../../../../feature/catalog/view/main/product_detail_screen.dart';
 import '../../../../feature/favorites/view/main/favorites_screen.dart';
 import '../../../../feature/recommend/view/main/recommend_screen.dart';
+import '../../../../modules/common/widget/images/app_cached_image.dart';
+import '../../../../modules/common/widget/images/face_avatar.dart';
 import '../../../../modules/common/widget/layout/app_screen_shell.dart';
 import '../../../../modules/common/widget/navigation/home_bottom_nav.dart';
 import '../../../../modules/common/widget/notifications/app_notification.dart';
@@ -138,36 +140,37 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 const Gap(separatorMd),
                 GestureDetector(
                   onTap: () => context.push(ProfileScreen.routeName),
-                  child: CircleAvatar(
+                  child: FaceAvatar(
+                    imageUrl: displayImage,
                     radius: 24,
-                    backgroundColor: colors.primary.withValues(alpha: 0.25),
-                    backgroundImage: displayImage.isNotEmpty
-                        ? NetworkImage(displayImage)
-                        : null,
-                    child: displayImage.isEmpty
-                        ? Text(
-                            user?.fullInitialName ?? 'Z',
-                            style: context.typography.labelLarge?.copyWith(
-                              color: colors.primaryLight,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          )
-                        : null,
+                    fallback: Text(
+                      user?.fullInitialName ?? 'Z',
+                      style: context.typography.labelLarge?.copyWith(
+                        color: colors.primaryLight,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
                   ),
                 ),
               ],
             ),
             const Gap(separatorLg),
 
-            // Home minimalista: explorar prendas vive en la pestaña Catálogo
-            // de abajo; aquí solo las dos acciones principales, centradas
-            _DashboardActionCard(
-              icon: Icons.add_a_photo_outlined,
-              title: 'Mi foto',
-              subtitle: 'Gestionar foto',
-              fullWidth: true,
-              onTap: () => _goToUpload(context),
-            ),
+            // Home minimalista: explorar prendas vive en la pestaña Catálogo.
+            // Con foto → card con preview; sin foto → card simple.
+            if (displayImage.isNotEmpty)
+              _MyPhotoCard(
+                imageUrl: displayImage,
+                onTap: () => _goToUpload(context),
+              )
+            else
+              _DashboardActionCard(
+                icon: Icons.add_a_photo_outlined,
+                title: 'Mi foto',
+                subtitle: 'Sube tu foto para probar prendas',
+                fullWidth: true,
+                onTap: () => _goToUpload(context),
+              ),
             const Gap(separatorMd),
             _DashboardActionCard(
               icon: Icons.auto_awesome_rounded,
@@ -271,6 +274,72 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ],
                 ],
               ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Card "Mi foto" con preview de la foto configurada (mini portrait +
+/// texto + flecha). Más viva y profesional que la card simple de ícono.
+class _MyPhotoCard extends StatelessWidget {
+  const _MyPhotoCard({required this.imageUrl, required this.onTap});
+
+  final String imageUrl;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: kBorderRadiusAllLarge,
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: colors.nightCard,
+          borderRadius: kBorderRadiusAllLarge,
+          border: Border.all(color: colors.nightBorder),
+        ),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: kBorderRadiusAllMedium,
+              child: Container(
+                width: 46,
+                height: 58,
+                color: colors.white,
+                child: AppCachedImage(
+                  url: imageUrl,
+                  width: 46,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            const Gap(12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Mi foto',
+                    style: context.typography.labelLarge?.copyWith(
+                      color: colors.white,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const Gap(2),
+                  Text(
+                    'Lista para probar · toca para cambiar',
+                    style: context.typography.labelSmall?.copyWith(
+                      color: colors.slate,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right_rounded, color: colors.slate),
           ],
         ),
       ),
