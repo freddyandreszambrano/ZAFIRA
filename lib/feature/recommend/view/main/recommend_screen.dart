@@ -9,6 +9,7 @@ import '../../../auth/view/controller/auth_controller.dart';
 import '../../../../core/models/product_model.dart';
 import '../../../try_on/domain/try_on_args.dart';
 import '../../../try_on/view/main/try_on_result_screen.dart';
+import '../../../try_on/view/widgets/gender_mismatch_dialog.dart';
 import '../../domain/recommend_model.dart';
 import '../controller/recommend_controller.dart';
 import '../widgets/no_photo_dialog.dart';
@@ -37,6 +38,9 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
   OccasionGroup? _selectedOccasionGroup;
   OccasionOption? _selectedOccasionSub;
   bool _showFreeText = false;
+  // Tras generar, los filtros se colapsan a una barra resumen para que los
+  // outfits ocupen casi toda la pantalla (se re-expanden con "Cambiar").
+  bool _filtersCollapsed = false;
   // Mix & match: el usuario arma su propia combinación eligiendo un torso
   // y una pierna de CUALQUIERA de los 3 outfits recomendados
   ProductModel? _mixTop;
@@ -145,6 +149,7 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
       NoPhotoDialog.show(context);
       return;
     }
+    if (_blockedByGenderMismatch()) return;
     final top = _mixTop;
     final bottom = _mixBottom;
     if (top != null && bottom != null) {
@@ -165,12 +170,31 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
     }
   }
 
+  /// true (y muestra aviso) si el género de la FOTO no coincide con el de
+  /// los outfits en pantalla. Bloquea la prueba, igual que en el detalle de
+  /// producto: no se puede vestir a un hombre con prendas de mujer, ni al revés.
+  bool _blockedByGenderMismatch() {
+    final user = ref.read(authControllerProvider).user;
+    final photoGender = preferredCatalogGender(user?.photoGender, user?.gender);
+    final garmentGender = _selectedGender == 'mujer' ? 'woman' : 'man';
+    if (photoGender != null && photoGender != garmentGender) {
+      GenderMismatchDialog.show(
+        context,
+        garmentGender: garmentGender,
+        photoGender: photoGender,
+      );
+      return true;
+    }
+    return false;
+  }
+
   void _tryOnOutfit(OutfitModel outfit) {
     final user = ref.read(authControllerProvider).user;
     if (user == null || user.tryOnPhoto.isEmpty) {
       NoPhotoDialog.show(context);
       return;
     }
+    if (_blockedByGenderMismatch()) return;
     // Outfit de 2 prendas: modo editable (se puede guardar en favoritos y
     // cambiar torso/pierna). Vestido solo: prueba simple de 1 prenda.
     if (outfit.bottom != null) {
@@ -191,6 +215,16 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final state = ref.watch(recommendControllerProvider);
+
+    // Al llegar outfits, colapsar los filtros para dar aire a los resultados
+    ref.listen(recommendControllerProvider, (prev, next) {
+      final hasOutfits = next.result?.outfits.isNotEmpty ?? false;
+      if (next.status == ResponseStatus.success &&
+          hasOutfits &&
+          !_filtersCollapsed) {
+        setState(() => _filtersCollapsed = true);
+      }
+    });
 
     return Scaffold(
       backgroundColor: colors.nightDeep,
@@ -227,6 +261,8 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
             onToggleFreeText: _toggleFreeText,
             onRecommend: () => _recommend(),
             isLoading: state.status == ResponseStatus.loading,
+            collapsed: _filtersCollapsed,
+            onExpand: () => setState(() => _filtersCollapsed = false),
             isFavoritesMode: widget.favoriteIds != null,
           ),
           Expanded(
