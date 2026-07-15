@@ -49,6 +49,10 @@ class _TryOnResultScreenState extends ConsumerState<TryOnResultScreen> {
   // El corazón del header guarda el outfit UNA vez por imagen generada
   bool _outfitSaved = false;
 
+  // Prendas del resultado (nombre + precio) para la ficha de compra. Se
+  // cargan en paralelo con la generación, así no añaden espera percibida.
+  List<ProductModel> _garments = [];
+
   // Mensajes por etapas mientras genera: una espera con progreso visible se
   // percibe mucho más corta que un texto estático
   static const _loadingStages = [
@@ -64,11 +68,44 @@ class _TryOnResultScreenState extends ConsumerState<TryOnResultScreen> {
   void initState() {
     super.initState();
     _startLoadingStages();
+    _loadGarments();
     Future.microtask(
       () => ref
           .read(tryOnControllerProvider.notifier)
           .startTryOn(widget.productIds),
     );
+  }
+
+  /// Carga las prendas probadas para la ficha de resultado. Usa el producto
+  /// de origen si ya lo tenemos; si no, las trae por id (en paralelo).
+  Future<void> _loadGarments() async {
+    if (widget.sourceProduct != null) {
+      setState(() => _garments = [widget.sourceProduct!]);
+      return;
+    }
+    if (widget.productIds.isEmpty) return;
+    try {
+      final repository = ref.read(catalogRepositoryProvider);
+      final loaded = await Future.wait(
+        widget.productIds.map(repository.getProductById),
+      );
+      if (mounted) setState(() => _garments = loaded);
+    } catch (_) {
+      // Sin datos, la ficha simplemente no aparece; el resultado se ve igual
+    }
+  }
+
+  double get _totalPrice =>
+      _garments.fold(0, (sum, product) => sum + product.price);
+
+  /// Comprar desde la ficha del resultado: outfit → panel con las 2 prendas;
+  /// prenda individual → directo a la tienda.
+  void _buyFromResult() {
+    if (_garments.length >= 2) {
+      _showBuySheet(_garments);
+    } else if (_garments.isNotEmpty) {
+      _openStore(_garments.first.url);
+    }
   }
 
   @override
@@ -90,30 +127,57 @@ class _TryOnResultScreenState extends ConsumerState<TryOnResultScreen> {
   }
 
   void _retry() {
-    // Nueva generación = nueva imagen: se puede volver a guardar
+    // Nueva generación = nueva imagen: el outfit se puede volver a guardar
     setState(() => _outfitSaved = false);
     _startLoadingStages();
     ref.read(tryOnControllerProvider.notifier).startTryOn(widget.productIds);
   }
 
-  Future<void> _saveOutfit() async {
-    final outfit = widget.outfitArgs!;
-    final resultUrl = ref.read(tryOnControllerProvider).job?.resultUrl ?? '';
+  /// El corazón guarda TODO lo que el usuario probó: una prenda individual va
+  /// a favoritos de prendas; un outfit (2 prendas) va a favoritos de outfits
+  /// con la imagen ya generada.
+  Future<void> _saveResult() async {
+    if (_garments.isEmpty) return;
 
-    final saved = await ref
+    if (_garments.length >= 2) {
+      if (_outfitSaved) return;
+      final resultUrl = ref.read(tryOnControllerProvider).job?.resultUrl ?? '';
+      final saved = await ref
+          .read(favoriteControllerProvider.notifier)
+          .saveOutfit(
+            topId: _garments[0].id,
+            bottomId: _garments[1].id,
+            resultImageUrl: resultUrl,
+          );
+      if (!mounted) return;
+      if (saved) {
+        setState(() => _outfitSaved = true);
+        AppNotification.success(context, 'Outfit guardado en favoritos.');
+      } else {
+        AppNotification.warning(context, 'No se pudo guardar el outfit.');
+      }
+      return;
+    }
+
+    // Prenda individual: alterna el favorito (igual que el corazón del catálogo)
+    final product = _garments.first;
+    final wasFavorite = ref
+        .read(favoriteControllerProvider)
+        .favoriteIds
+        .contains(product.id);
+    final ok = await ref
         .read(favoriteControllerProvider.notifier)
-        .saveOutfit(
-          topId: outfit.upperId,
-          bottomId: outfit.lowerId,
-          resultImageUrl: resultUrl,
-        );
-
+        .toggleFavorite(product);
     if (!mounted) return;
-    if (saved) {
-      setState(() => _outfitSaved = true);
-      AppNotification.success(context, 'Outfit guardado en favoritos.');
+    if (ok) {
+      AppNotification.success(
+        context,
+        wasFavorite
+            ? 'Se quitó de tus favoritos.'
+            : 'Prenda guardada en favoritos.',
+      );
     } else {
-      AppNotification.warning(context, 'No se pudo guardar el outfit.');
+      AppNotification.warning(context, 'No se pudo guardar la prenda.');
     }
   }
 
@@ -148,27 +212,6 @@ class _TryOnResultScreenState extends ConsumerState<TryOnResultScreen> {
           'No se pudo abrir el enlace de la tienda.',
         );
       }
-    }
-  }
-
-  /// Comprar desde el resultado: el momento en que el usuario se ve con la
-  /// prenda puesta es cuando decide — no lo obligamos a buscarla de nuevo.
-  Future<void> _buyOutfit() async {
-    final args = widget.outfitArgs!;
-    try {
-      final repository = ref.read(catalogRepositoryProvider);
-      final products = await Future.wait([
-        repository.getProductById(args.upperId),
-        repository.getProductById(args.lowerId),
-      ]);
-      if (!mounted) return;
-      _showBuySheet(products);
-    } catch (_) {
-      if (!mounted) return;
-      AppNotification.warning(
-        context,
-        'No se pudieron cargar las prendas del outfit.',
-      );
     }
   }
 
@@ -287,6 +330,67 @@ class _TryOnResultScreenState extends ConsumerState<TryOnResultScreen> {
                 ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  /// Ficha bajo el resultado: nombre(s) de la prenda + acceso a comprar.
+  Widget _resultInfoCard(AppColors colors) {
+    final names = _garments.map((product) => product.name).join(' + ');
+    final subtitle = _garments.length >= 2
+        ? 'Outfit completo · ${_garments.length} prendas'
+        : 'Prenda individual';
+
+    return InkWell(
+      onTap: _buyFromResult,
+      borderRadius: kBorderRadiusAllLarge,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: colors.nightCard,
+          borderRadius: kBorderRadiusAllLarge,
+          border: Border.all(color: colors.nightBorder),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    names,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.typography.labelMedium?.copyWith(
+                      color: colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const Gap(2),
+                  Text(
+                    subtitle,
+                    style: context.typography.labelSmall?.copyWith(
+                      color: colors.slate,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Gap(10),
+            Text(
+              'Comprar',
+              style: context.typography.labelMedium?.copyWith(
+                color: colors.primaryLight,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: colors.primaryLight,
+              size: 18,
+            ),
+          ],
         ),
       ),
     );
@@ -590,20 +694,28 @@ class _TryOnResultScreenState extends ConsumerState<TryOnResultScreen> {
                         ),
                       ),
                     ),
-                    // Guardar el outfit combinado en favoritos (solo cuando
-                    // hay resultado exitoso de 2 prendas)
-                    if (widget.outfitArgs != null &&
-                        state.status == TryOnStatus.success)
-                      IconButton(
-                        onPressed: _outfitSaved ? null : _saveOutfit,
-                        icon: Icon(
-                          _outfitSaved
-                              ? Icons.favorite_rounded
-                              : Icons.favorite_border_rounded,
-                          color: _outfitSaved
-                              ? colors.primaryLight
-                              : colors.white,
-                        ),
+                    // Guardar en favoritos TODO lo probado: prenda individual
+                    // o outfit completo (con su imagen generada)
+                    if (state.status == TryOnStatus.success &&
+                        _garments.isNotEmpty)
+                      Builder(
+                        builder: (_) {
+                          final saved = _garments.length >= 2
+                              ? _outfitSaved
+                              : ref
+                                    .watch(favoriteControllerProvider)
+                                    .favoriteIds
+                                    .contains(_garments.first.id);
+                          return IconButton(
+                            onPressed: _saveResult,
+                            icon: Icon(
+                              saved
+                                  ? Icons.favorite_rounded
+                                  : Icons.favorite_border_rounded,
+                              color: saved ? colors.primaryLight : colors.white,
+                            ),
+                          );
+                        },
                       ),
                     // Volver al inicio de un toque (evita retroceder pantalla
                     // por pantalla tras encadenar combinaciones)
@@ -660,101 +772,107 @@ class _TryOnResultScreenState extends ConsumerState<TryOnResultScreen> {
       case TryOnStatus.success:
         return Column(
           children: [
+            // Resultado enmarcado con chip de precio (ficha tipo tienda). El
+            // fondo blanco rellena el espacio del recorte (BoxFit.contain), así
+            // no quedan bandas oscuras arriba/abajo: se ve una tarjeta limpia.
             Expanded(
-              child: ClipRRect(
-                borderRadius: kBorderRadiusAllXLarge,
-                child: Image.network(
-                  state.job?.resultUrl ?? '',
-                  fit: BoxFit.contain,
-                  width: double.infinity,
-                  loadingBuilder: (context, child, progress) => progress == null
-                      ? child
-                      : Center(
-                          child: CircularProgressIndicator(
-                            color: colors.primaryLight,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: colors.white,
+                  borderRadius: kBorderRadiusAllXLarge,
+                  border: Border.all(color: colors.nightBorder),
+                ),
+                child: ClipRRect(
+                  borderRadius: kBorderRadiusAllXLarge,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Image.network(
+                        state.job?.resultUrl ?? '',
+                        fit: BoxFit.contain,
+                        width: double.infinity,
+                        loadingBuilder: (context, child, progress) =>
+                            progress == null
+                            ? child
+                            : Center(
+                                child: CircularProgressIndicator(
+                                  color: colors.primaryLight,
+                                ),
+                              ),
+                        errorBuilder: (context, error, stackTrace) => Center(
+                          child: Icon(
+                            Icons.broken_image_outlined,
+                            color: colors.slate,
+                            size: 54,
                           ),
                         ),
-                  errorBuilder: (context, error, stackTrace) => Center(
-                    child: Icon(
-                      Icons.broken_image_outlined,
-                      color: colors.slate,
-                      size: 54,
-                    ),
+                      ),
+                      if (_garments.isNotEmpty)
+                        Positioned(
+                          top: 10,
+                          right: 10,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 11,
+                              vertical: 5,
+                            ),
+                            decoration: BoxDecoration(
+                              color: colors.nightDeep.withValues(alpha: 0.72),
+                              borderRadius: kBorderRadiusAllXLarge,
+                            ),
+                            child: Text(
+                              '\$${_totalPrice.toStringAsFixed(2)}',
+                              style: context.typography.labelMedium?.copyWith(
+                                color: colors.white,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ),
             ),
-            const Gap(separatorLg),
-            if (widget.outfitArgs != null) ...[
-              // Outfit combinado: cambiar una prenda, comprar o ir al inicio
-              _primaryAction(
+            const Gap(separatorSm),
+            // Ficha de compra: qué prendas llevas + acceso directo a comprar
+            if (_garments.isNotEmpty) ...[
+              _resultInfoCard(colors),
+              const Gap(separatorSm),
+            ],
+            // Reintentar la MISMA prenda/outfit sin retroceder: si el
+            // resultado no convence (p.ej. la prenda no se aplicó bien), un
+            // toque la regenera con otra semilla. Red de seguridad visible.
+            _primaryAction(
+              colors,
+              label: 'Volver a generar',
+              icon: Icons.refresh_rounded,
+              onTap: _retry,
+            ),
+            const Gap(separatorSm),
+            // Acción secundaria según el flujo (Ir al inicio vive en el
+            // header; Comprar vive en la ficha de arriba)
+            if (widget.outfitArgs != null)
+              _outlineAction(
                 colors,
                 label: 'Combinar otra prenda',
                 icon: Icons.swap_horiz_rounded,
                 onTap: _openSwapSheet,
+              )
+            else if (_complementCategories.isNotEmpty)
+              _outlineAction(
+                colors,
+                label: 'Complementa tu outfit',
+                icon: Icons.auto_awesome_rounded,
+                onTap: _openComplementSheet,
+              )
+            else
+              _outlineAction(
+                colors,
+                label: 'Probar otra prenda',
+                icon: Icons.checkroom_rounded,
+                onTap: () => context.pop(),
               ),
-              const Gap(separatorSm),
-              Row(
-                children: [
-                  Expanded(
-                    child: _outlineAction(
-                      colors,
-                      label: 'Comprar',
-                      icon: Icons.shopping_bag_rounded,
-                      onTap: _buyOutfit,
-                    ),
-                  ),
-                  const Gap(10),
-                  Expanded(
-                    child: _outlineAction(
-                      colors,
-                      label: 'Ir al inicio',
-                      icon: Icons.home_rounded,
-                      onTap: () => context.go(HomeScreen.routeName),
-                    ),
-                  ),
-                ],
-              ),
-            ] else ...[
-              if (_complementCategories.isNotEmpty) ...[
-                _primaryAction(
-                  colors,
-                  label: 'Complementa tu outfit',
-                  icon: Icons.auto_awesome_rounded,
-                  onTap: _openComplementSheet,
-                ),
-                const Gap(separatorSm),
-              ],
-              if (widget.sourceProduct != null)
-                Row(
-                  children: [
-                    Expanded(
-                      child: _outlineAction(
-                        colors,
-                        label: 'Comprar',
-                        icon: Icons.shopping_bag_rounded,
-                        onTap: () => _openStore(widget.sourceProduct!.url),
-                      ),
-                    ),
-                    const Gap(10),
-                    Expanded(
-                      child: _outlineAction(
-                        colors,
-                        label: 'Otra prenda',
-                        icon: Icons.checkroom_rounded,
-                        onTap: () => context.pop(),
-                      ),
-                    ),
-                  ],
-                )
-              else
-                _outlineAction(
-                  colors,
-                  label: 'Probar otra prenda',
-                  icon: Icons.checkroom_rounded,
-                  onTap: () => context.pop(),
-                ),
-            ],
           ],
         );
       case TryOnStatus.failure:
