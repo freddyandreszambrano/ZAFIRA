@@ -77,7 +77,9 @@ class ProfileScreen extends ConsumerWidget {
 
     if (action != 'delete' || !context.mounted) return;
 
-    final ok = await ref.read(authControllerProvider.notifier).deleteTryOnPhoto();
+    final ok = await ref
+        .read(authControllerProvider.notifier)
+        .deleteTryOnPhoto();
     if (!context.mounted) return;
     if (ok) {
       AppNotification.success(context, 'Foto eliminada');
@@ -153,8 +155,7 @@ class ProfileScreen extends ConsumerWidget {
             const AppBrandHeader(),
             const Gap(separatorLg),
             GestureDetector(
-              onTap: () =>
-                  _onAvatarTap(context, ref, displayImage.isNotEmpty),
+              onTap: () => _onAvatarTap(context, ref, displayImage.isNotEmpty),
               child: Stack(
                 alignment: Alignment.bottomRight,
                 children: [

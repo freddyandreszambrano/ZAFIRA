@@ -103,11 +103,7 @@ class SearchPanel extends StatelessWidget {
                 ),
               ),
               const Gap(8),
-              Icon(
-                Icons.tune_rounded,
-                size: 15,
-                color: colors.primaryLight,
-              ),
+              Icon(Icons.tune_rounded, size: 15, color: colors.primaryLight),
               const Gap(4),
               Text(
                 'Cambiar',
