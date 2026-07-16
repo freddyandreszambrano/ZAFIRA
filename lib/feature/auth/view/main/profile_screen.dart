@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-import 'package:image_cropper/image_cropper.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'edit_profile_screen.dart';
 import 'preferences_screen.dart';
 import 'settings_screen.dart';
+import 'upload_photo_screen.dart';
 
 import '../../../../core/constants/app_numbers.dart';
 import '../../../../core/helpers/context_helper.dart';
@@ -15,6 +14,7 @@ import '../controller/auth_controller.dart';
 import '../widgets/login/login_screen.dart';
 import '../../../../feature/catalog/view/main/catalog_screen.dart';
 import '../../../../feature/favorites/view/main/favorites_screen.dart';
+import '../../../../modules/common/widget/images/face_avatar.dart';
 import '../../../../modules/common/widget/layout/app_screen_shell.dart';
 import '../../../../modules/common/widget/navigation/home_bottom_nav.dart';
 import '../../../../modules/common/widget/notifications/app_notification.dart';
@@ -24,97 +24,67 @@ class ProfileScreen extends ConsumerWidget {
 
   static const routeName = '/profile';
 
-  Future<void> _pickAndUploadAvatar(
+  /// La foto se GESTIONA en "Mi foto" (es la misma para perfil y probador).
+  /// Sin foto: lleva a Mi foto para configurarla. Con foto: solo permite
+  /// eliminarla desde aquí; cambiarla se hace en Mi foto.
+  Future<void> _onAvatarTap(
     BuildContext context,
     WidgetRef ref,
     bool hasAvatar,
   ) async {
+    if (!hasAvatar) {
+      context.push(UploadPhotoScreen.routeName);
+      return;
+    }
+
+    final colors = context.appColors;
     final action = await showDialog<String>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text(hasAvatar ? 'Cambiar foto' : 'Foto de perfil'),
+        backgroundColor: colors.nightCard,
+        shape: const RoundedRectangleBorder(
+          borderRadius: kBorderRadiusAllLarge,
+        ),
+        title: Text(
+          'Foto de perfil',
+          style: context.typography.titleMedium?.copyWith(
+            color: colors.white,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
         content: Text(
-          hasAvatar
-              ? '¿Deseas cambiar tu foto?'
-              : '¿Deseas seleccionar una imagen?',
+          'Para cambiarla, ve a "Mi foto". ¿Deseas eliminarla?',
+          style: context.typography.bodyMedium?.copyWith(color: colors.slate),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancelar'),
-          ),
-          if (hasAvatar)
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext, 'delete'),
-              style: TextButton.styleFrom(
-                foregroundColor: context.appColors.error,
+            child: Text(
+              'Cancelar',
+              style: context.typography.labelLarge?.copyWith(
+                color: colors.slate,
               ),
-              child: const Text('Eliminar foto'),
             ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(dialogContext, 'select'),
-            child: Text(hasAvatar ? 'Cambiar foto' : 'Seleccionar imagen'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, 'delete'),
+            style: TextButton.styleFrom(foregroundColor: colors.error),
+            child: const Text('Eliminar'),
           ),
         ],
       ),
     );
 
-    if (action == null || !context.mounted) return;
-
-    if (action == 'delete') {
-      final ok = await ref
-          .read(authControllerProvider.notifier)
-          .deleteTryOnPhoto();
-
-      if (!context.mounted) return;
-
-      if (ok) {
-        AppNotification.success(context, 'Foto de perfil eliminada');
-      } else {
-        AppNotification.error(context, 'No se pudo eliminar la foto de perfil');
-      }
-      return;
-    }
-
-    final picker = ImagePicker();
-    final picked = await picker.pickImage(
-      source: ImageSource.gallery,
-      imageQuality: 85,
-    );
-
-    if (picked == null || !context.mounted) return;
-
-    final colors = context.appColors;
-    final cropped = await ImageCropper().cropImage(
-      sourcePath: picked.path,
-      aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
-      uiSettings: [
-        AndroidUiSettings(
-          toolbarTitle: 'Ajustar foto',
-          toolbarColor: colors.nightDeep,
-          toolbarWidgetColor: colors.white,
-          backgroundColor: colors.nightDeep,
-          activeControlsWidgetColor: colors.primary,
-          cropFrameColor: colors.primary,
-          cropGridColor: colors.primary.withValues(alpha: 0.4),
-          lockAspectRatio: true,
-        ),
-        IOSUiSettings(title: 'Ajustar foto', aspectRatioLockEnabled: true),
-      ],
-    );
-
-    if (cropped == null || !context.mounted) return;
+    if (action != 'delete' || !context.mounted) return;
 
     final ok = await ref
         .read(authControllerProvider.notifier)
-        .updateTryOnPhoto(cropped.path);
-
+        .deleteTryOnPhoto();
     if (!context.mounted) return;
-
     if (ok) {
-      AppNotification.success(context, 'Foto de perfil actualizada');
+      AppNotification.success(context, 'Foto eliminada');
     } else {
-      AppNotification.error(context, 'No se pudo actualizar la foto de perfil');
+      AppNotification.error(context, 'No se pudo eliminar la foto');
     }
   }
 
@@ -185,32 +155,28 @@ class ProfileScreen extends ConsumerWidget {
             const AppBrandHeader(),
             const Gap(separatorLg),
             GestureDetector(
-              onTap: () =>
-                  _pickAndUploadAvatar(context, ref, displayImage.isNotEmpty),
+              onTap: () => _onAvatarTap(context, ref, displayImage.isNotEmpty),
               child: Stack(
                 alignment: Alignment.bottomRight,
                 children: [
-                  CircleAvatar(
+                  FaceAvatar(
+                    imageUrl: displayImage,
                     radius: 48,
-                    backgroundColor: colors.primary.withValues(alpha: 0.25),
-                    backgroundImage: displayImage.isNotEmpty
-                        ? NetworkImage(displayImage)
-                        : null,
-                    child: displayImage.isEmpty
-                        ? Text(
-                            initials.isNotEmpty ? initials : 'Z',
-                            style: context.typography.headlineMedium?.copyWith(
-                              color: colors.primaryLight,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          )
-                        : null,
+                    fallback: Text(
+                      initials.isNotEmpty ? initials : 'Z',
+                      style: context.typography.headlineMedium?.copyWith(
+                        color: colors.primaryLight,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
                   ),
                   CircleAvatar(
                     radius: 14,
                     backgroundColor: colors.nightCard,
                     child: Icon(
-                      Icons.edit_rounded,
+                      displayImage.isNotEmpty
+                          ? Icons.edit_rounded
+                          : Icons.add_rounded,
                       size: 14,
                       color: colors.white,
                     ),

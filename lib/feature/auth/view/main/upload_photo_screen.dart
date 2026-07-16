@@ -266,6 +266,37 @@ class _UploadPhotoScreenState extends ConsumerState<UploadPhotoScreen> {
     }
   }
 
+  /// Botón secundario compacto (contorno) para las acciones de la foto.
+  Widget _secondaryButton({
+    required String label,
+    required IconData icon,
+    required Color color,
+    required Color borderColor,
+    required VoidCallback onTap,
+  }) {
+    return SizedBox(
+      height: 50,
+      child: OutlinedButton.icon(
+        onPressed: _loading ? null : onTap,
+        style: OutlinedButton.styleFrom(
+          foregroundColor: color,
+          side: BorderSide(color: borderColor),
+          shape: const RoundedRectangleBorder(
+            borderRadius: kBorderRadiusAllLarge,
+          ),
+        ),
+        icon: Icon(icon, color: color, size: 18),
+        label: Text(
+          label,
+          style: context.typography.labelMedium?.copyWith(
+            color: color,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
@@ -410,21 +441,29 @@ class _UploadPhotoScreenState extends ConsumerState<UploadPhotoScreen> {
                     onTap: _goToCatalog,
                   ),
                   const Gap(separatorSm),
-                  _UploadButton(
-                    label: 'Cambiar foto',
-                    icon: Icons.cached_rounded,
-                    outlined: true,
-                    loading: _loading,
-                    onTap: () => _showChangePhotoOptions(hasPhoto: hasPhoto),
-                  ),
-                  const Gap(separatorSm),
-
-                  _UploadButton(
-                    label: 'Eliminar foto',
-                    icon: Icons.delete_outline_rounded,
-                    loading: _loading,
-                    outlined: true,
-                    onTap: _confirmDeletePhoto,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _secondaryButton(
+                          label: 'Cambiar foto',
+                          icon: Icons.cached_rounded,
+                          color: colors.white,
+                          borderColor: colors.nightBorder,
+                          onTap: () =>
+                              _showChangePhotoOptions(hasPhoto: hasPhoto),
+                        ),
+                      ),
+                      const Gap(10),
+                      Expanded(
+                        child: _secondaryButton(
+                          label: 'Eliminar',
+                          icon: Icons.delete_outline_rounded,
+                          color: colors.error,
+                          borderColor: colors.error.withValues(alpha: 0.5),
+                          onTap: _confirmDeletePhoto,
+                        ),
+                      ),
+                    ],
                   ),
                 ] else ...[
                   _UploadButton(
