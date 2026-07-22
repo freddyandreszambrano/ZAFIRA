@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_numbers.dart';
 import '../../../../core/helpers/context_helper.dart';
 import '../../../../core/services/image_picker_service.dart';
+import '../../../../core/services/photo_crop_service.dart';
 import '../../../../feature/catalog/view/main/catalog_screen.dart';
 import '../../../../modules/common/widget/layout/app_screen_shell.dart';
 import '../../../../modules/common/widget/notifications/app_notification.dart';
@@ -44,7 +45,23 @@ class _UploadPhotoScreenState extends ConsumerState<UploadPhotoScreen> {
         return;
       }
 
-      await context.push<bool>(PhotoPreviewScreen.routeName, extra: path);
+      // Recorte previo: permite al usuario enfocar solo su cuerpo y
+      // descartar objetos o espacio de más antes de usar la foto.
+      final croppedPath = await ref
+          .read(photoCropServiceProvider)
+          .crop(path, colors: context.appColors);
+
+      if (!mounted) return;
+
+      if (croppedPath == null) {
+        AppNotification.info(context, 'No seleccionaste ninguna foto');
+        return;
+      }
+
+      await context.push<bool>(
+        PhotoPreviewScreen.routeName,
+        extra: croppedPath,
+      );
     } catch (_) {
       if (!mounted) return;
 
